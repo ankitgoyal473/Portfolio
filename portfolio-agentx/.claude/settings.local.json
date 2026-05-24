@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.anthropic.com)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir=false --import-alias=\"@/*\" --use-npm --no-turbopack)",
+      "Bash(npm run *)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\);const f=j.tool_input?.file_path||j.tool_response?.filePath||'';if\\(/\\\\.\\(ts|tsx\\)$/.test\\(f\\)\\){const{execSync}=require\\('child_process'\\);try{execSync\\('npx eslint --fix \\\\\"'+f+'\\\\\"',{stdio:'inherit'}\\)}catch\\(e\\){}}}\\);\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(tar -czf portfolio-agentx_v3.tar.gz --exclude=node_modules --exclude=.next --exclude=.env.local --exclude=\"*.tar.gz\" --exclude=\"*.zip\" .)",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"const fs=require\\('fs'\\); try{fs.rmSync\\('.next',{recursive:true,force:true}\\)}catch{}\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\g01421995\\\\OneDrive - Barclays Bank PLC\\\\DATA\\\\DATA_SCIENCE_ML_TEAM\\\\GenAI\\\\Usecase\\\\2026\\\\claude workspace\\\\Personal\\\\portfolio\\\\.claude\\\\skills\\\\new-agent\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\g01421995\\\\OneDrive - Barclays Bank PLC\\\\DATA\\\\DATA_SCIENCE_ML_TEAM\\\\GenAI\\\\Usecase\\\\2026\\\\claude workspace\\\\Personal\\\\portfolio\\\\.claude\\\\skills\\\\paywall-reset\")"
+    ]
+  }
+}

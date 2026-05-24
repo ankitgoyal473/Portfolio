@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #0A0A0A;
+  --color-background-secondary: #141414;
+  --color-background-card: #1E1E1E;
+  --color-foreground: #FAFAFA;
+  --color-foreground-secondary: #A1A1AA;
+  --color-foreground-muted: #71717A;
+  --color-accent: #E8D5B8;
+  --color-accent-hover: #F0E6D2;
+  --color-accent-muted: rgba(232, 213, 184, 0.1);
+  --color-border: #27272A;
+  --color-border-hover: #3F3F46;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+@keyframes grid-scroll {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes typewriter-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out forwards;
+}
+
+.animate-grid {
+  animation: grid-scroll 20s linear infinite;
+}
+
+.animate-cursor {
+  animation: typewriter-cursor 0.8s ease-in-out infinite;
+}
+
+.animated-grid-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.animated-grid-bg::before {
+  content: '';
+  position: absolute;
+  inset: -50px;
+  background-image:
+    radial-gradient(circle, var(--color-accent) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.07;
+  animation: grid-scroll 20s linear infinite;
+}
+
+.animated-grid-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, var(--color-background) 70%);
+}
