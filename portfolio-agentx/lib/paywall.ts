@@ -103,7 +103,7 @@ export const PAYWALL_MESSAGES: Record<string, string> = {
     "That's your last free batch. I've got more prospects waiting — and I'm just warming up. Shall we keep going? — Harvey \u{1F4BC}",
 };
 
-export const STRIPE_PAYMENT_LINK = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ?? "";
+export const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "";
 
 export const PAYWALL_SHEET_DATA: Record<
   string,

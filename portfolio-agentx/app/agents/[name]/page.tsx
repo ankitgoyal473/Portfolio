@@ -708,6 +708,17 @@ export default function AgentPage() {
         isOpen={paywallOpen}
         onClose={() => setPaywallOpen(false)}
         userId={user?.id}
+        userEmail={user?.email ?? ""}
+        userName={user?.user_metadata?.full_name ?? ""}
+        onUnlocked={() => {
+          if (user?.id) {
+            getUsage(agentSlug, user.id).then((u) => {
+              setUsage(u);
+              setLocked(false);
+              addMessage(createMessage("system", "You're unlocked. Welcome back — all 3 agents are yours."));
+            });
+          }
+        }}
       />
     </div>
   );
