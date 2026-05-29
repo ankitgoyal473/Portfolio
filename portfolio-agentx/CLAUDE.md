@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-AGentX — persona-driven AI SaaS platform + portfolio. Three AI agents (Warren, Sherlock, Harvey) backed by real Claude API (`claude-sonnet-4-6`) with Supabase auth, DB, server-side paywall enforcement, and Razorpay payments.
+AGentX — persona-driven AI SaaS platform + portfolio. Three AI agents (Warren, Sherlock, Harvey) backed by real Claude API (`claude-sonnet-4-6`) with Supabase auth, DB, server-side paywall, Razorpay payments, and 30-day subscription lifecycle.
 
-**Stack:** Next.js 16 (App Router), React 19, TypeScript 5, Tailwind CSS v4, Framer Motion, Supabase SSR, Anthropic SDK, Razorpay.
+**Stack:** Next.js 16 (App Router), React 19, TypeScript 5, Tailwind CSS v4, Framer Motion, Supabase SSR, Anthropic SDK, Razorpay, Nodemailer.
 
 **Live:** https://portfolio-one-topaz-65.vercel.app  
 **Repo:** https://github.com/ankitgoyal473/Portfolio (root: `portfolio-agentx/`)
@@ -28,24 +28,22 @@ npx tsc --noEmit && npm run lint && npm run build
 ## Architecture
 
 ### Auth & Routing
-- **`proxy.ts`** (project root) — Next.js 16 middleware. Must be named `proxy.ts` with `export async function proxy()` — NOT `middleware.ts`/`middleware()` (breaking change in Next.js 16). Refreshes Supabase session; redirects unauthenticated users away from `/agents/*`, `/admin/*`, `/dashboard/*`, `/api/agents/*`.
-- **`lib/mock-auth.ts`** — `useMockAuth()` hook (legacy name, real Supabase). Returns `user: User | null`, `login()` (Google OAuth), `logout()`. Access name/avatar via `user.user_metadata?.full_name` and `user.user_metadata?.avatar_url`.
+- **`proxy.ts`** (project root) — Next.js 16 middleware. Must be `proxy.ts` + `export async function proxy()` — NOT `middleware.ts`. Refreshes Supabase session; redirects unauthenticated users from `/agents/*`, `/admin/*`, `/dashboard/*`, `/api/agents/*`.
+- **`lib/mock-auth.ts`** — `useMockAuth()` hook (legacy name, real Supabase). Returns `user: User | null`, `login()` (Google OAuth), `logout()`. Use `user.user_metadata?.full_name` / `user.user_metadata?.avatar_url` — not `user.name`.
 - **`lib/supabase/client.ts`** — `createBrowserSupabaseClient()` for client components.
 - **`lib/supabase/server.ts`** — `createServerSupabaseClient()` (async, uses `cookies()`) for server components and API routes.
-- **`lib/supabase/admin.ts`** — `supabaseAdmin` service-role client — bypasses RLS, API routes only, never client.
-- **`app/auth/callback/route.ts`** — OAuth code exchange after Google login.
+- **`lib/supabase/admin.ts`** — `supabaseAdmin` service-role client — bypasses RLS, never use client-side.
 
 ### User Roles (stored in `auth.users.raw_user_meta_data`)
 
 | Flag | Purpose | How to set |
 |------|---------|-----------|
-| `is_admin: true` | Access `/admin` dashboard | SQL: `UPDATE auth.users SET raw_user_meta_data = raw_user_meta_data \|\| '{"is_admin":true}' WHERE email='...'` |
-| `is_premium: true` | Bypass paywall on all 3 agents | SQL above, or `/admin` → Users → "Grant Premium" toggle |
+| `is_admin: true` | Access `/admin` dashboard | SQL or already set on ankitgoyal473@gmail.com |
+| `is_premium: true` | Fast-check flag for subscription | Set by verify route on payment; cleared when subscription expires |
 
-Both flags require re-login to take effect (JWT refresh). Check in code: `user?.user_metadata?.is_admin === true` / `user?.user_metadata?.is_premium === true`.
+Both flags require re-login (JWT refresh). `is_premium` is a cache — the stream routes always verify against the `subscriptions` table.
 
 ### Agent System
-Three agents with distinct identities. Never call them "tools", "bots", or "features".
 
 | Agent | Color | Icon | Route | Free limit |
 |-------|-------|------|-------|-----------|
@@ -56,88 +54,122 @@ Three agents with distinct identities. Never call them "tools", "bots", or "feat
 - **`lib/agents.ts`** — Agent data (colors, personalities, UI config).
 - **`lib/agent-types.ts`** — Shared structured output types: `Pillar`, `CaseFileData`, `CaseFileSection`, `Prospect`.
 - **`persona.md`** — Canonical voice/copy rules. Read before editing agent messages.
+- Never call them "tools", "bots", or "features" — use their names.
 
-### Agent API Routes (SSE Streaming)
-Each agent has two routes:
-- `POST /api/agents/{agent}/stream` — **Primary.** Auth check → premium bypass check → paywall check → usage increment → Claude API → SSE stream.
-- `POST /api/agents/{agent}` — Batch fallback.
+### Agent Stream Routes — Full Logic
 
-**Premium bypass:** If `user.user_metadata?.is_premium === true`, the paywall gate is skipped entirely. Usage is still incremented (tracked but never blocked).
+`POST /api/agents/{agent}/stream` — runs in this order:
 
-**Paywall gate:** `if (!isPremium && count >= LIMITS[agent]) → 403`. Server is authoritative — client usage state is read-only display.
+```
+1. Auth check → 401 if no user
+2. isPremium = user.user_metadata?.is_premium
+3. If isPremium:
+     Query subscriptions table for active row (status=active, expires_at > now)
+     If found → subscriptionActive = true
+               → check 7-day reminder (send once, mark reminder_sent_at)
+     If not found → clear is_premium via supabaseAdmin → fall through to paywall
+4. If !subscriptionActive:
+     Query agent_usage for count
+     If count >= LIMITS[agent] → 403 paywall
+     Else → increment usage
+5. Call Claude API → stream SSE events
+```
 
-SSE event types:
-- **Warren:** `status`, `pillar` (×5), `verdict`, `done`
-- **Sherlock:** `status`, `section` (×3), `threat`, `done`
-- **Harvey:** `status`, `prospect` (×N), `done`
-
-### Streaming Hook
-**`lib/use-agent-stream.ts`** — `useAgentStream()` returns `{ stream, cancel }`. Reads SSE `event:` / `data:` lines, fires `onEvent({ event, data })` per event, `onDone()` on completion.
+**Key invariant:** `is_premium` in user_metadata is a cache hint, not authoritative. The `subscriptions` table is authoritative.
 
 ### Paywall System
-**`lib/paywall.ts`** — Async Supabase-backed paywall.
+**`lib/paywall.ts`** — Async Supabase-backed.
 - `getUsage(agentId, userId)` → `UsageState { used, limit, stage }`
-- `incrementUsage(agentId, userId)` — server-side in stream routes only
-- `resetUsage(agentId, userId)` — deletes usage row (used after payment)
 - `isLocked(stage)` — returns `true` for `"warning"` OR `"locked"` (both block the chatbar)
+- **Common bug:** treating `"warning"` as unlocked — don't. The server blocks at `count >= limit`.
 - Stages: `fresh` → `aware` → `warning` → `locked`
 
-**Important:** `isLocked` returns true at `"warning"` (count === limit) — this matches the server's `>= limit` gate. A common bug is treating warning as "not locked" — don't.
+### Subscription System
 
-### Payment — Razorpay (₹999/month, Indian users)
-Embedded checkout modal — no redirect, no new tab.
+**`subscriptions` table:**
+```
+id, user_id, status (active|expired|cancelled),
+started_at, expires_at, reminder_sent_at,
+razorpay_payment_id, razorpay_order_id,
+amount (100 paise currently = ₹1 test; normally 99900 = ₹999), currency (INR)
+```
+RLS: users read own rows, service role has full access.
 
-Flow:
-1. User clicks Unlock in `PaywallSheet`
-2. `POST /api/razorpay/create-order` — creates Razorpay order (99900 paise = ₹999), returns `{ orderId, amount, currency, keyId }`
-3. Frontend loads `checkout.razorpay.com/v1/checkout.js` dynamically, opens modal
-4. User pays → Razorpay calls `handler` with `{ razorpay_payment_id, razorpay_order_id, razorpay_signature }`
-5. `POST /api/razorpay/verify` — HMAC-SHA256 signature verification → deletes `agent_usage` rows for all 3 agents → user is unlocked
-6. `onUnlocked()` callback fires in agent page → refreshes usage, shows system message
+**Lifecycle:**
+1. User pays → `POST /api/razorpay/verify` → inserts subscription (expires_at = now + 30 days) + sets `is_premium: true` + resets `agent_usage`
+2. Each stream request: checks subscription table → if expired, clears `is_premium`
+3. 7 days before expiry: lazy reminder email sent once (tracked via `reminder_sent_at`)
+4. After expiry: user hits paywall again on next agent run
 
-**Key secret never reaches frontend** — `keyId` is returned by the server, secret stays server-side only.
+**⚠️ Current test state:** Amount is set to ₹1 (100 paise) in `app/api/razorpay/create-order/route.ts` for email testing. Change back to `99900` before going live.
 
-**Test UPI:** Use VPA `success@razorpay` in the modal (type it — don't scan QR with real apps in test mode). Real GPay works in live mode.
+### Payment — Razorpay
+Embedded checkout modal (no redirect). Flow:
+1. `POST /api/razorpay/create-order` → creates order, returns `{ orderId, amount, currency, keyId }`
+2. Frontend loads `checkout.razorpay.com/v1/checkout.js` dynamically, opens modal
+3. User pays → handler fires with `{ razorpay_payment_id, razorpay_order_id, razorpay_signature }`
+4. `POST /api/razorpay/verify` → HMAC-SHA256 verification → inserts subscription → sends emails → resets usage
+
+**Test mode UPI:** Use VPA `success@razorpay` (typed, not QR scan). Test card: `4111 1111 1111 1111`, OTP `1234`. Real GPay/UPI works only in live mode.
+
+### Email System
+**`lib/email.ts`** — Nodemailer + Gmail SMTP. Graceful no-op if `GMAIL_USER`/`GMAIL_APP_PASSWORD` not set.
+
+Exports:
+- `sendEmail({ to, subject, html })` — core sender
+- `buyerConfirmationEmail(opts)` — sent to buyer on payment
+- `adminNotificationEmail(opts)` — sent to `GMAIL_USER` on new payment
+- `expiryReminderEmail(opts)` — sent 7 days before expiry (once per subscription)
+
+All email sends are fire-and-forget — never throw, just log errors.
 
 ### Session Persistence
-- Sessions saved to `agent_sessions` (Supabase upsert) after each agent run
-- On page mount: loads sessions → **auto-restores most recent session** into thread. Only calls `startNewSession()` if no sessions exist
-- `?unlocked=1` query param: handled on mount — shows unlock message, refreshes usage, clears URL with `window.history.replaceState`
-- Replaying a session from sidebar continues it (appends new runs to the same session ID)
+- Auto-restores most recent session on page mount (loads from `agent_sessions`, skips `startNewSession()` if sessions exist)
+- `?unlocked=1` on URL → shows unlock message, refreshes usage, clears URL
+- Sessions continue (new runs append to same session ID via `sessionRef`)
 
 ### Supabase DB Schema
 ```
 leads           — id, created_at, problem, workflow, budget, timeline, complexity,
                   delivery, stack, estimate_low, estimate_high, user_email, notes,
                   status (default 'pending'), ankit_note
-agent_sessions  — id, user_id (→ auth.users), agent_id, created_at, title, messages (jsonb)
+agent_sessions  — id, user_id, agent_id, created_at, title, messages (jsonb)
 agent_usage     — user_id, agent_id, count (pk: user_id+agent_id)
+subscriptions   — id, user_id, status, started_at, expires_at, reminder_sent_at,
+                  razorpay_payment_id, razorpay_order_id, amount, currency
 ```
-RLS: `leads` = service role only. `agent_sessions` + `agent_usage` = users own their rows.
-
-### Chat UI Components
-- **`components/agents/ChatThread.tsx`** — Dispatches on `msg.metadata?.type`: renders `PillarCards`, `CaseFileCard`, or `ResultsTable`. Fallback: text.
-- **`components/agents/AgentChatbar.tsx`** — `isLocked` prop disables textarea, shows lock icon button, placeholder "Upgrade to continue...".
-- **`components/agents/PaywallSheet.tsx`** — Slide-up Razorpay checkout sheet. Props: `agentId`, `agentColor`, `isOpen`, `onClose`, `userId`, `userEmail`, `userName`, `onUnlocked`. Auto-opens aggressively when user is locked on page load.
+RLS: `leads` = service role only. `agent_sessions`, `agent_usage`, `subscriptions` = users own rows.
 
 ### API Routes Reference
 
 | Route | Method | Auth | Purpose |
 |-------|--------|------|---------|
-| `/api/agents/{agent}/stream` | POST | Required | SSE streaming with paywall |
-| `/api/razorpay/create-order` | POST | Required | Create ₹999 Razorpay order |
-| `/api/razorpay/verify` | POST | Required | Verify payment + reset usage |
+| `/api/agents/{agent}/stream` | POST | Required | SSE streaming with subscription check |
+| `/api/razorpay/create-order` | POST | Required | Create Razorpay order |
+| `/api/razorpay/verify` | POST | Required | Verify payment + insert subscription + send emails |
 | `/api/submit-lead` | POST | None | Insert lead (validates problem + userEmail) |
 | `/api/update-lead` | PATCH | None | Update lead status/note |
-| `/api/leads` | GET | None | All leads (used by admin) |
+| `/api/leads` | GET | None | All leads for admin dashboard |
 | `/api/admin/users` | GET | Admin | List all auth users with premium/admin flags |
 | `/api/admin/set-premium` | POST | Admin | Toggle `is_premium` on a user |
+| `/api/admin/subscriptions` | GET | Admin | All subscriptions enriched with user email/name |
 
 ### Admin Dashboard
-- `/admin` — gated by `is_admin === true`. Shows: leads list with accept/decline, stats row, Users section with premium toggles.
-- Entry point: `/dashboard` shows an "Admin Panel" card only when `is_admin === true`.
-- `GET /api/admin/users` uses `supabaseAdmin.auth.admin.listUsers()`.
-- `POST /api/admin/set-premium` uses `supabaseAdmin.auth.admin.updateUserById()`.
+- `/admin` — gated by `is_admin === true`. Sections: Leads, Stats, Users (premium toggle), Subscribers (subscription history).
+- Entry: `/dashboard` shows "Admin Panel" card when `is_admin === true`.
+- `supabaseAdmin.auth.admin.listUsers()` used for user management.
+- `supabaseAdmin.auth.admin.updateUserById()` used to toggle `is_premium`.
+
+### Pro UI
+- **Dashboard:** Subscription card (expiry date, days remaining, Renew button if ≤7 days). `AgentUsageCard` shows `limit: 999` for Pro users (displays "Unlimited").
+- **WelcomeHeader:** "✦ Pro" gold badge when `plan === "pro"`.
+- **Agent page:** Amber warning banner above chatbar when subscription ≤7 days left.
+
+### Portfolio Content
+- **Homepage stats:** 20+ AI Tools Shipped, 5,000+ Hours Automated, 3+ Enterprise Teams
+- **Bio:** ML Engineer, 5 years, global investment bank (no Barclays mention), AWS/GenAI/Bedrock/MCPs
+- **Projects (4, all private):** Enterprise RAG System, Hypothesis Testing Agent, QA Testing Agent, Developer MCP Suite
+- **Hire page:** Project-based, dual audience (freelance + full-time), no rate shown
 
 ## Design System
 
@@ -149,21 +181,24 @@ Key tokens: `bg-background` (#0A0A0A), `bg-background-card` (#1E1E1E), `text-for
 
 - **Next.js 16 middleware:** `proxy.ts` + `export async function proxy()`. `middleware.ts` triggers deprecation warning.
 - **Next.js 16 dynamic params:** Server components: `params` is a Promise. Client components: use `useParams()`.
-- **`useSearchParams()`:** Wrap in `<Suspense>` or build fails. Use `window.location.search` in `useEffect` instead to avoid this.
+- **`useSearchParams()`:** Wrap in `<Suspense>` or build fails. Use `window.location.search` in `useEffect` to avoid this.
 - **Lucide React v1:** `Github`, `Linkedin`, `Twitter` icons removed — use inline SVGs.
-- **`useMockAuth` name:** Legacy. It's real Supabase auth.
-- **`lib/mock-data.ts`:** Only re-exports Supabase `User` type and `mockUser = null`. Not a mock.
-- **ESLint is slow** (~30s+) on OneDrive paths.
-- **Razorpay test mode:** QR codes can't be scanned by real UPI apps. Use VPA `success@razorpay` typed manually, or use test card `4111 1111 1111 1111`.
+- **`useMockAuth` name:** Legacy name. Real Supabase auth.
+- **`lib/mock-data.ts`:** Only re-exports Supabase `User` type, exports `mockUser = null`. Not a mock.
+- **ESLint slow** (~30s+) on OneDrive paths.
+- **Razorpay test QR:** Can't be scanned by real UPI apps. Type VPA manually or use test card.
+- **`is_premium` is a cache:** Never rely on it alone in stream routes — always verify against `subscriptions` table.
 
 ## Environment Variables
 
 ```
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY        # Server/API routes only
+SUPABASE_SERVICE_ROLE_KEY        # Server only
 ANTHROPIC_API_KEY                # claude-sonnet-4-6 in stream routes
 NEXT_PUBLIC_APP_URL              # OAuth redirect base URL
-RAZORPAY_KEY_ID                  # Server-side only (returned to client via API response)
-RAZORPAY_KEY_SECRET              # Server-side only, never frontend
+RAZORPAY_KEY_ID                  # Server only (returned to client via API response)
+RAZORPAY_KEY_SECRET              # Server only, never frontend
+GMAIL_USER                       # ankitgoyal473@gmail.com
+GMAIL_APP_PASSWORD               # 16-char Gmail App Password (graceful skip if absent)
 ```
