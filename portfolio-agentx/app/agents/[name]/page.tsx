@@ -149,9 +149,17 @@ export default function AgentPage() {
 
     getUsage(agentSlug, user.id).then((u) => {
       setUsage(u);
-      const isLockedNow = checkIsLocked(u.stage);
-      setLocked(isLockedNow);
-      if (isLockedNow) setPaywallOpen(true);
+      const isPremiumUser = !!user?.user_metadata?.is_premium;
+      if (isPremiumUser) {
+        setLocked(false);
+        setPaywallOpen(false);
+        // still load usage for display but never lock
+      } else {
+        // existing logic: check stage, setLocked, setPaywallOpen
+        const isLockedNow = checkIsLocked(u.stage);
+        setLocked(isLockedNow);
+        if (isLockedNow) setPaywallOpen(true);
+      }
     });
 
     loadSessions(agentSlug, user.id).then((loadedSessions) => {
@@ -224,7 +232,7 @@ export default function AgentPage() {
 
   const runWarren = useCallback(
     async (ticker: string) => {
-      if (locked) {
+      if (locked && !user?.user_metadata?.is_premium) {
         setPaywallOpen(true);
         return;
       }
@@ -260,7 +268,7 @@ export default function AgentPage() {
           if (user?.id) {
             const newUsage = await getUsage(agentSlug, user.id);
             setUsage(newUsage);
-            const isNowLocked = checkIsLocked(newUsage.stage);
+            const isNowLocked = checkIsLocked(newUsage.stage) && !user?.user_metadata?.is_premium;
 
             addMessage(
               createMessage("agent", ticker, {
@@ -325,7 +333,7 @@ export default function AgentPage() {
 
   const runSherlock = useCallback(
     async (input: string) => {
-      if (locked) {
+      if (locked && !user?.user_metadata?.is_premium) {
         setPaywallOpen(true);
         return;
       }
@@ -413,7 +421,7 @@ export default function AgentPage() {
           if (user?.id) {
             const newUsage = await getUsage(agentSlug, user.id);
             setUsage(newUsage);
-            const isNowLocked = checkIsLocked(newUsage.stage);
+            const isNowLocked = checkIsLocked(newUsage.stage) && !user?.user_metadata?.is_premium;
 
             if (newUsage.stage === "warning" || newUsage.stage === "locked") {
               await delay(500);
@@ -466,7 +474,7 @@ export default function AgentPage() {
 
   const runHarvey = useCallback(
     async (prospectCount: number, tone: string) => {
-      if (locked) {
+      if (locked && !user?.user_metadata?.is_premium) {
         setPaywallOpen(true);
         return;
       }
@@ -519,7 +527,7 @@ export default function AgentPage() {
           if (user?.id) {
             const newUsage = await getUsage(agentSlug, user.id);
             setUsage(newUsage);
-            const isNowLocked = checkIsLocked(newUsage.stage);
+            const isNowLocked = checkIsLocked(newUsage.stage) && !user?.user_metadata?.is_premium;
 
             if (newUsage.stage === "warning" || newUsage.stage === "locked") {
               await delay(500);

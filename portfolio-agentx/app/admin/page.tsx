@@ -11,7 +11,16 @@ import type { Lead } from "@/lib/mock-leads";
 import { StatsRow } from "@/components/admin/stats-row";
 import { LeadCard } from "@/components/admin/lead-card";
 import { Card } from "@/components/ui/card";
-import { Shield } from "lucide-react";
+import { Shield, Users } from "lucide-react";
+
+type AdminUser = {
+  id: string;
+  email: string;
+  name: string;
+  is_premium: boolean;
+  is_admin: boolean;
+  created_at: string;
+};
 
 // Map the snake_case API response to the camelCase Lead type
 function mapApiLead(row: Record<string, unknown>): Lead {
@@ -52,6 +61,7 @@ function AdminContent() {
   const { user, isLoading } = useMockAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [users, setUsers] = useState<AdminUser[]>([]);
 
   const isAdmin = user?.user_metadata?.is_admin === true;
 
@@ -68,7 +78,32 @@ function AdminContent() {
         }
       })
       .catch(() => setFetchError("Failed to load leads."));
+
+    fetch("/api/admin/users")
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((data: unknown) => {
+        if (Array.isArray(data)) {
+          setUsers(data as AdminUser[]);
+        }
+      })
+      .catch(() => {});
   }, [isAdmin]);
+
+  const togglePremium = async (userId: string, current: boolean) => {
+    const res = await fetch("/api/admin/set-premium", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, premium: !current }),
+    });
+    if (res.ok) {
+      setUsers((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, is_premium: !current } : u))
+      );
+    }
+  };
 
   const handleStatusChange = async (
     id: string,
@@ -167,6 +202,95 @@ function AdminContent() {
             ))}
           </div>
         )}
+
+        {/* Users section */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Users className="h-5 w-5 text-accent" />
+            <h2 className="text-xl font-bold text-foreground">Users</h2>
+            <span className="ml-1 rounded-full bg-background-card border border-border px-2 py-0.5 text-xs text-foreground-secondary">
+              {users.length}
+            </span>
+          </div>
+
+          {users.length === 0 ? (
+            <Card className="text-center">
+              <p className="text-foreground-secondary">No users found.</p>
+            </Card>
+          ) : (
+            <div className="rounded-xl border border-border bg-background-card overflow-hidden">
+              {users.map((u, idx) => {
+                const initials = u.name
+                  .split(" ")
+                  .map((w) => w[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase();
+                const joinedDate = new Date(u.created_at).toLocaleDateString(
+                  "en-US",
+                  { month: "short", day: "numeric", year: "numeric" }
+                );
+                return (
+                  <div
+                    key={u.id}
+                    className={`flex items-center gap-4 px-5 py-4 ${
+                      idx !== users.length - 1
+                        ? "border-b border-border"
+                        : ""
+                    }`}
+                  >
+                    {/* Avatar */}
+                    <div
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-background"
+                      style={{ backgroundColor: "#E8D5B8" }}
+                    >
+                      {initials || "?"}
+                    </div>
+
+                    {/* Name + email */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-foreground truncate">
+                          {u.name}
+                        </span>
+                        {u.is_admin && (
+                          <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+                            Admin
+                          </span>
+                        )}
+                        {u.is_premium && (
+                          <span className="rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                            Premium
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-foreground-secondary truncate mt-0.5">
+                        {u.email}
+                      </p>
+                    </div>
+
+                    {/* Joined date */}
+                    <span className="hidden sm:block text-xs text-foreground-secondary shrink-0">
+                      Joined {joinedDate}
+                    </span>
+
+                    {/* Premium toggle */}
+                    <button
+                      onClick={() => togglePremium(u.id, u.is_premium)}
+                      className={`shrink-0 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        u.is_premium
+                          ? "border-success/30 bg-success/10 text-success hover:bg-success/20"
+                          : "border-accent/40 bg-accent/10 text-accent hover:bg-accent/20"
+                      }`}
+                    >
+                      {u.is_premium ? "✓ Premium" : "Grant Premium"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

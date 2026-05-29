@@ -34,6 +34,9 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  // Premium users: skip paywall gate but still track usage below
+  const isPremium = user.user_metadata?.is_premium === true;
+
   // Paywall check
   const { data: usageRow } = await supabase
     .from("agent_usage")
@@ -41,7 +44,7 @@ export async function POST(request: Request) {
     .eq("user_id", user.id)
     .eq("agent_id", "sherlock")
     .single();
-  if ((usageRow?.count ?? 0) >= (LIMITS["sherlock"] ?? 1)) {
+  if (!isPremium && (usageRow?.count ?? 0) >= (LIMITS["sherlock"] ?? 1)) {
     return NextResponse.json({ error: "paywall" }, { status: 403 });
   }
 
