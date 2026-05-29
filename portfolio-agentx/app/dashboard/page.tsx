@@ -6,6 +6,8 @@ import { useMockAuth } from "@/lib/mock-auth";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { AgentUsage, MockSession, MockLead } from "@/lib/mock-data";
 import { agents } from "@/lib/agents";
+import Link from "next/link";
+import { Shield } from "lucide-react";
 import { WelcomeHeader } from "@/components/dashboard/welcome-header";
 import { AgentUsageCard } from "@/components/dashboard/agent-usage-card";
 import { StatsRow } from "@/components/dashboard/stats-row";
@@ -163,6 +165,26 @@ export default function DashboardPage() {
           <div className="mt-10">
             <StatsRow stats={stats} />
           </div>
+
+          {/* Admin Panel — visible only to admins */}
+          {user?.user_metadata?.is_admin === true && (
+            <div className="mt-10">
+              <Link href="/admin">
+                <div className="flex items-center gap-4 rounded-xl border border-accent/30 bg-accent/5 px-6 py-4 transition-colors hover:bg-accent/10 cursor-pointer">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/15">
+                    <Shield className="h-5 w-5 text-accent" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-accent">Admin Panel</p>
+                    <p className="text-xs text-foreground-secondary">
+                      Manage leads, users, and premium access
+                    </p>
+                  </div>
+                  <span className="text-xs text-accent font-medium">Open →</span>
+                </div>
+              </Link>
+            </div>
+          )}
 
           {/* 4. Session List */}
           <div className="mt-10">
