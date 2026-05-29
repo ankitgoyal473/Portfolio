@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Sparkles, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
+import { AgentXLogo } from "@/components/shared/agentx-logo";
 import { Button } from "@/components/ui/button";
 import { navLinks } from "@/lib/constants";
 import { useMockAuth } from "@/lib/mock-auth";
@@ -29,11 +30,8 @@ export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-2 group">
-          <Sparkles className="h-5 w-5 text-accent transition-transform group-hover:rotate-12" />
-          <span className="text-lg font-bold text-foreground">
-            AGent<span className="text-accent">X</span>
-          </span>
+        <Link href="/">
+          <AgentXLogo size="sm" />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { AgentXLogo } from "@/components/shared/agentx-logo";
 
 export function Footer() {
   return (
@@ -7,11 +7,8 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-5 w-5 text-accent" />
-              <span className="text-lg font-bold text-foreground">
-                AGent<span className="text-accent">X</span>
-              </span>
+            <Link href="/" className="mb-4 inline-block">
+              <AgentXLogo size="md" />
             </Link>
             <p className="text-sm text-foreground-secondary max-w-sm">
               Agentic AI solutions that solve real business problems. Custom automation, intelligent

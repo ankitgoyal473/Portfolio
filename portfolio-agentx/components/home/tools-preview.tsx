@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,35 +21,52 @@ export function ToolsPreview() {
         />
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {agents.map((agent) => (
-            <Link key={agent.slug} href={`/agents/${agent.slug}`}>
-              <Card
-                className="flex h-full flex-col"
-                style={{
-                  borderTopColor: agent.color,
-                  borderTopWidth: "3px",
-                }}
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle style={{ color: agent.color }}>{agent.name}</CardTitle>
-                    <Badge variant="secondary">{agent.price}</Badge>
+          {agents.map((agent) => {
+            const Icon = agent.icon;
+            return (
+              <Link key={agent.slug} href={`/agents/${agent.slug}`}>
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="group relative flex flex-col rounded-xl border border-border bg-background-card p-6 h-full transition-all duration-300"
+                  style={{ borderTopColor: agent.color, borderTopWidth: "3px" }}
+                >
+                  {/* Hover glow */}
+                  <div
+                    className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    style={{
+                      boxShadow: `0 0 30px ${agent.color}15, inset 0 0 30px ${agent.color}05`,
+                    }}
+                  />
+
+                  <div className="relative z-10">
+                    {/* Large icon circle */}
+                    <div
+                      className="mb-4 w-14 h-14 rounded-2xl flex items-center justify-center"
+                      style={{ backgroundColor: `${agent.color}20` }}
+                    >
+                      <Icon className="w-7 h-7" style={{ color: agent.color }} />
+                    </div>
+
+                    {/* Name + price */}
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-xl font-bold" style={{ color: agent.color }}>
+                        {agent.name}
+                      </h3>
+                      <Badge variant="secondary">{agent.price}</Badge>
+                    </div>
+
+                    {/* Personality */}
+                    <p className="text-sm text-foreground-secondary mb-4 line-clamp-2">
+                      {agent.personality}
+                    </p>
+
+                    {/* Free limit */}
+                    <p className="text-xs text-foreground-muted">Free: {agent.freeLimit}</p>
                   </div>
-                  <CardDescription>{agent.personality}</CardDescription>
-                </CardHeader>
-                <CardContent className="mt-auto">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="gap-1"
-                    style={{ color: agent.color }}
-                  >
-                    {agent.cta}
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                </motion.div>
+              </Link>
+            );
+          })}
         </div>
 
         <div className="mt-8 text-center">

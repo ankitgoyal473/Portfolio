@@ -156,6 +156,7 @@ export const pricing = {
 export const navLinks = [
   { label: "Agents", href: "/agents" },
   { label: "Projects", href: "/projects" },
+  { label: "MCPs", href: "/mcp" },
   { label: "Tools", href: "/tools" },
   { label: "Work With Me", href: "/hire" },
 ];
