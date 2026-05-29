@@ -35,7 +35,7 @@ export default function LoginPage() {
             Access WARRen, Sherlock, and Harvey
           </p>
 
-          {/* Google Sign In */}
+          {/* Requires Google OAuth configured in Supabase Dashboard → Auth → Providers → Google */}
           <Button
             variant="secondary"
             size="lg"
@@ -62,18 +62,6 @@ export default function LoginPage() {
             </svg>
             Continue with Google
           </Button>
-
-          {/* Quick login (dev only) */}
-          <div className="mt-4 pt-4 border-t border-border">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full text-foreground-secondary hover:text-foreground"
-              onClick={login}
-            >
-              Skip → Mock Login (dev)
-            </Button>
-          </div>
 
           {/* Terms */}
           <p className="text-xs text-foreground-secondary text-center mt-6">

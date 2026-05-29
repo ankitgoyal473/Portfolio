@@ -7,11 +7,31 @@ export interface EstimateResult {
 }
 
 const budgetMap: Record<string, Omit<EstimateResult, "stack">> = {
-  "Under $1,500": { complexity: "Low", delivery: "1–2 weeks", estimateLow: 1000, estimateHigh: 2000 },
-  "$1,500–$3,000": { complexity: "Medium", delivery: "3–4 weeks", estimateLow: 2500, estimateHigh: 4000 },
-  "$3,000–$6,000": { complexity: "Med-High", delivery: "5–8 weeks", estimateLow: 4500, estimateHigh: 6500 },
+  "Under $1,500": {
+    complexity: "Low",
+    delivery: "1–2 weeks",
+    estimateLow: 1000,
+    estimateHigh: 2000,
+  },
+  "$1,500–$3,000": {
+    complexity: "Medium",
+    delivery: "3–4 weeks",
+    estimateLow: 2500,
+    estimateHigh: 4000,
+  },
+  "$3,000–$6,000": {
+    complexity: "Med-High",
+    delivery: "5–8 weeks",
+    estimateLow: 4500,
+    estimateHigh: 6500,
+  },
   "$6,000+": { complexity: "High", delivery: "8–12 weeks", estimateLow: 7000, estimateHigh: 12000 },
-  "Not sure yet": { complexity: "Medium", delivery: "4–6 weeks", estimateLow: 2500, estimateHigh: 5000 },
+  "Not sure yet": {
+    complexity: "Medium",
+    delivery: "4–6 weeks",
+    estimateLow: 2500,
+    estimateHigh: 5000,
+  },
 };
 
 const stackMap: Record<string, string> = {
@@ -19,7 +39,7 @@ const stackMap: Record<string, string> = {
   "Build a custom AI chatbot": "Claude API · Next.js · Supabase",
   "Generate automated reports from data": "Claude API · Python · ReportLab",
   "Analyse documents or contracts": "Claude API · PyMuPDF · Supabase",
-  "Stock market research & analysis": "WARRen (Claude API · yfinance · Next.js)",
+  "Stock market research & analysis": "Warren (Claude API · yfinance · Next.js)",
   "Competitor intelligence monitoring": "Sherlock (Claude API · Strands · Resend)",
   "Cold email personalisation at scale": "Harvey (Claude API · Next.js · Supabase)",
   "Something else": "Claude API · Next.js · Supabase",
@@ -70,13 +90,7 @@ export const stages = [
   {
     id: "budget",
     question: "What's your rough budget range?",
-    chips: [
-      "Under $1,500",
-      "$1,500–$3,000",
-      "$3,000–$6,000",
-      "$6,000+",
-      "Not sure yet",
-    ],
+    chips: ["Under $1,500", "$1,500–$3,000", "$3,000–$6,000", "$6,000+", "Not sure yet"],
   },
 ] as const;
 

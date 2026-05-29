@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
   try {
@@ -17,27 +18,41 @@ export async function POST(request: Request) {
       estimateHigh,
     } = body;
 
-    // Log formatted "email" that would be sent to Ankit
-    console.log(`
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[AGentX Lead] New lead — ${problem}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Problem: ${problem}
-Workflow: ${workflow}
-Budget: ${budget}
-Timeline: ${timeline}
-Complexity: ${complexity}
-Delivery: ${delivery}
-Stack: ${stack}
-Estimate: $${estimateLow.toLocaleString()} – $${estimateHigh.toLocaleString()}
-Email: ${userEmail || "Not provided"}
-Notes: ${notes || "None"}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    `);
+    if (!problem || !userEmail) {
+      return NextResponse.json(
+        { success: false, error: "problem and userEmail are required" },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("leads")
+      .insert({
+        problem,
+        workflow,
+        budget,
+        timeline,
+        complexity,
+        delivery,
+        stack,
+        estimate_low: estimateLow,
+        estimate_high: estimateHigh,
+        user_email: userEmail,
+        notes,
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      id: crypto.randomUUID(),
+      id: data.id,
     });
   } catch {
     return NextResponse.json(

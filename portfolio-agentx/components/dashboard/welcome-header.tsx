@@ -19,12 +19,8 @@ export function WelcomeHeader({ userName, plan }: WelcomeHeaderProps) {
       className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div>
-        <h1 className="text-3xl font-bold text-foreground sm:text-4xl">
-          Welcome back, {userName}
-        </h1>
-        <p className="mt-1 text-foreground-secondary">
-          Your squad is ready.
-        </p>
+        <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Welcome back, {userName}</h1>
+        <p className="mt-1 text-foreground-secondary">Your squad is ready.</p>
       </div>
 
       <div className="flex items-center gap-3">

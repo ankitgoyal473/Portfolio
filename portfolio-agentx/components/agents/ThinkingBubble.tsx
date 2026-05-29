@@ -2,7 +2,43 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import {
+  TrendingUp,
+  Shield,
+  BarChart3,
+  Settings,
+  Globe,
+  CheckCircle2,
+  Search,
+  ClipboardList,
+  Users,
+  Newspaper,
+  AlertTriangle,
+  FileText,
+  FolderOpen,
+  Pencil,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import type { ThinkingStep } from "@/lib/mock-sessions";
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  "trending-up": TrendingUp,
+  shield: Shield,
+  "bar-chart": BarChart3,
+  settings: Settings,
+  globe: Globe,
+  "check-circle": CheckCircle2,
+  search: Search,
+  clipboard: ClipboardList,
+  users: Users,
+  newspaper: Newspaper,
+  alert: AlertTriangle,
+  "file-text": FileText,
+  folder: FolderOpen,
+  pencil: Pencil,
+  zap: Zap,
+};
 
 interface ThinkingBubbleProps {
   steps: ThinkingStep[];
@@ -10,11 +46,7 @@ interface ThinkingBubbleProps {
   onComplete?: () => void;
 }
 
-export function ThinkingBubble({
-  steps,
-  agentColor,
-  onComplete,
-}: ThinkingBubbleProps) {
+export function ThinkingBubble({ steps, agentColor, onComplete }: ThinkingBubbleProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -47,9 +79,7 @@ export function ThinkingBubble({
           >
             {/* Status indicator */}
             <span className="flex-shrink-0 text-sm">
-              {status === "pending" && (
-                <span className="text-foreground-muted">&#9675;</span>
-              )}
+              {status === "pending" && <span className="text-foreground-muted">&#9675;</span>}
               {status === "active" && (
                 <motion.span
                   style={{ color: agentColor }}
@@ -59,18 +89,21 @@ export function ThinkingBubble({
                   &#9673;
                 </motion.span>
               )}
-              {status === "done" && (
-                <span style={{ color: agentColor }}>&#10003;</span>
-              )}
+              {status === "done" && <span style={{ color: agentColor }}>&#10003;</span>}
             </span>
 
             {/* Step icon */}
-            <span className="text-sm">{step.icon}</span>
+            <span className="text-sm text-foreground-muted">
+              {ICON_MAP[step.icon]
+                ? (() => {
+                    const Icon = ICON_MAP[step.icon];
+                    return <Icon className="w-3.5 h-3.5 inline" />;
+                  })()
+                : step.icon}
+            </span>
 
             {/* Label */}
-            <span className="text-sm text-foreground-secondary">
-              {step.label}
-            </span>
+            <span className="text-sm text-foreground-secondary">{step.label}</span>
           </motion.div>
         );
       })}

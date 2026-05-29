@@ -1,3 +1,7 @@
+import type { Pillar, CaseFileData, Prospect } from "@/lib/agent-types";
+
+export type { Pillar, CaseFileData, Prospect };
+
 export interface ChatMessage {
   id: string;
   role: "user" | "agent" | "system" | "thinking" | "paywall";
@@ -8,6 +12,17 @@ export interface ChatMessage {
     type?: "pillar-cards" | "case-file" | "results-table" | "text";
     thinkingSteps?: ThinkingStep[];
     chips?: string[];
+    ticker?: string;
+    url?: string;
+    totalCount?: number;
+    pillars?: Pillar[];
+    caseFile?: CaseFileData;
+    prospects?: Array<{
+      name: string;
+      company: string;
+      title?: string;
+      opener: string;
+    }>;
   };
 }
 

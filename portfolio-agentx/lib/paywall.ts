@@ -1,6 +1,6 @@
-export type PaywallStage = "fresh" | "aware" | "warning" | "locked";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
-const USAGE_PREFIX = "agentx_usage_";
+export type PaywallStage = "fresh" | "aware" | "warning" | "locked";
 
 export interface UsageState {
   used: number;
@@ -8,53 +8,90 @@ export interface UsageState {
   stage: PaywallStage;
 }
 
-const LIMITS: Record<string, number> = {
+export const LIMITS: Record<string, number> = {
   warren: 1,
   sherlock: 1,
   harvey: 10,
 };
 
-export function getUsage(agentId: string): UsageState {
+export async function getUsage(
+  agentId: string,
+  userId: string
+): Promise<UsageState> {
   const limit = LIMITS[agentId] ?? 1;
-  if (typeof window === "undefined") {
+  try {
+    const supabase = createBrowserSupabaseClient();
+    const { data } = await supabase
+      .from("agent_usage")
+      .select("count")
+      .eq("user_id", userId)
+      .eq("agent_id", agentId)
+      .single();
+    const used = data?.count ?? 0;
+    return { used, limit, stage: computeStage(used, limit) };
+  } catch {
     return { used: 0, limit, stage: "fresh" };
   }
-
-  const stored = localStorage.getItem(`${USAGE_PREFIX}${agentId}`);
-  const used = stored ? parseInt(stored, 10) : 0;
-
-  return { used, limit, stage: computeStage(used, limit) };
 }
 
-export function incrementUsage(agentId: string): UsageState {
-  if (typeof window === "undefined") {
-    return getUsage(agentId);
-  }
-
+export async function incrementUsage(
+  agentId: string,
+  userId: string
+): Promise<UsageState> {
   const limit = LIMITS[agentId] ?? 1;
-  const stored = localStorage.getItem(`${USAGE_PREFIX}${agentId}`);
-  const current = stored ? parseInt(stored, 10) : 0;
-  const next = current + 1;
+  try {
+    const supabase = createBrowserSupabaseClient();
 
-  localStorage.setItem(`${USAGE_PREFIX}${agentId}`, String(next));
-  return { used: next, limit, stage: computeStage(next, limit) };
-}
+    // Fetch current count
+    const { data: existing } = await supabase
+      .from("agent_usage")
+      .select("count")
+      .eq("user_id", userId)
+      .eq("agent_id", agentId)
+      .single();
 
-export function resetUsage(agentId: string): void {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(`${USAGE_PREFIX}${agentId}`);
+    const newCount = (existing?.count ?? 0) + 1;
+
+    await supabase.from("agent_usage").upsert(
+      { user_id: userId, agent_id: agentId, count: newCount },
+      { onConflict: "user_id,agent_id" }
+    );
+
+    return {
+      used: newCount,
+      limit,
+      stage: computeStage(newCount, limit),
+    };
+  } catch {
+    return { used: 0, limit, stage: "fresh" };
   }
 }
 
-function computeStage(used: number, limit: number): PaywallStage {
+export async function resetUsage(
+  agentId: string,
+  userId: string
+): Promise<void> {
+  try {
+    const supabase = createBrowserSupabaseClient();
+    await supabase
+      .from("agent_usage")
+      .delete()
+      .eq("user_id", userId)
+      .eq("agent_id", agentId);
+  } catch {
+    // Ignore errors on reset
+  }
+}
+
+export function computeStage(used: number, limit: number): PaywallStage {
   if (used === 0) return "fresh";
   if (used < limit) return "aware";
   if (used === limit) return "warning";
   return "locked";
 }
 
-export function isLocked(agentId: string): boolean {
-  return getUsage(agentId).stage === "locked";
+export function isLocked(stage: PaywallStage): boolean {
+  return stage === "locked";
 }
 
 export const PAYWALL_MESSAGES: Record<string, string> = {

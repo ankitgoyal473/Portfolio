@@ -18,9 +18,7 @@ export default function ProjectsPage() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
 
   const filteredProjects =
-    activeFilter === "all"
-      ? projects
-      : projects.filter((p) => p.category === activeFilter);
+    activeFilter === "all" ? projects : projects.filter((p) => p.category === activeFilter);
 
   return (
     <main className="min-h-screen bg-background">

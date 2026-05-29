@@ -29,12 +29,8 @@ export function StatsRow({ stats }: StatsRowProps) {
           transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
           className="rounded-xl bg-background-card/60 border border-border/50 p-4"
         >
-          <p className="text-xs text-foreground-secondary mb-1">
-            {item.label}
-          </p>
-          <p className="text-2xl font-bold text-foreground">
-            {stats[item.key]}
-          </p>
+          <p className="text-xs text-foreground-secondary mb-1">{item.label}</p>
+          <p className="text-2xl font-bold text-foreground">{stats[item.key]}</p>
         </motion.div>
       ))}
     </div>

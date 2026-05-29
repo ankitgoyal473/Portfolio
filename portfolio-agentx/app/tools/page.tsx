@@ -1,14 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "AI Tools | AGentX",
+};
 import { tools, pricing } from "@/lib/constants";
 import { SectionHeader } from "@/components/shared/section-header";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -27,7 +26,7 @@ export default function ToolsPage() {
           <Link href="/agents">
             <div className="flex items-center justify-between rounded-lg border border-accent/20 bg-accent/5 px-6 py-4 transition-colors hover:bg-accent/10">
               <p className="text-sm font-medium text-foreground">
-                Looking for our AI Agents (WARRen, Sherlock, Harvey)?
+                Looking for our AI Agents (Warren, Sherlock, Harvey)?
               </p>
               <span className="flex items-center gap-1 text-sm font-medium text-accent">
                 Go to Agents <ArrowRight className="h-3 w-3" />
@@ -45,8 +44,8 @@ export default function ToolsPage() {
             Utility Tools
           </h1>
           <p className="mt-6 text-lg text-foreground-secondary max-w-2xl mx-auto">
-            Standalone productivity tools — upload data, generate reports, build
-            chatbots. No hype, just tools that save you hours.
+            Standalone productivity tools — upload data, generate reports, build chatbots. No hype,
+            just tools that save you hours.
           </p>
         </div>
       </section>
@@ -66,19 +65,14 @@ export default function ToolsPage() {
                           className="flex h-10 w-10 items-center justify-center rounded-lg"
                           style={{ backgroundColor: `${tool.color}15` }}
                         >
-                          <Icon
-                            className="h-5 w-5"
-                            style={{ color: tool.color }}
-                          />
+                          <Icon className="h-5 w-5" style={{ color: tool.color }} />
                         </div>
                         <div className="flex-1">
                           <CardTitle>{tool.name}</CardTitle>
                         </div>
                         <Badge variant="secondary">{tool.price}</Badge>
                       </div>
-                      <CardDescription className="mt-2">
-                        {tool.description}
-                      </CardDescription>
+                      <CardDescription className="mt-2">{tool.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2">
@@ -119,25 +113,15 @@ export default function ToolsPage() {
               return (
                 <Card
                   key={key}
-                  className={
-                    highlight
-                      ? "border-accent/50 ring-1 ring-accent/20"
-                      : ""
-                  }
+                  className={highlight ? "border-accent/50 ring-1 ring-accent/20" : ""}
                 >
                   <CardHeader>
-                    {highlight && (
-                      <Badge className="w-fit mb-2">Most Popular</Badge>
-                    )}
+                    {highlight && <Badge className="w-fit mb-2">Most Popular</Badge>}
                     <CardTitle>{plan.name}</CardTitle>
                     <div className="mt-2">
-                      <span className="text-3xl font-bold text-foreground">
-                        {plan.price}
-                      </span>
+                      <span className="text-3xl font-bold text-foreground">{plan.price}</span>
                       {key !== "free" && (
-                        <span className="text-foreground-secondary text-sm">
-                          /month
-                        </span>
+                        <span className="text-foreground-secondary text-sm">/month</span>
                       )}
                     </div>
                   </CardHeader>
@@ -154,10 +138,7 @@ export default function ToolsPage() {
                       ))}
                     </ul>
                     <div className="mt-8">
-                      <Button
-                        variant={highlight ? "default" : "secondary"}
-                        className="w-full"
-                      >
+                      <Button variant={highlight ? "default" : "secondary"} className="w-full">
                         {key === "free" ? "Get Started" : "Subscribe"}
                       </Button>
                     </div>

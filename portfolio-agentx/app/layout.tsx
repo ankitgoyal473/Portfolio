@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
+import { ClientFooter } from "@/components/layout/client-footer";
 import { ChatWidget } from "@/components/chat/chat-widget";
 import "./globals.css";
 
@@ -26,7 +26,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col antialiased">
         <Navbar />
         <main className="flex-1 pt-16">{children}</main>
-        <Footer />
+        <ClientFooter />
         <ChatWidget />
       </body>
     </html>

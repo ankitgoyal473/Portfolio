@@ -15,9 +15,7 @@ export function CtaSection() {
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent-muted mb-6">
               <Briefcase className="h-6 w-6 text-accent" />
             </div>
-            <h3 className="text-2xl font-bold text-foreground mb-3">
-              Need AI Automation?
-            </h3>
+            <h3 className="text-2xl font-bold text-foreground mb-3">Need AI Automation?</h3>
             <p className="text-foreground-secondary mb-6">
               I help businesses automate workflows, build intelligent systems, and ship AI products.
               Projects range from $1.5K to $8K with 2-6 week timelines.
@@ -48,12 +46,10 @@ export function CtaSection() {
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent-muted mb-6">
               <Building2 className="h-6 w-6 text-accent" />
             </div>
-            <h3 className="text-2xl font-bold text-foreground mb-3">
-              Hiring Senior AI Engineers?
-            </h3>
+            <h3 className="text-2xl font-bold text-foreground mb-3">Hiring Senior AI Engineers?</h3>
             <p className="text-foreground-secondary mb-6">
-              Open to senior AI/ML engineering roles at companies building meaningful products.
-              5+ years shipping production ML systems at scale.
+              Open to senior AI/ML engineering roles at companies building meaningful products. 5+
+              years shipping production ML systems at scale.
             </p>
             <ul className="space-y-2 mb-8 text-sm text-foreground-secondary">
               <li className="flex items-center gap-2">

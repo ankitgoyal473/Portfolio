@@ -8,18 +8,15 @@ import { AgentSidebar } from "@/components/agents/AgentSidebar";
 import { ChatThread } from "@/components/agents/ChatThread";
 import { AgentChatbar } from "@/components/agents/AgentChatbar";
 import { PaywallSheet } from "@/components/agents/PaywallSheet";
-import {
-  type ChatMessage,
-  type ThinkingStep,
-  type SessionRecord,
-  getSessions,
-  saveSession,
-  generateSessionId,
-} from "@/lib/mock-sessions";
+import { useMockAuth } from "@/lib/mock-auth";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { useAgentStream } from "@/lib/use-agent-stream";
+import type { ChatMessage, ThinkingStep, SessionRecord } from "@/lib/mock-sessions";
+import { generateSessionId } from "@/lib/mock-sessions";
+import type { Pillar, CaseFileData } from "@/lib/agent-types";
 import {
   type UsageState,
   getUsage,
-  incrementUsage,
   isLocked as checkIsLocked,
   PAYWALL_MESSAGES,
 } from "@/lib/paywall";
@@ -92,10 +89,40 @@ function createMessage(
   };
 }
 
+async function loadSessions(
+  agentId: string,
+  userId: string
+): Promise<SessionRecord[]> {
+  try {
+    const supabase = createBrowserSupabaseClient();
+    const { data } = await supabase
+      .from("agent_sessions")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("agent_id", agentId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (!data) return [];
+    return data.map((row) => ({
+      id: row.id,
+      agentId: row.agent_id,
+      createdAt: row.created_at,
+      name: row.title ?? "Session",
+      messages: (row.messages as ChatMessage[]) ?? [],
+      inputSummary: row.title ?? "",
+      usageCount: 0,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default function AgentPage() {
   const params = useParams<{ name: string }>();
   const agentSlug = params.name;
   const agent = getAgentBySlug(agentSlug);
+  const { user } = useMockAuth();
+  const { stream } = useAgentStream();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
@@ -115,17 +142,22 @@ export default function AgentPage() {
 
   const sessionRef = useRef<string | null>(null);
 
+  const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
   useEffect(() => {
-    if (!agent) return;
-    const u = getUsage(agentSlug);
-    setUsage(u);
-    const isLockedNow = checkIsLocked(agentSlug);
-    setLocked(isLockedNow);
-    if (isLockedNow) setPaywallOpen(true);
-    setSessions(getSessions(agentSlug));
+    if (!agent || !user?.id) return;
+
+    getUsage(agentSlug, user.id).then((u) => {
+      setUsage(u);
+      const isLockedNow = checkIsLocked(u.stage);
+      setLocked(isLockedNow);
+      if (isLockedNow) setPaywallOpen(true);
+    });
+
+    loadSessions(agentSlug, user.id).then(setSessions);
     startNewSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentSlug]);
+  }, [agentSlug, user?.id]);
 
   const startNewSession = useCallback(() => {
     if (!agent) return;
@@ -159,7 +191,13 @@ export default function AgentPage() {
     setMessages((prev) => [...prev, msg]);
   }, []);
 
-  const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  const reloadSessionsFromSupabase = useCallback(
+    async (userId: string) => {
+      const updated = await loadSessions(agentSlug, userId);
+      setSessions(updated);
+    },
+    [agentSlug]
+  );
 
   const runWarren = useCallback(
     async (ticker: string) => {
@@ -170,51 +208,96 @@ export default function AgentPage() {
 
       setIsRunning(true);
       addMessage(createMessage("agent", `${ticker} it is. Let me walk you through what I see...`));
-      await delay(400);
+
+      const collectedPillars: Pillar[] = [];
 
       addMessage(
         createMessage("thinking", "", {
           thinkingSteps: WARREN_THINKING,
         })
       );
-      await delay(WARREN_THINKING.length * 800 + 400);
 
-      setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
+      await stream(
+        "warren",
+        { ticker },
+        (event) => {
+          if (event.event === "pillar") {
+            collectedPillars.push({
+              name: event.data.name as string,
+              icon: "📊",
+              signal: event.data.signal as "BULLISH" | "BEARISH" | "NEUTRAL",
+              body: event.data.summary as string,
+            });
+          }
+        },
+        async () => {
+          // onDone
+          setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
 
-      const newUsage = incrementUsage(agentSlug);
-      setUsage(newUsage);
+          if (user?.id) {
+            const newUsage = await getUsage(agentSlug, user.id);
+            setUsage(newUsage);
+            const isNowLocked = checkIsLocked(newUsage.stage);
 
-      const isNowLocked = newUsage.stage === "locked";
-      addMessage(
-        createMessage("agent", "", {
-          type: "pillar-cards",
-        })
+            addMessage(
+              createMessage("agent", ticker, {
+                type: "pillar-cards",
+                ticker,
+                pillars: collectedPillars.length > 0 ? collectedPillars : undefined,
+              })
+            );
+
+            if (newUsage.stage === "warning" || newUsage.stage === "locked") {
+              await delay(500);
+              addMessage(createMessage("paywall", PAYWALL_MESSAGES[agentSlug]));
+              setLocked(isNowLocked);
+              if (isNowLocked) setPaywallOpen(true);
+            }
+          } else {
+            addMessage(
+              createMessage("agent", ticker, { type: "pillar-cards", ticker })
+            );
+          }
+
+          setIsRunning(false);
+
+          if (user?.id) {
+            setMessages((currentMessages) => {
+              const supabase = createBrowserSupabaseClient();
+              const sessionId = sessionRef.current ?? generateSessionId();
+              supabase
+                .from("agent_sessions")
+                .upsert(
+                  {
+                    id: sessionId,
+                    user_id: user.id,
+                    agent_id: agentSlug,
+                    title: `${ticker} · Quick scan`,
+                    messages: currentMessages,
+                  },
+                  { onConflict: "id" }
+                )
+                .then(() => {
+                  reloadSessionsFromSupabase(user.id!);
+                });
+              return currentMessages;
+            });
+          }
+        },
+        (error) => {
+          console.error("Warren stream error:", error);
+          setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
+          addMessage(
+            createMessage(
+              "agent",
+              `I couldn't pull that ticker right now. Try again — WARRen 🧐`
+            )
+          );
+          setIsRunning(false);
+        }
       );
-
-      if (newUsage.stage === "warning") {
-        await delay(500);
-        addMessage(createMessage("paywall", PAYWALL_MESSAGES[agentSlug]));
-        await delay(800);
-        setLocked(true);
-        setPaywallOpen(true);
-      }
-
-      setLocked(isNowLocked);
-      setIsRunning(false);
-
-      const session: SessionRecord = {
-        id: sessionRef.current ?? generateSessionId(),
-        agentId: agentSlug,
-        createdAt: new Date().toISOString(),
-        name: `${ticker} · Quick scan`,
-        messages: messages,
-        inputSummary: `${ticker} · Deep dive`,
-        usageCount: newUsage.used,
-      };
-      saveSession(session);
-      setSessions(getSessions(agentSlug));
     },
-    [locked, agentSlug, addMessage, messages]
+    [locked, agentSlug, addMessage, stream, user, reloadSessionsFromSupabase]
   );
 
   const runSherlock = useCallback(
@@ -237,7 +320,7 @@ export default function AgentPage() {
       );
       setChips(["Scan now", "Add to watchlist"]);
     },
-    [locked, agentSlug, addMessage]
+    [locked, addMessage]
   );
 
   const runSherlockScan = useCallback(
@@ -251,44 +334,111 @@ export default function AgentPage() {
           thinkingSteps: SHERLOCK_THINKING,
         })
       );
-      await delay(SHERLOCK_THINKING.length * 1000 + 400);
 
-      setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
+      const collectedSections: Array<{
+        type: string;
+        title?: string;
+        findings: Array<{ text: string; badge: string; severity: string }>;
+      }> = [];
+      let threat = "MEDIUM";
 
-      const newUsage = incrementUsage(agentSlug);
-      setUsage(newUsage);
+      await stream(
+        "sherlock",
+        { url },
+        (event) => {
+          if (event.event === "section") {
+            collectedSections.push({
+              type: event.data.type as string,
+              title: event.data.title as string | undefined,
+              findings: event.data.findings as Array<{
+                text: string;
+                badge: string;
+                severity: string;
+              }>,
+            });
+          } else if (event.event === "threat") {
+            threat = event.data.level as string;
+          }
+        },
+        async () => {
+          // onDone
+          setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
 
-      const isNowLocked = newUsage.stage === "locked";
-      addMessage(
-        createMessage("agent", "", {
-          type: "case-file",
-        })
+          const caseFile: CaseFileData = {
+            threatLevel: threat as "LOW" | "MEDIUM" | "HIGH",
+            summary: "Intelligence report complete.",
+            sections: collectedSections.map((s) => ({
+              title: s.title ?? s.type,
+              badge: s.findings[0]?.badge,
+              badgeColor:
+                s.findings[0]?.severity === "high"
+                  ? "red"
+                  : s.findings[0]?.severity === "medium"
+                  ? "yellow"
+                  : "green",
+              bullets: s.findings.map((f) => f.text),
+            })),
+          };
+
+          addMessage(
+            createMessage("agent", url, {
+              type: "case-file",
+              caseFile,
+            })
+          );
+
+          if (user?.id) {
+            const newUsage = await getUsage(agentSlug, user.id);
+            setUsage(newUsage);
+            const isNowLocked = checkIsLocked(newUsage.stage);
+
+            if (newUsage.stage === "warning" || newUsage.stage === "locked") {
+              await delay(500);
+              addMessage(createMessage("paywall", PAYWALL_MESSAGES[agentSlug]));
+              setLocked(isNowLocked);
+              if (isNowLocked) setPaywallOpen(true);
+            }
+          }
+
+          setIsRunning(false);
+
+          if (user?.id) {
+            setMessages((currentMessages) => {
+              const supabase = createBrowserSupabaseClient();
+              const sessionId = sessionRef.current ?? generateSessionId();
+              supabase
+                .from("agent_sessions")
+                .upsert(
+                  {
+                    id: sessionId,
+                    user_id: user.id,
+                    agent_id: agentSlug,
+                    title: `${url} · ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+                    messages: currentMessages,
+                  },
+                  { onConflict: "id" }
+                )
+                .then(() => {
+                  reloadSessionsFromSupabase(user.id!);
+                });
+              return currentMessages;
+            });
+          }
+        },
+        (error) => {
+          console.error("Sherlock stream error:", error);
+          setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
+          addMessage(
+            createMessage(
+              "agent",
+              "I couldn't investigate that URL right now. Double-check the address and try again — Sherlock 🔎"
+            )
+          );
+          setIsRunning(false);
+        }
       );
-
-      if (newUsage.stage === "warning") {
-        await delay(500);
-        addMessage(createMessage("paywall", PAYWALL_MESSAGES[agentSlug]));
-        await delay(800);
-        setLocked(true);
-        setPaywallOpen(true);
-      }
-
-      setLocked(isNowLocked);
-      setIsRunning(false);
-
-      const session: SessionRecord = {
-        id: sessionRef.current ?? generateSessionId(),
-        agentId: agentSlug,
-        createdAt: new Date().toISOString(),
-        name: `${url} · ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
-        messages: messages,
-        inputSummary: url,
-        usageCount: newUsage.used,
-      };
-      saveSession(session);
-      setSessions(getSessions(agentSlug));
     },
-    [agentSlug, addMessage, messages]
+    [agentSlug, addMessage, stream, user, reloadSessionsFromSupabase]
   );
 
   const runHarvey = useCallback(
@@ -307,44 +457,94 @@ export default function AgentPage() {
           thinkingSteps: HARVEY_THINKING,
         })
       );
-      await delay(HARVEY_THINKING.length * 600 + 400);
 
-      setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
+      const collectedProspects: Array<{
+        name: string;
+        company: string;
+        title: string;
+        opener: string;
+      }> = [];
 
-      const newUsage = incrementUsage(agentSlug);
-      setUsage(newUsage);
+      await stream(
+        "harvey",
+        {
+          offer: harveyContext.offer ?? "software product",
+          tone,
+          count: Math.min(prospectCount, 5),
+        },
+        (event) => {
+          if (event.event === "prospect") {
+            collectedProspects.push({
+              name: event.data.name as string,
+              company: event.data.company as string,
+              title: event.data.title as string,
+              opener: event.data.opener as string,
+            });
+          }
+        },
+        async () => {
+          // onDone
+          setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
 
-      const isNowLocked = newUsage.stage === "locked";
-      addMessage(
-        createMessage("agent", "", {
-          type: "results-table",
-        })
+          addMessage(
+            createMessage("agent", "", {
+              type: "results-table",
+              prospects: collectedProspects,
+            })
+          );
+
+          if (user?.id) {
+            const newUsage = await getUsage(agentSlug, user.id);
+            setUsage(newUsage);
+            const isNowLocked = checkIsLocked(newUsage.stage);
+
+            if (newUsage.stage === "warning" || newUsage.stage === "locked") {
+              await delay(500);
+              addMessage(createMessage("paywall", PAYWALL_MESSAGES[agentSlug]));
+              setLocked(isNowLocked);
+              if (isNowLocked) setPaywallOpen(true);
+            }
+          }
+
+          setIsRunning(false);
+
+          if (user?.id) {
+            setMessages((currentMessages) => {
+              const supabase = createBrowserSupabaseClient();
+              const sessionId = sessionRef.current ?? generateSessionId();
+              supabase
+                .from("agent_sessions")
+                .upsert(
+                  {
+                    id: sessionId,
+                    user_id: user.id,
+                    agent_id: agentSlug,
+                    title: `${prospectCount} prospects · ${tone}`,
+                    messages: currentMessages,
+                  },
+                  { onConflict: "id" }
+                )
+                .then(() => {
+                  reloadSessionsFromSupabase(user.id!);
+                });
+              return currentMessages;
+            });
+          }
+        },
+        (error) => {
+          console.error("Harvey stream error:", error);
+          setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
+          addMessage(
+            createMessage(
+              "agent",
+              "I couldn't generate those openers right now. Try again — Harvey 💼"
+            )
+          );
+          setIsRunning(false);
+        }
       );
-
-      if (newUsage.stage === "warning") {
-        await delay(500);
-        addMessage(createMessage("paywall", PAYWALL_MESSAGES[agentSlug]));
-        await delay(800);
-        setLocked(true);
-        setPaywallOpen(true);
-      }
-
-      setLocked(isNowLocked);
-      setIsRunning(false);
-
-      const session: SessionRecord = {
-        id: sessionRef.current ?? generateSessionId(),
-        agentId: agentSlug,
-        createdAt: new Date().toISOString(),
-        name: `${prospectCount} prospects · ${tone}`,
-        messages: messages,
-        inputSummary: `${prospectCount} prospects · ${tone}`,
-        usageCount: newUsage.used,
-      };
-      saveSession(session);
-      setSessions(getSessions(agentSlug));
     },
-    [locked, agentSlug, addMessage, messages]
+    [locked, agentSlug, addMessage, stream, harveyContext.offer, user, reloadSessionsFromSupabase]
   );
 
   const handleSend = useCallback(

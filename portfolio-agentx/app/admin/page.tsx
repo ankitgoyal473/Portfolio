@@ -1,85 +1,80 @@
 "use client";
 
+// To grant admin access, run in Supabase SQL editor:
+// UPDATE auth.users
+//   SET raw_user_meta_data = raw_user_meta_data || '{"is_admin": true}'
+//   WHERE email = 'your@email.com';
+
 import { Suspense, useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { Lead, getLeads, updateLeadStatus } from "@/lib/mock-leads";
+import { useMockAuth } from "@/lib/mock-auth";
+import type { Lead } from "@/lib/mock-leads";
 import { StatsRow } from "@/components/admin/stats-row";
 import { LeadCard } from "@/components/admin/lead-card";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 
-const ADMIN_PASSWORD = "admin123";
-const COOKIE_NAME = "agentx-admin";
-
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(
-    new RegExp("(^| )" + name + "=([^;]+)")
-  );
-  return match ? decodeURIComponent(match[2]) : null;
-}
-
-function setCookie(name: string, value: string) {
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${60 * 60 * 24 * 7}`;
+// Map the snake_case API response to the camelCase Lead type
+function mapApiLead(row: Record<string, unknown>): Lead {
+  return {
+    id: row.id as string,
+    createdAt: row.created_at as string,
+    problem: (row.problem as string) ?? "",
+    workflow: (row.workflow as string) ?? "",
+    timeline: (row.timeline as string) ?? "",
+    budget: (row.budget as string) ?? "",
+    notes: (row.notes as string) ?? "",
+    complexity: (row.complexity as string) ?? "",
+    delivery: (row.delivery as string) ?? "",
+    stack: (row.stack as string) ?? "",
+    estimateLow: (row.estimate_low as number) ?? 0,
+    estimateHigh: (row.estimate_high as number) ?? 0,
+    userEmail: (row.user_email as string) ?? "",
+    status: (row.status as Lead["status"]) ?? "pending",
+    ankitNote: (row.ankit_note as string) ?? "",
+  };
 }
 
 export default function AdminPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><p className="text-foreground-secondary">Loading...</p></div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-foreground-secondary">Loading...</p>
+        </div>
+      }
+    >
       <AdminContent />
     </Suspense>
   );
 }
 
 function AdminContent() {
-  const searchParams = useSearchParams();
-  const [authenticated, setAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const { user, isLoading } = useMockAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const isAdmin = user?.user_metadata?.is_admin === true;
 
   useEffect(() => {
-    // Check query param
-    const pw = searchParams.get("pw");
-    if (pw === ADMIN_PASSWORD) {
-      setCookie(COOKIE_NAME, ADMIN_PASSWORD);
-      setAuthenticated(true);
-      return;
-    }
-    // Check cookie
-    const cookieVal = getCookie(COOKIE_NAME);
-    if (cookieVal === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-    }
-  }, [searchParams]);
+    if (!isAdmin) return;
 
-  useEffect(() => {
-    if (authenticated) {
-      setLeads(getLeads());
-    }
-  }, [authenticated]);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setCookie(COOKIE_NAME, ADMIN_PASSWORD);
-      setAuthenticated(true);
-      setError("");
-    } else {
-      setError("Invalid password");
-    }
-  };
+    fetch("/api/leads")
+      .then((res) => res.json())
+      .then((data: unknown) => {
+        if (Array.isArray(data)) {
+          setLeads(data.map(mapApiLead));
+        } else {
+          setFetchError("Failed to load leads.");
+        }
+      })
+      .catch(() => setFetchError("Failed to load leads."));
+  }, [isAdmin]);
 
   const handleStatusChange = async (
     id: string,
     status: "accepted" | "declined",
     note?: string
   ) => {
-    // Update localStorage
-    updateLeadStatus(id, status, note);
-
-    // Call API (mock)
     try {
       await fetch("/api/update-lead", {
         method: "POST",
@@ -87,15 +82,31 @@ function AdminContent() {
         body: JSON.stringify({ id, status, note }),
       });
     } catch {
-      // API is a stub, ignore errors
+      // Ignore network errors
     }
 
-    // Refresh state
-    setLeads(getLeads());
+    // Refresh leads from API
+    fetch("/api/leads")
+      .then((res) => res.json())
+      .then((data: unknown) => {
+        if (Array.isArray(data)) {
+          setLeads(data.map(mapApiLead));
+        }
+      })
+      .catch(() => {});
   };
 
-  // Login screen
-  if (!authenticated) {
+  // Still loading auth
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-foreground-secondary">Loading...</p>
+      </div>
+    );
+  }
+
+  // Logged in but not admin
+  if (!isAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-sm">
@@ -103,23 +114,10 @@ function AdminContent() {
             <div className="rounded-full bg-accent-muted p-3">
               <Shield className="h-6 w-6 text-accent" />
             </div>
-            <h1 className="text-xl font-bold text-foreground">Admin Access</h1>
-            <form onSubmit={handleLogin} className="w-full space-y-4">
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                className="w-full rounded-lg border border-border bg-background-secondary p-3 text-sm text-foreground placeholder:text-foreground-muted focus:border-border-hover focus:outline-none"
-                autoFocus
-              />
-              {error && (
-                <p className="text-center text-xs text-red-400">{error}</p>
-              )}
-              <Button type="submit" className="w-full">
-                Unlock
-              </Button>
-            </form>
+            <h1 className="text-xl font-bold text-foreground">Access Denied</h1>
+            <p className="text-sm text-center text-foreground-secondary">
+              You do not have admin access. Contact Ankit to request permissions.
+            </p>
           </div>
         </Card>
       </div>
@@ -128,7 +126,8 @@ function AdminContent() {
 
   // Dashboard
   const sortedLeads = [...leads].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
   return (
@@ -141,6 +140,10 @@ function AdminContent() {
             Manage incoming project leads
           </p>
         </div>
+
+        {fetchError && (
+          <p className="text-sm text-red-400">{fetchError}</p>
+        )}
 
         {/* Stats */}
         <StatsRow leads={leads} />

@@ -41,7 +41,15 @@ export function Typewriter({
         return undefined;
       }
     }
-  }, [currentText, isDeleting, currentPhraseIndex, phrases, typingSpeed, deletingSpeed, pauseDuration]);
+  }, [
+    currentText,
+    isDeleting,
+    currentPhraseIndex,
+    phrases,
+    typingSpeed,
+    deletingSpeed,
+    pauseDuration,
+  ]);
 
   useEffect(() => {
     const timeout = animate();

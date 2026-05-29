@@ -25,8 +25,8 @@ export function Hero() {
         </h1>
 
         <p className="animate-fade-up mx-auto mt-6 max-w-2xl text-lg text-foreground-secondary sm:text-xl [animation-delay:200ms]">
-          Senior AI Engineer building production-grade AI systems. From concept to deployment —
-          I ship tools that generate revenue and save thousands of hours.
+          Senior AI Engineer building production-grade AI systems. From concept to deployment — I
+          ship tools that generate revenue and save thousands of hours.
         </p>
 
         <div className="animate-fade-up mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center [animation-delay:300ms]">

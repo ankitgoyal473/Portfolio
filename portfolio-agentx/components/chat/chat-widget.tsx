@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X } from "lucide-react";
 import { stages, generateEstimate } from "@/lib/estimate";
-import { saveLead } from "@/lib/mock-leads";
 import { cn } from "@/lib/utils";
 import { StageBar } from "./stage-bar";
 import { MessageBubble } from "./message-bubble";
@@ -22,6 +22,7 @@ interface Message {
 type ViewMode = "chat" | "edit" | "success";
 
 export function ChatWidget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStage, setCurrentStage] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -95,21 +96,32 @@ export function ChatWidget() {
     [currentStage, answers]
   );
 
-  const handleSubmit = () => {
+  // Hide on agent pages (after all hooks)
+  if (pathname.startsWith("/agents/")) return null;
+
+  const handleSubmit = async () => {
     const estimate = generateEstimate(answers.problem, answers.budget);
-    saveLead({
-      problem: answers.problem || "",
-      workflow: answers.workflow || "",
-      timeline: answers.timeline || "",
-      budget: answers.budget || "",
-      notes: "",
-      complexity: estimate.complexity,
-      delivery: estimate.delivery,
-      stack: estimate.stack,
-      estimateLow: estimate.estimateLow,
-      estimateHigh: estimate.estimateHigh,
-      userEmail: "",
-    });
+    try {
+      await fetch("/api/submit-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          problem: answers.problem || "",
+          workflow: answers.workflow || "",
+          timeline: answers.timeline || "",
+          budget: answers.budget || "",
+          notes: "",
+          complexity: estimate.complexity,
+          delivery: estimate.delivery,
+          stack: estimate.stack,
+          estimateLow: estimate.estimateLow,
+          estimateHigh: estimate.estimateHigh,
+          userEmail: "",
+        }),
+      });
+    } catch {
+      // silently continue to success state even if API call fails
+    }
     setViewMode("success");
   };
 
@@ -199,11 +211,7 @@ export function ChatWidget() {
               <SuccessState onClose={handleReset} />
             ) : viewMode === "edit" ? (
               <div className="flex-1 overflow-y-auto">
-                <EditMode
-                  answers={answers}
-                  onSave={handleEditSave}
-                  onCancel={handleEditCancel}
-                />
+                <EditMode answers={answers} onSave={handleEditSave} onCancel={handleEditCancel} />
               </div>
             ) : (
               <>
@@ -230,11 +238,7 @@ export function ChatWidget() {
 
                   {/* Estimate Card (Stage 4) */}
                   {currentStage === 4 && !isTyping && (
-                    <EstimateCard
-                      answers={answers}
-                      onSubmit={handleSubmit}
-                      onEdit={handleEdit}
-                    />
+                    <EstimateCard answers={answers} onSubmit={handleSubmit} onEdit={handleEdit} />
                   )}
 
                   {/* Chip Selector for current stage */}
@@ -257,9 +261,7 @@ export function ChatWidget() {
                     onSubmit={advanceStage}
                     disabled={chipDisabled || isTyping}
                     placeholder={
-                      currentStage === 0
-                        ? "Describe your problem..."
-                        : "Type your answer..."
+                      currentStage === 0 ? "Describe your problem..." : "Type your answer..."
                     }
                   />
                 )}

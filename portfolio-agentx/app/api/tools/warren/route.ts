@@ -1,3 +1,7 @@
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { LIMITS } from "@/lib/paywall";
+import { NextResponse } from "next/server";
+
 const analysisContent = `> Analyzing AAPL (Apple Inc.)...
 
 === WARREN BUFFETT STYLE ANALYSIS ===
@@ -26,6 +30,31 @@ Apple remains a wonderful business at a fair price. The Services segment provide
 "Price is what you pay. Value is what you get." — Warren Buffett`;
 
 export async function GET() {
+  // Server-side paywall enforcement
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: usageRow } = await supabase
+      .from("agent_usage")
+      .select("count")
+      .eq("user_id", user.id)
+      .eq("agent_id", "warren")
+      .single();
+
+    const usedCount = usageRow?.count ?? 0;
+    const limit = LIMITS["warren"] ?? 1;
+
+    if (usedCount >= limit) {
+      return NextResponse.json(
+        { error: "paywall", message: "Usage limit reached" },
+        { status: 403 }
+      );
+    }
+  }
+
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 interface Prospect {
   name: string;
   company: string;
+  title?: string;
   opener: string;
 }
 
@@ -17,12 +18,7 @@ interface ResultsTableProps {
   totalCount: number;
 }
 
-export function ResultsTable({
-  prospects,
-  agentColor,
-  isLocked,
-  totalCount,
-}: ResultsTableProps) {
+export function ResultsTable({ prospects, agentColor, isLocked, totalCount }: ResultsTableProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const handleCopy = useCallback(async (text: string, index: number) => {
@@ -34,10 +30,7 @@ export function ResultsTable({
   const handleDownloadCSV = useCallback(() => {
     const header = "Name,Company,Opener\n";
     const rows = prospects
-      .map(
-        (p) =>
-          `"${p.name}","${p.company}","${p.opener.replace(/"/g, '""')}"`
-      )
+      .map((p) => `"${p.name}","${p.company}","${p.opener.replace(/"/g, '""')}"`)
       .join("\n");
     const csv = header + rows;
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -55,10 +48,7 @@ export function ResultsTable({
   return (
     <div className="w-full space-y-3">
       {/* Header */}
-      <p
-        className="text-xs font-medium uppercase tracking-wider"
-        style={{ color: agentColor }}
-      >
+      <p className="text-xs font-medium uppercase tracking-wider" style={{ color: agentColor }}>
         Harvey&apos;s openers — {totalCount} prospects
       </p>
 
@@ -66,21 +56,11 @@ export function ResultsTable({
       <div className="rounded-lg border border-border overflow-hidden">
         {/* Table header */}
         <div className="grid grid-cols-[2rem_1fr_1fr_2fr_4rem] gap-2 px-3 py-2 bg-background border-b border-border">
-          <span className="text-[10px] font-semibold text-foreground-muted uppercase">
-            #
-          </span>
-          <span className="text-[10px] font-semibold text-foreground-muted uppercase">
-            Name
-          </span>
-          <span className="text-[10px] font-semibold text-foreground-muted uppercase">
-            Company
-          </span>
-          <span className="text-[10px] font-semibold text-foreground-muted uppercase">
-            Opener
-          </span>
-          <span className="text-[10px] font-semibold text-foreground-muted uppercase">
-            Actions
-          </span>
+          <span className="text-[10px] font-semibold text-foreground-muted uppercase">#</span>
+          <span className="text-[10px] font-semibold text-foreground-muted uppercase">Name</span>
+          <span className="text-[10px] font-semibold text-foreground-muted uppercase">Company</span>
+          <span className="text-[10px] font-semibold text-foreground-muted uppercase">Opener</span>
+          <span className="text-[10px] font-semibold text-foreground-muted uppercase">Actions</span>
         </div>
 
         {/* Rows */}
@@ -97,18 +77,10 @@ export function ResultsTable({
                   "group grid grid-cols-[2rem_1fr_1fr_2fr_4rem] gap-2 px-3 py-2 border-b border-border last:border-b-0 hover:bg-background/50",
                   locked && "select-none"
                 )}
-                style={
-                  locked
-                    ? { filter: "blur(4px)", pointerEvents: "none" }
-                    : undefined
-                }
+                style={locked ? { filter: "blur(4px)", pointerEvents: "none" } : undefined}
               >
-                <span className="text-[11px] text-foreground-muted tabular-nums">
-                  {index + 1}
-                </span>
-                <span className="text-[11px] text-foreground truncate">
-                  {prospect.name}
-                </span>
+                <span className="text-[11px] text-foreground-muted tabular-nums">{index + 1}</span>
+                <span className="text-[11px] text-foreground truncate">{prospect.name}</span>
                 <span className="text-[11px] text-foreground-secondary truncate">
                   {prospect.company}
                 </span>
@@ -121,7 +93,7 @@ export function ResultsTable({
                     className="text-[10px] px-1.5 py-0.5 rounded border border-border text-foreground-muted hover:text-foreground hover:border-foreground-muted transition-colors"
                     title="Copy opener"
                   >
-                    {copiedIndex === index ? "Copied!" : "Steal this \u{1F4CB}"}
+                    {copiedIndex === index ? "Copied!" : "Copy"}
                   </button>
                   <button
                     className="text-[10px] px-1 py-0.5 rounded border border-border text-foreground-muted hover:text-foreground hover:border-foreground-muted transition-colors"
@@ -157,11 +129,8 @@ export function ResultsTable({
       </button>
 
       {/* Sign-off */}
-      <p
-        className="text-xs font-medium pt-1"
-        style={{ color: agentColor }}
-      >
-        Close-worthy. Go get them. — Harvey 💼
+      <p className="text-xs font-medium pt-1" style={{ color: agentColor }}>
+        Close-worthy. Go get them. — Harvey
       </p>
     </div>
   );

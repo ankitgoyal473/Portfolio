@@ -170,10 +170,7 @@ export function AgentChatbar({
             }}
           >
             <span className="max-w-[100px] truncate">{fileName}</span>
-            <button
-              onClick={() => setFileName(null)}
-              className="hover:opacity-70"
-            >
+            <button onClick={() => setFileName(null)} className="hover:opacity-70">
               <X className="w-3 h-3" />
             </button>
           </div>
@@ -208,9 +205,7 @@ export function AgentChatbar({
 
           {/* Locked label */}
           {isLocked && (
-            <span className="text-xs font-mono text-error whitespace-nowrap">
-              Limit reached
-            </span>
+            <span className="text-xs font-mono text-error whitespace-nowrap">Limit reached</span>
           )}
 
           {/* Send / Lock button */}

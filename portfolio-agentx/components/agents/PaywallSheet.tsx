@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { TrendingUp, Search, Mail, type LucideIcon } from "lucide-react";
 import { PAYWALL_SHEET_DATA } from "@/lib/paywall";
 
 interface PaywallSheetProps {
@@ -10,28 +11,23 @@ interface PaywallSheetProps {
   onClose: () => void;
 }
 
-const AGENT_EMOJIS: Record<string, string> = {
-  warren: "\u{1F9D0}",
-  sherlock: "\u{1F50E}",
-  harvey: "\u{1F4BC}",
+const AGENT_ICONS: Record<string, LucideIcon> = {
+  warren: TrendingUp,
+  sherlock: Search,
+  harvey: Mail,
 };
 
 const AGENT_NAMES: Record<string, string> = {
-  warren: "WARRen",
+  warren: "Warren",
   sherlock: "Sherlock",
   harvey: "Harvey",
 };
 
-export function PaywallSheet({
-  agentId,
-  agentColor,
-  isOpen,
-  onClose,
-}: PaywallSheetProps) {
+export function PaywallSheet({ agentId, agentColor, isOpen, onClose }: PaywallSheetProps) {
   const data = PAYWALL_SHEET_DATA[agentId];
   if (!data) return null;
 
-  const emoji = AGENT_EMOJIS[agentId] ?? "";
+  const AgentIcon = AGENT_ICONS[agentId] ?? TrendingUp;
   const name = AGENT_NAMES[agentId] ?? agentId;
 
   return (
@@ -65,24 +61,17 @@ export function PaywallSheet({
 
               {/* Agent identity */}
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-2xl">{emoji}</span>
-                <span
-                  className="text-lg font-bold"
-                  style={{ color: agentColor }}
-                >
+                <AgentIcon className="w-6 h-6" style={{ color: agentColor }} />
+                <span className="text-lg font-bold" style={{ color: agentColor }}>
                   {name}
                 </span>
               </div>
 
               {/* Headline */}
-              <h3 className="text-foreground font-semibold text-base mb-1">
-                {data.headline}
-              </h3>
+              <h3 className="text-foreground font-semibold text-base mb-1">{data.headline}</h3>
 
               {/* Subtext */}
-              <p className="text-foreground-secondary text-sm mb-4">
-                {data.subtext}
-              </p>
+              <p className="text-foreground-secondary text-sm mb-4">{data.subtext}</p>
 
               {/* Feature pills */}
               <div className="flex flex-wrap gap-2 mb-4">
@@ -103,17 +92,12 @@ export function PaywallSheet({
 
               {/* Price */}
               <div className="mb-1">
-                <span
-                  className="text-2xl font-bold"
-                  style={{ color: agentColor }}
-                >
+                <span className="text-2xl font-bold" style={{ color: agentColor }}>
                   {data.price}
                 </span>
                 <span className="text-foreground-muted text-sm">/month</span>
               </div>
-              <p className="text-xs text-foreground-muted mb-5">
-                Cancel anytime · No contracts
-              </p>
+              <p className="text-xs text-foreground-muted mb-5">Cancel anytime · No contracts</p>
 
               {/* Primary CTA */}
               <button

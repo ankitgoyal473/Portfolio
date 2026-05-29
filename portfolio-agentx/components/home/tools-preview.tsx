@@ -1,13 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeader } from "@/components/shared/section-header";
 import { tools } from "@/lib/constants";
@@ -35,9 +29,7 @@ export function ToolsPreview() {
               >
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle style={{ color: agent.color }}>
-                      {agent.name}
-                    </CardTitle>
+                    <CardTitle style={{ color: agent.color }}>{agent.name}</CardTitle>
                     <Badge variant="secondary">{agent.price}</Badge>
                   </div>
                   <CardDescription>{agent.personality}</CardDescription>

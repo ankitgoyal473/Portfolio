@@ -9,11 +9,7 @@ import { CheckCircle, XCircle, Clock } from "lucide-react";
 
 interface LeadCardProps {
   lead: Lead;
-  onStatusChange: (
-    id: string,
-    status: "accepted" | "declined",
-    note?: string
-  ) => void;
+  onStatusChange: (id: string, status: "accepted" | "declined", note?: string) => void;
 }
 
 export function LeadCard({ lead, onStatusChange }: LeadCardProps) {
@@ -36,8 +32,7 @@ export function LeadCard({ lead, onStatusChange }: LeadCardProps) {
     });
   };
 
-  const formatCurrency = (n: number) =>
-    `$${n.toLocaleString("en-US")}`;
+  const formatCurrency = (n: number) => `$${n.toLocaleString("en-US")}`;
 
   const statusBadge = () => {
     switch (lead.status) {
@@ -68,9 +63,7 @@ export function LeadCard({ lead, onStatusChange }: LeadCardProps) {
   return (
     <Card className="relative overflow-hidden">
       <div className="flex items-start justify-between">
-        <p className="text-xs text-foreground-muted">
-          {formatDate(lead.createdAt)}
-        </p>
+        <p className="text-xs text-foreground-muted">{formatDate(lead.createdAt)}</p>
         {statusBadge()}
       </div>
 
@@ -83,30 +76,20 @@ export function LeadCard({ lead, onStatusChange }: LeadCardProps) {
       </div>
 
       <p className="mt-3 text-sm font-medium text-accent">
-        {formatCurrency(lead.estimateLow)} &ndash;{" "}
-        {formatCurrency(lead.estimateHigh)}
+        {formatCurrency(lead.estimateLow)} &ndash; {formatCurrency(lead.estimateHigh)}
       </p>
 
-      {lead.stack && (
-        <p className="mt-2 text-xs text-foreground-muted">{lead.stack}</p>
-      )}
+      {lead.stack && <p className="mt-2 text-xs text-foreground-muted">{lead.stack}</p>}
 
       {lead.notes && (
-        <p className="mt-2 text-sm italic text-foreground-secondary">
-          &ldquo;{lead.notes}&rdquo;
-        </p>
+        <p className="mt-2 text-sm italic text-foreground-secondary">&ldquo;{lead.notes}&rdquo;</p>
       )}
 
-      {lead.userEmail && (
-        <p className="mt-2 text-xs text-foreground-secondary">
-          {lead.userEmail}
-        </p>
-      )}
+      {lead.userEmail && <p className="mt-2 text-xs text-foreground-secondary">{lead.userEmail}</p>}
 
       {lead.ankitNote && (
         <p className="mt-2 rounded-md border border-border bg-background-secondary p-2 text-xs text-foreground-secondary">
-          <span className="font-medium text-foreground">Note:</span>{" "}
-          {lead.ankitNote}
+          <span className="font-medium text-foreground">Note:</span> {lead.ankitNote}
         </p>
       )}
 
@@ -140,9 +123,7 @@ export function LeadCard({ lead, onStatusChange }: LeadCardProps) {
         </div>
       )}
 
-      {isUpdating && (
-        <p className="mt-4 text-xs text-foreground-muted">Updated.</p>
-      )}
+      {isUpdating && <p className="mt-4 text-xs text-foreground-muted">Updated.</p>}
     </Card>
   );
 }

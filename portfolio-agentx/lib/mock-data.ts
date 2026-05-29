@@ -1,11 +1,5 @@
-export interface MockUser {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  plan: "free" | "pro";
-  joinedAt: string;
-}
+// MockUser is now the real Supabase User type for backward compatibility
+export type { User as MockUser } from '@supabase/supabase-js'
 
 export interface AgentUsage {
   used: number;
@@ -33,14 +27,8 @@ export interface MockLead {
   createdAt: string;
 }
 
-export const mockUser: MockUser = {
-  id: "mock_user_1",
-  name: "Ankit Goyal",
-  email: "ankit@agentx.ai",
-  avatar: "AG",
-  plan: "free",
-  joinedAt: "2025-01-01",
-};
+// mockUser is no longer used — real auth comes from Supabase
+export const mockUser = null;
 
 export const mockUsage: Record<string, AgentUsage> = {
   warren: { used: 0, limit: 1, unit: "reports" },

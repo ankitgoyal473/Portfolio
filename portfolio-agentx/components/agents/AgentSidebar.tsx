@@ -8,6 +8,10 @@ import {
   Plus,
   Lock,
   X,
+  TrendingUp,
+  Search,
+  Mail,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SessionRecord } from "@/lib/mock-sessions";
@@ -25,10 +29,10 @@ interface AgentSidebarProps {
   onToggle: () => void;
 }
 
-const AGENT_EMOJIS: Record<string, string> = {
-  warren: "\u{1F9D0}",
-  sherlock: "\u{1F50E}",
-  harvey: "\u{1F4BC}",
+const AGENT_ICONS: Record<string, LucideIcon> = {
+  warren: TrendingUp,
+  sherlock: Search,
+  harvey: Mail,
 };
 
 const AGENT_NAMES: Record<string, string> = {
@@ -75,7 +79,7 @@ export function AgentSidebar({
   isOpen,
   onToggle,
 }: AgentSidebarProps) {
-  const emoji = AGENT_EMOJIS[agentId] ?? "";
+  const AgentIcon = AGENT_ICONS[agentId] ?? TrendingUp;
   const agentName = AGENT_NAMES[agentId] ?? agentId;
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -101,15 +105,12 @@ export function AgentSidebar({
         <div className="hidden md:flex flex-col items-center w-12 h-full border-r border-border bg-background py-4 gap-3">
           <button
             onClick={onToggle}
-            className="text-lg hover:scale-110 transition-transform"
+            className="hover:scale-110 transition-transform"
             aria-label="Open sidebar"
           >
-            {emoji}
+            <AgentIcon className="w-5 h-5" style={{ color: agentColor }} />
           </button>
-          <div
-            className="w-2 h-2 rounded-full"
-            style={{ backgroundColor: dotColor }}
-          />
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: dotColor }} />
           <button
             onClick={onToggle}
             className="mt-auto text-foreground-muted hover:text-foreground transition-colors"
@@ -135,8 +136,9 @@ export function AgentSidebar({
     <div className="flex flex-col h-full w-60 border-r border-border bg-background overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-border/50">
-        <span className="font-bold text-sm" style={{ color: agentColor }}>
-          {emoji} {agentName}
+        <span className="font-bold text-sm flex items-center gap-1.5" style={{ color: agentColor }}>
+          <AgentIcon className="w-4 h-4" />
+          {agentName}
         </span>
         <button
           onClick={onToggle}
@@ -193,9 +195,7 @@ export function AgentSidebar({
       {/* Session list */}
       <div className="flex-1 overflow-y-auto px-2">
         {sessions.length === 0 && (
-          <p className="text-xs text-foreground-muted px-2 py-4 text-center">
-            No sessions yet
-          </p>
+          <p className="text-xs text-foreground-muted px-2 py-4 text-center">No sessions yet</p>
         )}
         {sessions.map((session) => {
           const isActive = session.id === activeSessionId;
@@ -217,9 +217,7 @@ export function AgentSidebar({
                   : undefined
               }
             >
-              <div className="text-xs text-foreground truncate font-medium">
-                {session.name}
-              </div>
+              <div className="text-xs text-foreground truncate font-medium">{session.name}</div>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-[10px] text-foreground-muted">
                   {getRelativeDate(session.createdAt)}

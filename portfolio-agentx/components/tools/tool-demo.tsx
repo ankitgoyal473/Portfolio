@@ -90,9 +90,7 @@ export function ToolDemo({ slug }: ToolDemoProps) {
     return (
       <div className="rounded-xl border border-border bg-[#0D0D0D] p-8 font-mono text-sm h-full min-h-[400px] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-foreground-secondary text-lg mb-2">
-            Demo Coming Soon
-          </p>
+          <p className="text-foreground-secondary text-lg mb-2">Demo Coming Soon</p>
           <p className="text-foreground-secondary/60 text-xs">
             This tool is currently in development.
           </p>
@@ -110,9 +108,7 @@ export function ToolDemo({ slug }: ToolDemoProps) {
           <div className="h-3 w-3 rounded-full bg-[#FFBD2E]" />
           <div className="h-3 w-3 rounded-full bg-[#27C93F]" />
         </div>
-        <span className="text-xs text-foreground-secondary font-mono">
-          warren-analysis.sh
-        </span>
+        <span className="text-xs text-foreground-secondary font-mono">warren-analysis.sh</span>
         <div className="w-12" />
       </div>
 
@@ -128,9 +124,7 @@ export function ToolDemo({ slug }: ToolDemoProps) {
             {`fundamental analysis powered by AI.`}
           </span>
         )}
-        {isRunning && (
-          <span className="inline-block w-2 h-4 bg-green-400 animate-pulse ml-0.5" />
-        )}
+        {isRunning && <span className="inline-block w-2 h-4 bg-green-400 animate-pulse ml-0.5" />}
       </div>
 
       {/* Controls */}
@@ -141,12 +135,7 @@ export function ToolDemo({ slug }: ToolDemoProps) {
             Run Analysis (AAPL)
           </Button>
         ) : (
-          <Button
-            onClick={handleStop}
-            variant="secondary"
-            size="sm"
-            className="w-full"
-          >
+          <Button onClick={handleStop} variant="secondary" size="sm" className="w-full">
             <Square className="h-4 w-4" />
             Stop
           </Button>

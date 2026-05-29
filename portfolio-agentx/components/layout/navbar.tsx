@@ -56,9 +56,16 @@ export function Navbar() {
                 className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-background-card"
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-background text-sm font-semibold">
-                  {user.avatar}
+                  {(user.user_metadata?.full_name ?? user.email ?? "?")
+                    .split(" ")
+                    .map((w: string) => w[0])
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase()}
                 </div>
-                <span className="text-sm text-foreground">{user.name}</span>
+                <span className="text-sm text-foreground">
+                  {user.user_metadata?.full_name ?? user.email}
+                </span>
               </button>
 
               {dropdownOpen && (
@@ -123,9 +130,16 @@ export function Navbar() {
                 <div className="flex w-full items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-background text-sm font-semibold">
-                      {user.avatar}
+                      {(user.user_metadata?.full_name ?? user.email ?? "?")
+                        .split(" ")
+                        .map((w: string) => w[0])
+                        .slice(0, 2)
+                        .join("")
+                        .toUpperCase()}
                     </div>
-                    <span className="text-sm text-foreground">{user.name}</span>
+                    <span className="text-sm text-foreground">
+                      {user.user_metadata?.full_name ?? user.email}
+                    </span>
                   </div>
                   <button
                     onClick={() => {

@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { services } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Work With Ankit Goyal | AGentX",
+};
 import { SectionHeader } from "@/components/shared/section-header";
 import { AnimatedGrid } from "@/components/shared/animated-grid";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -60,8 +65,8 @@ export default function HirePage() {
             Let&apos;s Build Something Together
           </h1>
           <p className="mt-6 text-lg text-foreground-secondary max-w-2xl mx-auto">
-            Whether you need a freelance AI engineer for a project or a
-            full-time hire for your team, I deliver systems that work at scale.
+            Whether you need a freelance AI engineer for a project or a full-time hire for your
+            team, I deliver systems that work at scale.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button size="lg">
@@ -117,15 +122,9 @@ export default function HirePage() {
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-muted border border-accent/20 mb-4">
                 <step.icon className="h-6 w-6 text-accent" />
               </div>
-              <span className="text-xs font-medium text-accent mb-2">
-                Step {i + 1}
-              </span>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                {step.title}
-              </h3>
-              <p className="text-sm text-foreground-secondary">
-                {step.description}
-              </p>
+              <span className="text-xs font-medium text-accent mb-2">Step {i + 1}</span>
+              <h3 className="text-lg font-semibold text-foreground mb-2">{step.title}</h3>
+              <p className="text-sm text-foreground-secondary">{step.description}</p>
             </div>
           ))}
         </div>
@@ -135,12 +134,9 @@ export default function HirePage() {
       <section className="container mx-auto px-4 py-20">
         <div className="mx-auto max-w-2xl rounded-xl border border-border bg-background-card p-8 text-center sm:p-12">
           <Calendar className="mx-auto h-10 w-10 text-accent mb-4" />
-          <h3 className="text-2xl font-bold text-foreground mb-2">
-            Book a Discovery Call
-          </h3>
+          <h3 className="text-2xl font-bold text-foreground mb-2">Book a Discovery Call</h3>
           <p className="text-foreground-secondary mb-6">
-            30-minute call to discuss your project, timeline, and budget. No
-            commitment required.
+            30-minute call to discuss your project, timeline, and budget. No commitment required.
           </p>
           <Button size="lg">Book a Call</Button>
         </div>
@@ -157,8 +153,8 @@ export default function HirePage() {
             <CardHeader>
               <CardTitle>What I&apos;m Looking For</CardTitle>
               <CardDescription>
-                Senior/Staff-level roles in AI Engineering, ML Platform, or Data
-                Engineering at companies solving meaningful problems with AI.
+                Senior/Staff-level roles in AI Engineering, ML Platform, or Data Engineering at
+                companies solving meaningful problems with AI.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -182,9 +178,7 @@ export default function HirePage() {
 
               {/* Tech Stack */}
               <div>
-                <h4 className="text-sm font-semibold text-foreground mb-3">
-                  Tech Stack
-                </h4>
+                <h4 className="text-sm font-semibold text-foreground mb-3">Tech Stack</h4>
                 <div className="flex flex-wrap gap-2">
                   {techStack.map((tech) => (
                     <Badge key={tech} variant="secondary">

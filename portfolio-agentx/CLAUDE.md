@@ -18,15 +18,17 @@ npx tsc --noEmit    # Type check without emitting
 ## Verification (before marking work done)
 
 Run all three in sequence:
+
 ```bash
 npx tsc --noEmit && npm run lint && npm run build
 ```
+
 For UI changes: also start `npm run dev` and visually verify in browser.
 
 ## Architecture
 
 - `app/` — App Router pages and API routes (no `src/` directory)
-- `app/agents/` — Agent landing + `[name]` dynamic route (WARRen, Sherlock, Harvey)
+- `app/agents/` — Agent landing + `[name]` dynamic route (Warren, Sherlock, Harvey)
 - `components/ui/` — Shadcn-style primitives (Button, Card, Badge) using CVA
 - `components/shared/` — Reusable components (AnimatedGrid, Typewriter, SectionHeader)
 - `components/agents/` — Chat UX components (AgentSidebar, ChatThread, AgentChatbar, ThinkingBubble, PaywallSheet, PillarCards, CaseFileCard, ResultsTable)
@@ -47,18 +49,20 @@ For UI changes: also start `npm run dev` and visually verify in browser.
 
 Three AI agents with distinct names, personalities, and colors. Never call them "tools", "bots", or "features" — use their names.
 
-- **WARRen** (`#f0b429` gold) — Buffett-style stock analyst → `/agents/warren`
+- **Warren** (`#f0b429` gold) — Buffett-style stock analyst → `/agents/warren`
 - **Sherlock** (`#4a9eff` blue) — Competitor intelligence detective → `/agents/sherlock`
 - **Harvey** (`#00c896` green) — Cold email personalization, fully interactive demo → `/agents/harvey`
 
+Each agent uses Lucide icons (not emojis) for visual identity: Warren = TrendingUp, Sherlock = Search, Harvey = Mail.
+
 Rules: `@persona.md` is the canonical reference for voice, copy, and naming. Each agent's UI uses ONLY its own color and personality. Platform shared UI uses tan (#E8D5B8).
 
-Correct: WARRen, Sherlock, Harvey, AGentX. Wrong: warren analysis, sherlock tool, harvey bot.
+Correct: Warren, Sherlock, Harvey, AGentX. Wrong: warren analysis, sherlock tool, harvey bot.
 
 ## Key Features
 
 - **Agent chat UX**: `/agents/[name]` — Claude-style chat interface with sidebar, threaded messages, thinking animations, structured output (PillarCards/CaseFileCard/ResultsTable), and paywall gating
-- **Paywall system**: 4 stages (fresh → aware → warning → locked). Usage stored in localStorage key `agentx_usage_{agentId}`. Limits: WARRen=1, Sherlock=1, Harvey=10. PaywallSheet auto-opens on lock.
+- **Paywall system**: 4 stages (fresh → aware → warning → locked). Usage stored in localStorage key `agentx_usage_{agentId}`. Limits: Warren=1, Sherlock=1, Harvey=10. PaywallSheet auto-opens on lock.
 - **Session history**: Sidebar shows past sessions (localStorage key `agentx_sessions_{agentId}`). Click to replay. Max 20 per agent FIFO.
 - **Portfolio pages**: Home, Projects (filterable), Tools (2 utility tools with mock streaming demos), Hire (dual-audience)
 - **Discovery Chat**: Floating widget on all pages → 5-stage Q&A → auto-estimate → submit lead
@@ -88,3 +92,15 @@ Key tokens: `bg-background` (#0A0A0A), `bg-background-card` (#1E1E1E), `text-acc
 - Components use `cn()` from `@/lib/utils` for class merging
 - "use client" only when component needs browser APIs (useState, useEffect, etc.)
 - ESLint flat config (eslint.config.mjs) with `core-web-vitals` + `typescript`
+- Prettier auto-formats .ts/.tsx on every write/edit (via PostToolUse hook)
+
+## Available Skills
+
+- `/verify` — Run `tsc --noEmit && lint && build`. Use before marking work done.
+- `/dev` — Start dev server and verify UI changes visually (responsive breakpoints, animations, console errors).
+- `/agent-page` — Reference for building/modifying agent chat pages. Enforces persona rules, colors, naming.
+- `/new-agent` — Step-by-step guide for adding a 4th+ agent to the platform.
+- `/paywall-reset` — Reset localStorage usage to test all paywall stages.
+- `/deploy` — Pre-deployment checklist for Vercel (env vars, git push, post-deploy verification).
+- `/wire-supabase` — Replace mock localStorage with real Supabase + Resend integration.
+- `/component` — Reference for creating new components (Tailwind v4 tokens, cn() usage, agent colors).

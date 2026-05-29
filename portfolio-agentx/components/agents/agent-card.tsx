@@ -12,7 +12,7 @@ interface AgentCardProps {
 
 export function AgentCard({ agent }: AgentCardProps) {
   return (
-    <Link href={`/agents/${agent.slug}`}>
+    <Link href={`/agents/${agent.slug}`} className="flex-1 flex flex-col">
       <motion.div
         whileHover={{ y: -4 }}
         className="group relative flex h-full flex-col rounded-xl border border-border bg-background-card p-6 transition-all duration-300"
@@ -32,10 +32,7 @@ export function AgentCard({ agent }: AgentCardProps) {
         <div className="relative z-10 flex flex-1 flex-col">
           {/* Header */}
           <div className="mb-4 flex items-center justify-between">
-            <h3
-              className="text-2xl font-bold"
-              style={{ color: agent.color }}
-            >
+            <h3 className="text-2xl font-bold" style={{ color: agent.color }}>
               {agent.name}
             </h3>
             <Badge variant="secondary">{agent.price}</Badge>
@@ -47,14 +44,10 @@ export function AgentCard({ agent }: AgentCardProps) {
           </p>
 
           {/* Personality */}
-          <p className="mb-6 flex-1 text-sm text-foreground-secondary">
-            {agent.personality}
-          </p>
+          <p className="mb-6 flex-1 text-sm text-foreground-secondary">{agent.personality}</p>
 
           {/* Free limit */}
-          <p className="mb-4 text-xs text-foreground-secondary">
-            Free: {agent.freeLimit}
-          </p>
+          <p className="mb-4 text-xs text-foreground-secondary">Free: {agent.freeLimit}</p>
 
           {/* CTA */}
           <Button

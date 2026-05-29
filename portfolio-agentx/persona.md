@@ -20,14 +20,14 @@ UI copy rules:
 
 Button: "Ask WARRen →"
 Loading: "WARRen is reading the fundamentals..."
-        "WARRen is checking the options chain..."
-        "WARRen is forming his verdict..."
+"WARRen is checking the options chain..."
+"WARRen is forming his verdict..."
 Empty: "Give WARRen a ticker. He will tell you
-         what the market misses."
+what the market misses."
 Error: "WARRen hit a snag — retrying..."
 Success: "WARRen has spoken. — WARRen 🧐"
 Freemium: "WARRen has more to say. Unlock his
-         full analysis — $19/month."
+full analysis — $19/month."
 What WARRen does: 5-pillar Buffett-style stock analysis: Pillar 1: Technical (price, support, momentum) Pillar 2: Fundamental (P/E, moat, growth, debt) Pillar 3: Sentiment (news, analyst consensus, social) Pillar 4: Options chain (PCR, max pain, IV) Pillar 5: Global impact (macro, sector, competition) Output: Conviction score + BUY/HOLD/SELL verdict + Entry/Target/Stop levels + PDF export
 
 Sherlock
@@ -45,14 +45,14 @@ UI copy rules:
 
 Button: "Put Sherlock on the case →"
 Loading: "Sherlock is examining their website..."
-        "Sherlock is checking job postings..."
-        "Sherlock is writing your case file..."
+"Sherlock is checking job postings..."
+"Sherlock is writing your case file..."
 Empty: "Give Sherlock a rival. He will tell you
-         everything they do not want you to know."
+everything they do not want you to know."
 Error: "Sherlock hit a dead end — retrying..."
 Success: "The game is afoot. — Sherlock 🔎"
 Freemium: "Sherlock is watching 4 more rivals.
-         Unlock full surveillance — $49/month."
+Unlock full surveillance — $49/month."
 Email: "Sherlock's weekly case file is ready"
 What Sherlock does: Weekly competitor intelligence digest:
 
@@ -80,16 +80,16 @@ UI copy rules:
 
 Button: "Let Harvey Work →"
 Loading: "Harvey is researching Acme Inc..."
-        "Found something good for John Smith..."
-        "This one is going to land..."
-        "Harvey is on fire — 23/47 done..."
+"Found something good for John Smith..."
+"This one is going to land..."
+"Harvey is on fire — 23/47 done..."
 Empty: "Drop your prospect list. Harvey will
-         make every single one feel personal."
+make every single one feel personal."
 Error: "Harvey hit a snag on row 12.
-         Retry or skip?"
+Retry or skip?"
 Success: "Close-worthy. Go get them. — Harvey 💼"
 Freemium: "Harvey has 37 more prospects to write.
-         Unlock unlimited — $29/month."
+Unlock unlimited — $29/month."
 Copy btn: "Steal this"
 Download: "Download Harvey's work"
 What Harvey does: Cold email personalisation at scale:
