@@ -30,7 +30,7 @@ export const agents: Agent[] = [
     name: "Warren",
     fullName: "Wealth & Asset Research & Recommendation Engine",
     slug: "warren",
-    color: "#f0b429",
+    color: "#c4b5fd",
     price: "$19/month",
     freeLimit: "1 report/month",
     personality:
@@ -52,7 +52,7 @@ export const agents: Agent[] = [
     name: "Sherlock",
     fullName: "Systematic Heuristic Evidence & Research for Leveraging cOmpetitor Knowledge",
     slug: "sherlock",
-    color: "#4a9eff",
+    color: "#8b5cf6",
     price: "$49/month",
     freeLimit: "1 URL, manual only",
     personality:
@@ -74,7 +74,7 @@ export const agents: Agent[] = [
     name: "Harvey",
     fullName: "Hyper-personalised AI Revenue & Value Engine",
     slug: "harvey",
-    color: "#00c896",
+    color: "#6366f1",
     price: "$29/month",
     freeLimit: "10 rows/month",
     personality: "Elite sales copywriter. Closing energy. Confident, punchy, results-obsessed.",

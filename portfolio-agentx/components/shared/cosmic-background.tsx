@@ -39,7 +39,7 @@ export function CosmicBackground({
           width: 600,
           height: 600,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(240,180,41,0.18) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(196,181,253,0.14) 0%, transparent 70%)",
           filter: "blur(80px)",
           animation: "aurora-1 18s ease-in-out infinite",
         }}
@@ -54,7 +54,7 @@ export function CosmicBackground({
           width: 500,
           height: 500,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(74,158,255,0.15) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%)",
           filter: "blur(90px)",
           animation: "aurora-2 22s ease-in-out infinite",
           animationDelay: "-9s",
@@ -70,7 +70,7 @@ export function CosmicBackground({
           width: 420,
           height: 420,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,200,150,0.10) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)",
           filter: "blur(100px)",
           animation: "aurora-3 26s ease-in-out infinite",
           animationDelay: "-13s",
@@ -80,7 +80,7 @@ export function CosmicBackground({
       {/* ── Rotating ring ─────────────────────────────── */}
       <div
         className="absolute inset-0 flex items-center justify-center"
-        style={{ filter: `drop-shadow(0 0 14px rgba(240,180,41,0.35)) drop-shadow(0 0 28px rgba(74,158,255,0.20))` }}
+        style={{ filter: `drop-shadow(0 0 14px rgba(182,163,255,0.35)) drop-shadow(0 0 28px rgba(139,92,246,0.20))` }}
       >
         {/* Outer ring wrapper — spins */}
         <div style={{ animation: "ring-spin 24s linear infinite", width, height }}>
@@ -93,16 +93,16 @@ export function CosmicBackground({
           >
             <defs>
               <linearGradient id="disk-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stopColor="#f0b429" stopOpacity="0.9" />
-                <stop offset="30%"  stopColor="#ff6b00" stopOpacity="0.7" />
-                <stop offset="55%"  stopColor="#4a9eff" stopOpacity="0.5" />
-                <stop offset="80%"  stopColor="#00c896" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#f0b429" stopOpacity="0.9" />
+                <stop offset="0%"   stopColor="#c4b5fd" stopOpacity="0.9" />
+                <stop offset="30%"  stopColor="#8b5cf6" stopOpacity="0.7" />
+                <stop offset="55%"  stopColor="#6366f1" stopOpacity="0.5" />
+                <stop offset="80%"  stopColor="#4f46e5" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#c4b5fd" stopOpacity="0.9" />
               </linearGradient>
               <linearGradient id="disk-gradient-2" x1="100%" y1="0%" x2="0%" y2="0%">
-                <stop offset="0%"   stopColor="#f0b429" stopOpacity="0.4" />
-                <stop offset="50%"  stopColor="#4a9eff" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#f0b429" stopOpacity="0.4" />
+                <stop offset="0%"   stopColor="#c4b5fd" stopOpacity="0.4" />
+                <stop offset="50%"  stopColor="#8b5cf6" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#c4b5fd" stopOpacity="0.4" />
               </linearGradient>
             </defs>
 
@@ -129,7 +129,7 @@ export function CosmicBackground({
             <ellipse
               cx={cx} cy={cy}
               rx={rx * 0.72} ry={ry * 0.72}
-              stroke="rgba(255,230,150,0.5)"
+              stroke="rgba(196,181,253,0.6)"
               strokeWidth="1.5"
               fill="none"
               style={{ animation: "ring-pulse 3s ease-in-out infinite" }}

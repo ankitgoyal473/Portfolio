@@ -1,21 +1,34 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #0a0a0a;
-  --color-background-secondary: #141414;
-  --color-background-card: #1e1e1e;
-  --color-foreground: #fafafa;
-  --color-foreground-secondary: #a1a1aa;
-  --color-foreground-muted: #71717a;
-  --color-accent: #e8d5b8;
-  --color-accent-hover: #f0e6d2;
-  --color-accent-muted: rgba(232, 213, 184, 0.1);
-  --color-border: #27272a;
-  --color-border-hover: #3f3f46;
+  --color-background: #050505;
+  --color-background-secondary: #080808;
+  --color-background-card: #0d0d12;
+  --color-foreground: #ffffff;
+  --color-foreground-secondary: #8887a0;
+  --color-foreground-muted: #55546e;
+  --color-accent: #b6a3ff;
+  --color-accent-hover: #c4b5fd;
+  --color-accent-muted: rgba(182, 163, 255, 0.08);
+  --color-border: #1c1c2e;
+  --color-border-hover: #2d2d45;
   --color-success: #10b981;
   --color-error: #ef4444;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+:root {
+  --color-accent-strong: #8b5cf6;
+  --color-glass-bg: rgba(13, 13, 18, 0.6);
+  --color-glass-border: rgba(182, 163, 255, 0.08);
+}
+
+.glass {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-glass-border);
 }
 
 * {
