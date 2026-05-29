@@ -11,7 +11,7 @@ import type { Lead } from "@/lib/mock-leads";
 import { StatsRow } from "@/components/admin/stats-row";
 import { LeadCard } from "@/components/admin/lead-card";
 import { Card } from "@/components/ui/card";
-import { Shield, Users } from "lucide-react";
+import { Shield, Users, CreditCard } from "lucide-react";
 
 type AdminUser = {
   id: string;
@@ -20,6 +20,17 @@ type AdminUser = {
   is_premium: boolean;
   is_admin: boolean;
   created_at: string;
+};
+
+type SubscriptionRow = {
+  id: string;
+  user_email: string;
+  user_name: string;
+  status: string;
+  started_at: string;
+  expires_at: string;
+  razorpay_payment_id: string | null;
+  amount_formatted: string;
 };
 
 // Map the snake_case API response to the camelCase Lead type
@@ -62,6 +73,7 @@ function AdminContent() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionRow[]>([]);
 
   const isAdmin = user?.user_metadata?.is_admin === true;
 
@@ -89,6 +101,11 @@ function AdminContent() {
           setUsers(data as AdminUser[]);
         }
       })
+      .catch(() => {});
+
+    fetch("/api/admin/subscriptions")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (Array.isArray(data)) setSubscriptions(data); })
       .catch(() => {});
   }, [isAdmin]);
 
@@ -285,6 +302,56 @@ function AdminContent() {
                     >
                       {u.is_premium ? "✓ Premium" : "Grant Premium"}
                     </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Subscribers section */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <CreditCard className="h-5 w-5 text-accent" />
+            <h2 className="text-xl font-bold text-foreground">Subscribers</h2>
+            <span className="ml-1 rounded-full bg-background-card border border-border px-2 py-0.5 text-xs text-foreground-secondary">
+              {subscriptions.length}
+            </span>
+          </div>
+
+          {subscriptions.length === 0 ? (
+            <Card className="text-center">
+              <p className="text-foreground-secondary">No subscriptions yet.</p>
+            </Card>
+          ) : (
+            <div className="rounded-xl border border-border bg-background-card overflow-hidden">
+              {subscriptions.map((sub, idx) => {
+                const isActive = sub.status === "active" && new Date(sub.expires_at) > new Date();
+                const expiryFormatted = new Date(sub.expires_at).toLocaleDateString("en-IN", {
+                  day: "numeric", month: "short", year: "numeric"
+                });
+                return (
+                  <div
+                    key={sub.id}
+                    className={`flex items-center gap-4 px-5 py-4 ${idx !== subscriptions.length - 1 ? "border-b border-border" : ""}`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-foreground truncate">{sub.user_name}</span>
+                        <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
+                          isActive
+                            ? "border-success/30 bg-success/10 text-success"
+                            : "border-error/30 bg-error/10 text-error"
+                        }`}>
+                          {isActive ? "Active" : "Expired"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-foreground-secondary truncate mt-0.5">{sub.user_email}</p>
+                    </div>
+                    <div className="hidden sm:flex flex-col items-end gap-0.5 shrink-0">
+                      <span className="text-xs text-foreground-secondary">Expires {expiryFormatted}</span>
+                      <span className="text-xs text-accent font-semibold">{sub.amount_formatted}</span>
+                    </div>
                   </div>
                 );
               })}

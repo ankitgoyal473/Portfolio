@@ -11,7 +11,13 @@
       "Bash(npx tsc *)",
       "Bash(node -e \"const fs=require\\('fs'\\); try{fs.rmSync\\('.next',{recursive:true,force:true}\\)}catch{}\")",
       "Bash(mkdir -p \"C:\\\\Users\\\\g01421995\\\\OneDrive - Barclays Bank PLC\\\\DATA\\\\DATA_SCIENCE_ML_TEAM\\\\GenAI\\\\Usecase\\\\2026\\\\claude workspace\\\\Personal\\\\portfolio\\\\.claude\\\\skills\\\\new-agent\")",
-      "Bash(mkdir -p \"C:\\\\Users\\\\g01421995\\\\OneDrive - Barclays Bank PLC\\\\DATA\\\\DATA_SCIENCE_ML_TEAM\\\\GenAI\\\\Usecase\\\\2026\\\\claude workspace\\\\Personal\\\\portfolio\\\\.claude\\\\skills\\\\paywall-reset\")"
+      "Bash(mkdir -p \"C:\\\\Users\\\\g01421995\\\\OneDrive - Barclays Bank PLC\\\\DATA\\\\DATA_SCIENCE_ML_TEAM\\\\GenAI\\\\Usecase\\\\2026\\\\claude workspace\\\\Personal\\\\portfolio\\\\.claude\\\\skills\\\\paywall-reset\")",
+      "Bash(gh repo *)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('description',''\\)\\); print\\('---README---'\\); print\\(d.get\\('readme',''\\)[:3000]\\)\")",
+      "WebFetch(domain:github.com)",
+      "Bash(cat next.config.ts)",
+      "Bash(cat next.config.js)",
+      "Bash(cat next.config.mjs)"
     ]
   }
 }

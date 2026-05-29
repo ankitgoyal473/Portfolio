@@ -45,6 +45,11 @@ export default function DashboardPage() {
     emailsWritten: 0,
     sessionsSaved: 0,
   });
+  const [subscription, setSubscription] = useState<{
+    status: string;
+    expires_at: string;
+    daysLeft: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -103,6 +108,27 @@ export default function DashboardPage() {
         setStats((prev) => ({ ...prev, sessionsSaved: mapped.length }));
       });
 
+    // Fetch subscription for premium users
+    if (user.user_metadata?.is_premium) {
+      supabase
+        .from("subscriptions")
+        .select("status, expires_at")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .gt("expires_at", new Date().toISOString())
+        .order("expires_at", { ascending: false })
+        .limit(1)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            const daysLeft = Math.ceil(
+              (new Date(data.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+            );
+            setSubscription({ ...data, daysLeft });
+          }
+        });
+    }
+
     // Fetch leads submitted by the user's email
     if (user.email) {
       fetch("/api/leads")
@@ -140,7 +166,7 @@ export default function DashboardPage() {
             userName={
               user?.user_metadata?.full_name ?? user?.email ?? "Guest"
             }
-            plan="free"
+            plan={subscription ? "pro" : "free"}
           />
 
           {/* 2. Agent Usage Cards */}
@@ -150,11 +176,13 @@ export default function DashboardPage() {
                 key={agent.slug}
                 agent={agent}
                 usage={
-                  usageMap[agent.slug] ?? {
-                    used: 0,
-                    limit: 1,
-                    unit: "uses",
-                  }
+                  subscription
+                    ? { used: 0, limit: 999, unit: UNITS[agent.slug] ?? "uses" }
+                    : usageMap[agent.slug] ?? {
+                        used: 0,
+                        limit: 1,
+                        unit: "uses",
+                      }
                 }
                 index={i}
               />
@@ -165,6 +193,43 @@ export default function DashboardPage() {
           <div className="mt-10">
             <StatsRow stats={stats} />
           </div>
+
+          {/* Subscription card — visible to Pro users */}
+          {subscription && (
+            <div className="mt-10">
+              <div className="rounded-xl border border-accent/20 bg-accent/5 px-6 py-5">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-bold text-accent">✦ AGentX Pro</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        subscription.daysLeft <= 7
+                          ? "bg-error/10 text-error border border-error/20"
+                          : "bg-success/10 text-success border border-success/20"
+                      }`}>
+                        {subscription.daysLeft <= 7 ? `${subscription.daysLeft} days left` : "Active"}
+                      </span>
+                    </div>
+                    <p className="text-sm text-foreground-secondary">
+                      Active until {new Date(subscription.expires_at).toLocaleDateString("en-IN", {
+                        day: "numeric", month: "long", year: "numeric"
+                      })}
+                    </p>
+                  </div>
+                  {subscription.daysLeft <= 7 && (
+                    <button
+                      onClick={() => {
+                        window.location.href = "/agents/warren";
+                      }}
+                      className="rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent hover:bg-accent/20 transition-colors"
+                    >
+                      Renew — ₹999
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Admin Panel — visible only to admins */}
           {user?.user_metadata?.is_admin === true && (

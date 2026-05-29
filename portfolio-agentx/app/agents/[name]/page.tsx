@@ -132,6 +132,10 @@ export default function AgentPage() {
   const [usage, setUsage] = useState<UsageState>({ used: 0, limit: 1, stage: "fresh" });
   const [locked, setLocked] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [subscription, setSubscription] = useState<{
+    expires_at: string;
+    daysLeft: number;
+  } | null>(null);
   const [chips, setChips] = useState<string[]>([]);
   const [harveyContext, setHarveyContext] = useState<{
     file?: File;
@@ -176,6 +180,28 @@ export default function AgentPage() {
         startNewSession();
       }
     });
+
+    // Fetch subscription for premium users
+    if (user?.user_metadata?.is_premium) {
+      const supabase = createBrowserSupabaseClient();
+      supabase
+        .from("subscriptions")
+        .select("expires_at")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .gt("expires_at", new Date().toISOString())
+        .order("expires_at", { ascending: false })
+        .limit(1)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            const daysLeft = Math.ceil(
+              (new Date(data.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+            );
+            setSubscription({ expires_at: data.expires_at, daysLeft });
+          }
+        });
+    }
 
     // Check for ?unlocked=1 query param (post-Stripe redirect)
     const search = window.location.search;
@@ -692,6 +718,21 @@ export default function AgentPage() {
             isRunning={isRunning}
           />
         </div>
+
+        {/* Pro expiry warning banner */}
+        {subscription && subscription.daysLeft <= 7 && (
+          <div className="mx-4 mb-2 flex items-center justify-between rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-2.5 text-sm">
+            <span className="text-amber-400">
+              ⚠ Your Pro plan expires in {subscription.daysLeft} day{subscription.daysLeft !== 1 ? "s" : ""}
+            </span>
+            <button
+              onClick={() => setPaywallOpen(true)}
+              className="ml-4 rounded-md border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/20 transition-colors"
+            >
+              Renew →
+            </button>
+          </div>
+        )}
 
         {/* Fixed chatbar */}
         <AgentChatbar

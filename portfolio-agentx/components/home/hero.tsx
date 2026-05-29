@@ -16,7 +16,7 @@ export function Hero() {
         <div className="animate-fade-up">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background-card/50 px-4 py-1.5 text-sm text-foreground-secondary backdrop-blur-sm">
             <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-            Available for freelance &amp; full-time roles
+            Open to freelance &amp; full-time
           </div>
         </div>
 
@@ -25,8 +25,8 @@ export function Hero() {
         </h1>
 
         <p className="animate-fade-up mx-auto mt-6 max-w-2xl text-lg text-foreground-secondary sm:text-xl [animation-delay:200ms]">
-          Senior AI Engineer building production-grade AI systems. From concept to deployment — I
-          ship tools that generate revenue and save thousands of hours.
+          ML Engineer building production-grade AI systems. From concept to deployment — I
+          ship tools that automate thousands of hours and scale across enterprise teams.
         </p>
 
         <div className="animate-fade-up mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center [animation-delay:300ms]">
@@ -44,16 +44,16 @@ export function Hero() {
 
         <div className="animate-fade-up mt-16 grid grid-cols-3 gap-8 border-t border-border/50 pt-8 [animation-delay:400ms]">
           <div>
-            <p className="text-2xl font-bold text-foreground sm:text-3xl">50+</p>
-            <p className="text-sm text-foreground-muted">Projects Shipped</p>
+            <p className="text-2xl font-bold text-foreground sm:text-3xl">20+</p>
+            <p className="text-sm text-foreground-muted">AI Tools Shipped</p>
           </div>
           <div>
-            <p className="text-2xl font-bold text-foreground sm:text-3xl">$2M+</p>
-            <p className="text-sm text-foreground-muted">Revenue Generated</p>
+            <p className="text-2xl font-bold text-foreground sm:text-3xl">5,000+</p>
+            <p className="text-sm text-foreground-muted">Hours Automated</p>
           </div>
           <div>
-            <p className="text-2xl font-bold text-foreground sm:text-3xl">98%</p>
-            <p className="text-sm text-foreground-muted">Client Satisfaction</p>
+            <p className="text-2xl font-bold text-foreground sm:text-3xl">3+</p>
+            <p className="text-sm text-foreground-muted">Enterprise Teams</p>
           </div>
         </div>
       </div>

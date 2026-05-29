@@ -9,7 +9,7 @@ import { AnimatedGrid } from "@/components/shared/animated-grid";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Hammer, Rocket, Clock, DollarSign, Calendar } from "lucide-react";
+import { Search, Hammer, Rocket, Clock, Calendar } from "lucide-react";
 
 const processSteps = [
   {
@@ -33,24 +33,20 @@ const processSteps = [
 ];
 
 const techStack = [
+  "AWS Bedrock",
+  "GenAI",
+  "RAG Systems",
+  "Agentic AI",
+  "MCP Development",
+  "Claude API",
   "Python",
-  "TypeScript",
-  "AWS",
-  "GCP",
-  "LangChain",
-  "PySpark",
-  "Kubernetes",
-  "Terraform",
   "Next.js",
-  "FastAPI",
-  "PostgreSQL",
-  "Redis",
 ];
 
 const roleHighlights = [
-  "6+ years building production ML and data systems",
-  "Led AI initiatives at Fortune 500 financial institutions",
-  "Full-stack ML: research to deployment to monitoring",
+  "5+ years shipping production AI systems at enterprise scale",
+  "Led AI initiatives at a global investment bank — RAG, agents, MCP tooling",
+  "End-to-end delivery: architecture, build, deployment, monitoring",
   "Strong communicator who bridges technical and business teams",
 ];
 
@@ -62,18 +58,18 @@ export default function HirePage() {
         <AnimatedGrid />
         <div className="container relative z-10 mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl">
-            Let&apos;s Build Something Together
+            Let&apos;s build something that actually works.
           </h1>
           <p className="mt-6 text-lg text-foreground-secondary max-w-2xl mx-auto">
-            Whether you need a freelance AI engineer for a project or a full-time hire for your
-            team, I deliver systems that work at scale.
+            5 years shipping production AI systems at enterprise scale. Available for the right
+            project or role.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button size="lg">
-              <a href="#services">View Services</a>
+              <a href="#services">Start a Project</a>
             </Button>
             <Button variant="secondary" size="lg">
-              <a href="#roles">Open to Roles</a>
+              <a href="/projects">View My Work</a>
             </Button>
           </div>
         </div>
@@ -82,8 +78,8 @@ export default function HirePage() {
       {/* Services Grid */}
       <section id="services" className="container mx-auto px-4 py-20">
         <SectionHeader
-          title="Services"
-          subtitle="End-to-end AI and data engineering services, from prototype to production."
+          title="What I Build"
+          subtitle="RAG pipelines, agentic workflows, developer tooling, and LLM integrations — delivered end-to-end."
         />
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {services.map((service) => (
@@ -92,11 +88,7 @@ export default function HirePage() {
                 <CardTitle>{service.title}</CardTitle>
                 <CardDescription>{service.description}</CardDescription>
               </CardHeader>
-              <CardContent className="mt-auto space-y-3">
-                <div className="flex items-center gap-2 text-sm text-foreground-secondary">
-                  <DollarSign className="h-4 w-4 text-accent" />
-                  <span>{service.priceRange}</span>
-                </div>
+              <CardContent className="mt-auto">
                 <div className="flex items-center gap-2 text-sm text-foreground-secondary">
                   <Clock className="h-4 w-4 text-accent" />
                   <span>{service.timeline}</span>
@@ -145,16 +137,16 @@ export default function HirePage() {
       {/* Open to Roles */}
       <section id="roles" className="container mx-auto px-4 py-20">
         <SectionHeader
-          title="Open to Roles"
-          subtitle="For recruiters and hiring managers: here's what I bring to a full-time team."
+          title="Full-Time Roles"
+          subtitle="For recruiters and hiring managers: here is what I bring to a full-time team."
         />
         <div className="mx-auto max-w-3xl">
           <Card className="animate-fade-up">
             <CardHeader>
-              <CardTitle>What I&apos;m Looking For</CardTitle>
+              <CardTitle>What I Bring</CardTitle>
               <CardDescription>
-                Senior/Staff-level roles in AI Engineering, ML Platform, or Data Engineering at
-                companies solving meaningful problems with AI.
+                Senior/Staff-level AI Engineering — RAG pipelines, agentic workflows, developer
+                tooling, and LLM integrations at enterprise scale.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

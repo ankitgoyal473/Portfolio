@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { LIMITS } from "@/lib/paywall";
+import { sendEmail, expiryReminderEmail } from "@/lib/email";
 import { NextResponse } from "next/server";
 
 const client = new Anthropic();
@@ -28,22 +30,72 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Premium users: skip paywall gate but still track usage below
   const isPremium = user.user_metadata?.is_premium === true;
+  let subscriptionActive = false;
 
-  // Paywall check
-  const { data: usageRow } = await supabase
+  if (isPremium) {
+    // Check subscription table for valid active subscription
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("id, expires_at, reminder_sent_at")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .gt("expires_at", new Date().toISOString())
+      .order("expires_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (sub) {
+      subscriptionActive = true;
+
+      // Lazy expiry reminder: send if within 7 days and not yet sent
+      const daysLeft = Math.ceil(
+        (new Date(sub.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      );
+      if (daysLeft <= 7 && !sub.reminder_sent_at) {
+        const appUrl =
+          process.env.NEXT_PUBLIC_APP_URL ?? "https://portfolio-one-topaz-65.vercel.app";
+        const reminderEmail = expiryReminderEmail({
+          name: user.user_metadata?.full_name ?? user.email ?? "there",
+          expiresAt: sub.expires_at,
+          daysLeft,
+          appUrl,
+        });
+        await sendEmail({ to: user.email!, ...reminderEmail });
+        await supabaseAdmin
+          .from("subscriptions")
+          .update({ reminder_sent_at: new Date().toISOString() })
+          .eq("id", sub.id);
+      }
+    } else {
+      // Subscription expired — clear is_premium
+      await supabaseAdmin.auth.admin.updateUserById(user.id, {
+        user_metadata: { is_premium: false },
+      });
+    }
+  }
+
+  // Paywall check (skipped for active subscribers)
+  if (!subscriptionActive) {
+    const { data: usageRow } = await supabase
+      .from("agent_usage")
+      .select("count")
+      .eq("user_id", user.id)
+      .eq("agent_id", "harvey")
+      .single();
+    if ((usageRow?.count ?? 0) >= (LIMITS["harvey"] ?? 10)) {
+      return NextResponse.json({ error: "paywall" }, { status: 403 });
+    }
+  }
+
+  // Increment usage server-side (authoritative)
+  const { data: currentUsage } = await supabase
     .from("agent_usage")
     .select("count")
     .eq("user_id", user.id)
     .eq("agent_id", "harvey")
     .single();
-  if (!isPremium && (usageRow?.count ?? 0) >= (LIMITS["harvey"] ?? 10)) {
-    return NextResponse.json({ error: "paywall" }, { status: 403 });
-  }
-
-  // Increment usage server-side (authoritative)
-  const newCount = (usageRow?.count ?? 0) + 1;
+  const newCount = (currentUsage?.count ?? 0) + 1;
   await supabase.from("agent_usage").upsert(
     { user_id: user.id, agent_id: "harvey", count: newCount },
     { onConflict: "user_id,agent_id" }
