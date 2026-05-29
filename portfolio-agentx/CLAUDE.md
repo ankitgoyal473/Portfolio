@@ -51,10 +51,25 @@ Both flags require re-login (JWT refresh). `is_premium` is a cache — the strea
 | **Sherlock** | `#4a9eff` | Search | `/agents/sherlock` | 1 run |
 | **Harvey** | `#00c896` | Mail | `/agents/harvey` | 10 runs |
 
-- **`lib/agents.ts`** — Agent data (colors, personalities, UI config).
+- **`lib/agents.ts`** — Agent data (colors, personalities, UI config) + `AGENT_ICONS` map.
 - **`lib/agent-types.ts`** — Shared structured output types: `Pillar`, `CaseFileData`, `CaseFileSection`, `Prospect`.
 - **`persona.md`** — Canonical voice/copy rules. Read before editing agent messages.
 - Never call them "tools", "bots", or "features" — use their names.
+
+#### Critical: Agent icons are NOT on the Agent type
+
+`agent.icon` does **not** exist. Icons are a separate export:
+
+```ts
+// lib/agents.ts
+export const AGENT_ICONS: Record<string, LucideIcon> = {
+  warren: TrendingUp,
+  sherlock: Search,
+  harvey: Mail,
+};
+```
+
+**Why:** The `Agent` interface is passed as props from Server Components to Client Components. React serializes these props — LucideIcon (a function) cannot be serialized. Always import `AGENT_ICONS` directly in client components and look up by `agent.slug`.
 
 ### Agent Stream Routes — Full Logic
 
@@ -101,7 +116,7 @@ RLS: users read own rows, service role has full access.
 3. 7 days before expiry: lazy reminder email sent once (tracked via `reminder_sent_at`)
 4. After expiry: user hits paywall again on next agent run
 
-**⚠️ Current test state:** Amount is set to ₹1 (100 paise) in `app/api/razorpay/create-order/route.ts` for email testing. Change back to `99900` before going live.
+**⚠️ Current test state:** Amount is set to ₹1 (100 paise) in `app/api/razorpay/create-order/route.ts`. Change back to `99900` before going live.
 
 ### Payment — Razorpay
 Embedded checkout modal (no redirect). Flow:
@@ -110,7 +125,7 @@ Embedded checkout modal (no redirect). Flow:
 3. User pays → handler fires with `{ razorpay_payment_id, razorpay_order_id, razorpay_signature }`
 4. `POST /api/razorpay/verify` → HMAC-SHA256 verification → inserts subscription → sends emails → resets usage
 
-**Test mode UPI:** Use VPA `success@razorpay` (typed, not QR scan). Test card: `4111 1111 1111 1111`, OTP `1234`. Real GPay/UPI works only in live mode.
+**Test mode UPI:** Use VPA `success@razorpay` (typed, not QR scan). Test card: `4111 1111 1111 1111`, OTP `1234`.
 
 ### Email System
 **`lib/email.ts`** — Nodemailer + Gmail SMTP. Graceful no-op if `GMAIL_USER`/`GMAIL_APP_PASSWORD` not set.
@@ -165,17 +180,98 @@ RLS: `leads` = service role only. `agent_sessions`, `agent_usage`, `subscription
 - **WelcomeHeader:** "✦ Pro" gold badge when `plan === "pro"`.
 - **Agent page:** Amber warning banner above chatbar when subscription ≤7 days left.
 
-### Portfolio Content
-- **Homepage stats:** 20+ AI Tools Shipped, 5,000+ Hours Automated, 3+ Enterprise Teams
-- **Bio:** ML Engineer, 5 years, global investment bank (no Barclays mention), AWS/GenAI/Bedrock/MCPs
-- **Projects (4, all private):** Enterprise RAG System, Hypothesis Testing Agent, QA Testing Agent, Developer MCP Suite
-- **Hire page:** Project-based, dual audience (freelance + full-time), no rate shown
+---
+
+## Shared Components
+
+### AgentXLogo (`components/shared/agentx-logo.tsx`)
+Custom SVG geometric mark — hexagon + triangle of 3 node dots (representing the 3 agents). Replaces `Sparkles` icon everywhere.
+
+```tsx
+<AgentXLogo size="sm" />   // navbar
+<AgentXLogo size="md" />   // footer
+<AgentXLogo size="lg" />   // login page
+<AgentXLogo size="md" showText={false} />  // icon only
+```
+
+Used in: `components/layout/navbar.tsx`, `components/layout/footer.tsx`, `app/login/page.tsx`.
+
+### CosmicBackground (`components/shared/cosmic-background.tsx`)
+CSS/SVG deep space animation — aurora blobs (3 drifting color orbs) + rotating SVG accretion disk ring. Replaces the deleted `blackhole-ring.tsx` canvas component.
+
+```tsx
+// Parent MUST have `relative overflow-hidden`
+<CosmicBackground ringSize="lg" />   // 700×265px ring — homepage hero
+<CosmicBackground ringSize="md" />   // 500×190px ring — login, agents
+<CosmicBackground ringSize="sm" />   // 320×120px ring
+```
+
+- Always `absolute inset-0`, `pointer-events-none`, `aria-hidden`
+- Aurora colors tie to agents: Warren gold `#f0b429`, Sherlock blue `#4a9eff`, Harvey green `#00c896`
+- Ring spins via `ring-spin` CSS keyframe (24s linear). Blobs drift via `aurora-1/2/3` keyframes.
+- Keyframes defined in `app/globals.css` — do NOT inline them in the component.
+- **Only used on 3 pages:** homepage hero, login left panel, agents hero. No other pages.
+
+---
+
+## Pages
+
+| Route | Type | Notes |
+|-------|------|-------|
+| `/` | Server | Home: Hero + SocialProof + ToolsPreview + CtaSection |
+| `/agents` | Server | 3-column agent card grid + CosmicBackground hero |
+| `/agents/[name]` | Client | Full chat interface, session restore, paywall |
+| `/tools` | Server | 6-card grid (2 live + 4 coming-soon), no pricing |
+| `/tools/[slug]` | Server | Tool detail + demo; coming-soon slugs redirect to /tools |
+| `/mcp` | Server | Platform stack (8 tech cards) + MCPs Ankit built |
+| `/projects` | Server | 4 real projects, all private, filter by category |
+| `/hire` | Server | Dual audience (freelance + full-time), no rate shown |
+| `/login` | Client | Split-screen: brand panel (agents, tagline) + auth form |
+| `/dashboard` | Client | Usage cards, subscription info, admin entry |
+| `/admin` | Client | Leads, Stats, Users (premium toggle), Subscribers |
+
+### Tools Page (`/tools`)
+- 2 live tools: Report Bot (`reports`), AI Chatbot Builder (`chatbot`)
+- 4 coming-soon tools: Data Insights Bot, Resume Screener AI, Contract Reviewer, Meeting Notes Summariser
+- `Tool` type in `lib/constants.ts` has `comingSoon?: boolean` — live cards get colored top border + CTA; coming-soon cards get `opacity-50 grayscale` + "Coming Soon" badge
+- No pricing section — removed. Bottom CTA links to `/hire`.
+- Tool demos: `reports` → typewriter terminal, `chatbot` → mock chat UI, others → "Demo Coming Soon"
+
+### MCP Page (`/mcp`)
+- Section 1: "What Powers AGentX" — 8 tech cards (Claude API, Jina Reader, Strands, Supabase, Razorpay, Vercel, Nodemailer, Next.js 16)
+- Section 2: "MCPs Ankit Built" — Developer MCP Suite (Live) + 2 Coming Soon
+- CTA links to `/hire`
+
+### Login Page (`/login`)
+- Split-screen: left panel (`hidden md:flex`) has CosmicBackground, AgentXLogo (lg), tagline "Your AI squad grows with your ambition.", 3 agent orbs with connecting line, bottom stat
+- Right panel: auth form, AgentXLogo (md, mobile-only), Google OAuth button
+
+---
+
+## Navigation
+
+`navLinks` in `lib/constants.ts`:
+```ts
+[
+  { label: "Agents",      href: "/agents" },
+  { label: "Projects",    href: "/projects" },
+  { label: "MCPs",        href: "/mcp" },
+  { label: "Tools",       href: "/tools" },
+  { label: "Work With Me", href: "/hire" },
+]
+```
+
+---
 
 ## Design System
 
 Tailwind v4 — theme in `app/globals.css` via `@theme inline`, **not** `tailwind.config.js`.
 
 Key tokens: `bg-background` (#0A0A0A), `bg-background-card` (#1E1E1E), `text-foreground`, `text-foreground-secondary`, `text-foreground-muted`, `text-accent` (#E8D5B8), `border-border` (#27272A), `text-error`, `text-success`. Use semantic classes, not raw hex.
+
+`app/globals.css` also contains animation keyframes at the bottom: `aurora-1`, `aurora-2`, `aurora-3`, `ring-spin`, `ring-spin-reverse`, `ring-pulse`. Used exclusively by `CosmicBackground`.
+
+---
 
 ## Known Quirks
 
@@ -188,6 +284,9 @@ Key tokens: `bg-background` (#0A0A0A), `bg-background-card` (#1E1E1E), `text-for
 - **ESLint slow** (~30s+) on OneDrive paths.
 - **Razorpay test QR:** Can't be scanned by real UPI apps. Type VPA manually or use test card.
 - **`is_premium` is a cache:** Never rely on it alone in stream routes — always verify against `subscriptions` table.
+- **Agent icons NOT on Agent type:** `agent.icon` doesn't exist. Import `AGENT_ICONS` from `lib/agents.ts` and look up by `agent.slug`. Reason: Agent objects are serialized as RSC props — functions can't serialize.
+- **CosmicBackground keyframes:** Defined in `app/globals.css`, not inline. Don't move them or the animation breaks silently.
+- **`disk-gradient` SVG id:** Used inside CosmicBackground's inline SVG. If you ever render two instances on the same page, the duplicate `id` will cause one to break — make ids unique or use a single instance per page.
 
 ## Environment Variables
 
@@ -202,3 +301,10 @@ RAZORPAY_KEY_SECRET              # Server only, never frontend
 GMAIL_USER                       # ankitgoyal473@gmail.com
 GMAIL_APP_PASSWORD               # 16-char Gmail App Password (graceful skip if absent)
 ```
+
+## Portfolio Content
+- **Homepage stats:** 20+ AI Tools Shipped, 5,000+ Hours Automated, 3+ Enterprise Teams
+- **Bio:** ML Engineer, 5 years, global investment bank (no Barclays mention), AWS/GenAI/Bedrock/MCPs
+- **Projects (4, all private):** Enterprise RAG System, Hypothesis Testing Agent, QA Testing Agent, Developer MCP Suite
+- **Hire page:** Project-based, dual audience (freelance + full-time), no rate shown
+- **Availability:** Open to freelance & full-time
