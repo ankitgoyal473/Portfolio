@@ -154,8 +154,34 @@ export default function AgentPage() {
       if (isLockedNow) setPaywallOpen(true);
     });
 
-    loadSessions(agentSlug, user.id).then(setSessions);
-    startNewSession();
+    loadSessions(agentSlug, user.id).then((loadedSessions) => {
+      setSessions(loadedSessions);
+      if (loadedSessions.length > 0) {
+        // Restore the most recent session
+        const recent = loadedSessions[0];
+        sessionRef.current = recent.id;
+        setActiveSessionId(recent.id);
+        setMessages(recent.messages);
+        setChips([]);
+        setHarveyContext({});
+      } else {
+        startNewSession();
+      }
+    });
+
+    // Check for ?unlocked=1 query param (post-Stripe redirect)
+    const search = window.location.search;
+    if (search.includes("unlocked=1")) {
+      window.history.replaceState({}, "", window.location.pathname);
+      setMessages((prev) => [
+        ...prev,
+        createMessage("system", "You're unlocked. Welcome back — all 3 agents are yours."),
+      ]);
+      getUsage(agentSlug, user.id).then((u) => {
+        setUsage(u);
+        if (!checkIsLocked(u.stage)) setLocked(false);
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentSlug, user?.id]);
 
@@ -178,10 +204,7 @@ export default function AgentPage() {
       if (!session) return;
       sessionRef.current = sessionId;
       setActiveSessionId(sessionId);
-      setMessages([
-        createMessage("system", `Replaying session from ${new Date(session.createdAt).toLocaleDateString()}`),
-        ...session.messages,
-      ]);
+      setMessages(session.messages);
       setChips([]);
     },
     [sessions]
@@ -684,6 +707,7 @@ export default function AgentPage() {
         agentColor={agent.color}
         isOpen={paywallOpen}
         onClose={() => setPaywallOpen(false)}
+        userId={user?.id}
       />
     </div>
   );

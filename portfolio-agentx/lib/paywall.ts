@@ -91,7 +91,7 @@ export function computeStage(used: number, limit: number): PaywallStage {
 }
 
 export function isLocked(stage: PaywallStage): boolean {
-  return stage === "locked";
+  return stage === "warning" || stage === "locked";
 }
 
 export const PAYWALL_MESSAGES: Record<string, string> = {
@@ -102,6 +102,8 @@ export const PAYWALL_MESSAGES: Record<string, string> = {
   harvey:
     "That's your last free batch. I've got more prospects waiting — and I'm just warming up. Shall we keep going? — Harvey \u{1F4BC}",
 };
+
+export const STRIPE_PAYMENT_LINK = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ?? "";
 
 export const PAYWALL_SHEET_DATA: Record<
   string,

@@ -2,13 +2,14 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Search, Mail, type LucideIcon } from "lucide-react";
-import { PAYWALL_SHEET_DATA } from "@/lib/paywall";
+import { PAYWALL_SHEET_DATA, STRIPE_PAYMENT_LINK } from "@/lib/paywall";
 
 interface PaywallSheetProps {
   agentId: string;
   agentColor: string;
   isOpen: boolean;
   onClose: () => void;
+  userId?: string;
 }
 
 const AGENT_ICONS: Record<string, LucideIcon> = {
@@ -23,7 +24,7 @@ const AGENT_NAMES: Record<string, string> = {
   harvey: "Harvey",
 };
 
-export function PaywallSheet({ agentId, agentColor, isOpen, onClose }: PaywallSheetProps) {
+export function PaywallSheet({ agentId, agentColor, isOpen, onClose, userId }: PaywallSheetProps) {
   const data = PAYWALL_SHEET_DATA[agentId];
   if (!data) return null;
 
@@ -68,10 +69,14 @@ export function PaywallSheet({ agentId, agentColor, isOpen, onClose }: PaywallSh
               </div>
 
               {/* Headline */}
-              <h3 className="text-foreground font-semibold text-base mb-1">{data.headline}</h3>
+              <h3 className="text-foreground font-semibold text-base mb-1">
+                {name} is just the start.
+              </h3>
 
               {/* Subtext */}
-              <p className="text-foreground-secondary text-sm mb-4">{data.subtext}</p>
+              <p className="text-foreground-secondary text-sm mb-4">
+                Unlock Warren, Sherlock &amp; Harvey — unlimited runs, all features.
+              </p>
 
               {/* Feature pills */}
               <div className="flex flex-wrap gap-2 mb-4">
@@ -93,7 +98,7 @@ export function PaywallSheet({ agentId, agentColor, isOpen, onClose }: PaywallSh
               {/* Price */}
               <div className="mb-1">
                 <span className="text-2xl font-bold" style={{ color: agentColor }}>
-                  {data.price}
+                  $79
                 </span>
                 <span className="text-foreground-muted text-sm">/month</span>
               </div>
@@ -102,7 +107,10 @@ export function PaywallSheet({ agentId, agentColor, isOpen, onClose }: PaywallSh
               {/* Primary CTA */}
               <button
                 onClick={() => {
-                  console.log("Mock Stripe:", agentId);
+                  const url = userId
+                    ? `${STRIPE_PAYMENT_LINK}?client_reference_id=${userId}`
+                    : STRIPE_PAYMENT_LINK;
+                  if (url) window.open(url, "_blank");
                 }}
                 className="w-full py-3 rounded-lg font-bold text-sm mb-3 transition-opacity hover:opacity-90"
                 style={{
@@ -110,7 +118,7 @@ export function PaywallSheet({ agentId, agentColor, isOpen, onClose }: PaywallSh
                   color: "#0A0A0A",
                 }}
               >
-                {data.buttonText}
+                Unlock All 3 Agents — $79/month
               </button>
 
               {/* Secondary CTA */}
@@ -123,8 +131,8 @@ export function PaywallSheet({ agentId, agentColor, isOpen, onClose }: PaywallSh
 
               {/* Bundle link */}
               <p className="text-xs text-foreground-muted text-center">
-                <a href="#" className="hover:underline">
-                  Or get all 3 for $79/month →
+                <a href="mailto:ankitgoyal473@gmail.com" className="hover:underline">
+                  Or talk to Ankit →
                 </a>
               </p>
             </div>
