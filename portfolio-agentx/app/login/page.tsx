@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { TrendingUp, Search, Mail } from "lucide-react";
 import { AnimatedGrid } from "@/components/shared/animated-grid";
-import { BlackholeRing } from "@/components/shared/blackhole-ring";
+import { CosmicBackground } from "@/components/shared/cosmic-background";
 import { AgentXLogo } from "@/components/shared/agentx-logo";
 import { Button } from "@/components/ui/button";
 import { useMockAuth } from "@/lib/mock-auth";
@@ -23,10 +23,7 @@ export default function LoginPage() {
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 relative flex-col justify-between p-12 bg-background-card overflow-hidden">
         <AnimatedGrid />
 
-        {/* Accretion disk — layered over AnimatedGrid */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <BlackholeRing size={450} opacity={0.45} />
-        </div>
+        <CosmicBackground ringSize="md" />
 
         {/* Logo */}
         <div className="relative z-10">

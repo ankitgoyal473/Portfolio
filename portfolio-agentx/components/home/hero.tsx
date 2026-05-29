@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedGrid } from "@/components/shared/animated-grid";
-import { BlackholeRing } from "@/components/shared/blackhole-ring";
+import { CosmicBackground } from "@/components/shared/cosmic-background";
 import { Typewriter } from "@/components/shared/typewriter";
 import { typewriterPhrases } from "@/lib/constants";
 
@@ -13,10 +13,7 @@ export function Hero() {
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       <AnimatedGrid />
 
-      {/* Black hole ring — behind all content */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <BlackholeRing size={700} opacity={0.55} />
-      </div>
+      <CosmicBackground ringSize="lg" />
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
         <div className="animate-fade-up">

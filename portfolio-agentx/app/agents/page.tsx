@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { AgentCard } from "@/components/agents/agent-card";
 import { agents, AGENT_ICONS } from "@/lib/agents";
-import { BlackholeRing } from "@/components/shared/blackhole-ring";
+import { CosmicBackground } from "@/components/shared/cosmic-background";
 
 export const metadata: Metadata = {
   title: "AGentX — Meet the Squad",
@@ -19,10 +19,8 @@ export default function AgentsPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero */}
-      <section className="relative px-6 pt-32 pb-20">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-          <BlackholeRing size={550} opacity={0.40} />
-        </div>
+      <section className="relative overflow-hidden px-6 pt-32 pb-20">
+        <CosmicBackground ringSize="md" />
         <div className="relative z-10 mx-auto max-w-7xl text-center">
           <h1 className="text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl">
             Meet Our Agents
