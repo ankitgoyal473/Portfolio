@@ -16,8 +16,14 @@ export interface Agent {
   errorMessage: string;
   successMessage: string;
   freemiumCta: string;
-  icon: LucideIcon;
 }
+
+// Icons kept separate — Agent objects are passed as RSC props (must be serializable)
+export const AGENT_ICONS: Record<string, LucideIcon> = {
+  warren: TrendingUp,
+  sherlock: Search,
+  harvey: Mail,
+};
 
 export const agents: Agent[] = [
   {
@@ -41,7 +47,6 @@ export const agents: Agent[] = [
     errorMessage: "Warren hit a snag — retrying...",
     successMessage: "Warren has spoken. — Warren",
     freemiumCta: "Warren has more to say. Unlock his full analysis — $19/month.",
-    icon: TrendingUp,
   },
   {
     name: "Sherlock",
@@ -64,7 +69,6 @@ export const agents: Agent[] = [
     errorMessage: "Sherlock hit a dead end — retrying...",
     successMessage: "The game is afoot. — Sherlock",
     freemiumCta: "Sherlock is watching 4 more rivals. Unlock full surveillance — $49/month.",
-    icon: Search,
   },
   {
     name: "Harvey",
@@ -87,7 +91,6 @@ export const agents: Agent[] = [
     errorMessage: "Harvey hit a snag on row {row}. Retry or skip?",
     successMessage: "Close-worthy. Go get them. — Harvey",
     freemiumCta: "Harvey has {remaining} more prospects to write. Unlock unlimited — $29/month.",
-    icon: Mail,
   },
 ];
 

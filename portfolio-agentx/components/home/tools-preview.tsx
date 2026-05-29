@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { SectionHeader } from "@/components/shared/section-header";
 import { tools } from "@/lib/constants";
-import { agents } from "@/lib/agents";
+import { agents, AGENT_ICONS } from "@/lib/agents";
 
 export function ToolsPreview() {
   return (
@@ -22,7 +22,7 @@ export function ToolsPreview() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {agents.map((agent) => {
-            const Icon = agent.icon;
+            const Icon = AGENT_ICONS[agent.slug];
             return (
               <Link key={agent.slug} href={`/agents/${agent.slug}`}>
                 <motion.div

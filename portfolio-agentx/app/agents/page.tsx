@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { TrendingUp, Search, Mail } from "lucide-react";
 import { AgentCard } from "@/components/agents/agent-card";
-import { agents } from "@/lib/agents";
+import { agents, AGENT_ICONS } from "@/lib/agents";
 
 export const metadata: Metadata = {
   title: "AGentX — Meet the Squad",
   description:
     "Warren analyses stocks. Sherlock watches rivals. Harvey writes cold emails. Try free.",
-};
-
-const AGENT_ICONS: Record<string, { icon: typeof TrendingUp; color: string }> = {
-  warren: { icon: TrendingUp, color: "#f0b429" },
-  sherlock: { icon: Search, color: "#4a9eff" },
-  harvey: { icon: Mail, color: "#00c896" },
 };
 
 const AGENT_TOOLS: Record<string, string[]> = {
@@ -42,9 +35,8 @@ export default function AgentsPage() {
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 md:grid-cols-3">
             {agents.map((agent) => {
-              const iconData = AGENT_ICONS[agent.slug];
+              const Icon = AGENT_ICONS[agent.slug];
               const tools = AGENT_TOOLS[agent.slug] ?? [];
-              const Icon = iconData?.icon;
 
               return (
                 <div key={agent.slug} className="flex flex-col">
@@ -52,8 +44,8 @@ export default function AgentsPage() {
                   {/* Icon badge */}
                   {Icon && (
                     <div className="flex items-center gap-2 mt-3 px-1">
-                      <Icon className="w-5 h-5" style={{ color: iconData.color }} />
-                      <span className="text-xs font-medium" style={{ color: iconData.color }}>
+                      <Icon className="w-5 h-5" style={{ color: agent.color }} />
+                      <span className="text-xs font-medium" style={{ color: agent.color }}>
                         {agent.name}
                       </span>
                     </div>
