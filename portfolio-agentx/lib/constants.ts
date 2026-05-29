@@ -1,4 +1,4 @@
-import { FileText, Bot, type LucideIcon } from "lucide-react";
+import { FileText, Bot, BarChart2, Users, FileSearch, Mic, type LucideIcon } from "lucide-react";
 
 export interface Tool {
   name: string;
@@ -8,6 +8,7 @@ export interface Tool {
   icon: LucideIcon;
   color: string;
   features: string[];
+  comingSoon?: boolean;
 }
 
 export interface Project {
@@ -38,6 +39,46 @@ export const tools: Tool[] = [
     icon: Bot,
     color: "#EC4899",
     features: ["Custom training", "Multi-platform", "Analytics", "White-label"],
+  },
+  {
+    name: "Data Insights Bot",
+    description: "Ask your spreadsheet anything. Get answers in seconds.",
+    price: "Coming Soon",
+    slug: "data-insights",
+    icon: BarChart2,
+    color: "#6366F1",
+    features: ["CSV & Excel upload", "Natural language queries", "Auto-charts", "AI commentary"],
+    comingSoon: true,
+  },
+  {
+    name: "Resume Screener AI",
+    description: "Upload 100 CVs. Get a ranked shortlist in 30 seconds.",
+    price: "Coming Soon",
+    slug: "resume-screener",
+    icon: Users,
+    color: "#10B981",
+    features: ["Bulk CV upload", "Job description matching", "Fit score ranking", "Export shortlist"],
+    comingSoon: true,
+  },
+  {
+    name: "Contract Reviewer",
+    description: "Plain-English breakdown of any contract. Flag risks instantly.",
+    price: "Coming Soon",
+    slug: "contract-reviewer",
+    icon: FileSearch,
+    color: "#F43F5E",
+    features: ["PDF upload", "Clause breakdown", "Risk flagging", "Plain-English summary"],
+    comingSoon: true,
+  },
+  {
+    name: "Meeting Notes Summariser",
+    description: "From transcript to action items in one click.",
+    price: "Coming Soon",
+    slug: "meeting-notes",
+    icon: Mic,
+    color: "#8B5CF6",
+    features: ["Transcript upload", "Auto-summary", "Action item extraction", "Attendee tagging"],
+    comingSoon: true,
   },
 ];
 

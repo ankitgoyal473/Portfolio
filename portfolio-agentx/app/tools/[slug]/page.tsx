@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft, Check } from "lucide-react";
 import { tools } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,8 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
       </main>
     );
   }
+
+  if (tool.comingSoon) redirect("/tools");
 
   const Icon = tool.icon;
 
@@ -79,10 +82,12 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
               </div>
 
               <div className="flex gap-4">
-                <Button size="lg">Subscribe — {tool.price}</Button>
+                <Link href="/hire">
+                  <Button size="lg">Request Early Access →</Button>
+                </Link>
                 <Link href="/tools">
                   <Button variant="secondary" size="lg">
-                    Compare Plans
+                    ← All Tools
                   </Button>
                 </Link>
               </div>
