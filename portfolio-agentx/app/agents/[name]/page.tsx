@@ -22,12 +22,15 @@ import {
 } from "@/lib/paywall";
 
 const WARREN_THINKING: ThinkingStep[] = [
-  { icon: "📊", label: "Reading price data...", status: "pending" },
-  { icon: "🏰", label: "Analysing the moat...", status: "pending" },
-  { icon: "📰", label: "Scanning market sentiment...", status: "pending" },
-  { icon: "⚙️", label: "Checking options chain...", status: "pending" },
-  { icon: "🌍", label: "Assessing global impact...", status: "pending" },
-  { icon: "🎯", label: "Forming my verdict...", status: "pending" },
+  { icon: "📊", label: "Fetching live NSE price data...", status: "pending" },
+  { icon: "📐", label: "Computing RSI, MACD & moving averages...", status: "pending" },
+  { icon: "🏰", label: "Reading Screener.in fundamentals...", status: "pending" },
+  { icon: "📰", label: "Scanning news & analyst sentiment...", status: "pending" },
+  { icon: "📈", label: "Checking option chain & PCR...", status: "pending" },
+  { icon: "🌍", label: "Assessing India VIX & global macro...", status: "pending" },
+  { icon: "💰", label: "Tracking FII/DII institutional flows...", status: "pending" },
+  { icon: "🎯", label: "Forming conviction & verdict...", status: "pending" },
+  { icon: "💾", label: "Saving research files...", status: "pending" },
 ];
 
 const SHERLOCK_THINKING: ThinkingStep[] = [
@@ -267,6 +270,8 @@ export default function AgentPage() {
       addMessage(createMessage("agent", `${ticker} it is. Let me walk you through what I see...`));
 
       const collectedPillars: Pillar[] = [];
+      let collectedVerdict: import("@/components/agents/PillarCards").Verdict | undefined;
+      let collectedFiles: { urls: Record<string, string>; symbol: string; date: string } | undefined;
 
       addMessage(
         createMessage("thinking", "", {
@@ -285,6 +290,10 @@ export default function AgentPage() {
               signal: event.data.signal as "BULLISH" | "BEARISH" | "NEUTRAL",
               body: event.data.summary as string,
             });
+          } else if (event.event === "verdict") {
+            collectedVerdict = event.data as unknown as import("@/components/agents/PillarCards").Verdict;
+          } else if (event.event === "files") {
+            collectedFiles = event.data as unknown as { urls: Record<string, string>; symbol: string; date: string };
           }
         },
         async () => {
@@ -301,6 +310,7 @@ export default function AgentPage() {
                 type: "pillar-cards",
                 ticker,
                 pillars: collectedPillars.length > 0 ? collectedPillars : undefined,
+                verdict: collectedVerdict,
               })
             );
 
@@ -312,7 +322,18 @@ export default function AgentPage() {
             }
           } else {
             addMessage(
-              createMessage("agent", ticker, { type: "pillar-cards", ticker })
+              createMessage("agent", ticker, {
+                type: "pillar-cards",
+                ticker,
+                verdict: collectedVerdict,
+              })
+            );
+          }
+
+          if (collectedFiles && Object.keys(collectedFiles.urls).length > 0) {
+            const firstUrl = Object.values(collectedFiles.urls)[0];
+            addMessage(
+              createMessage("system", `__download__${firstUrl}`)
             );
           }
 
