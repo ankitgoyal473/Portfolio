@@ -1,19 +1,22 @@
-# 🧐 WARRen — Strands Microservice Design
+# 🧐 WARRen — Strands Microservice Design (Indian Equities)
 **Date:** 2026-05-31  
-**Status:** Approved  
-**Scope:** Upgrade WARRen from Claude-only hallucination → real 6-pillar stock research powered by a Python Strands Agent microservice
+**Status:** Approved — ready for implementation plan  
+**Scope:** Upgrade WARRen from Claude-only hallucination → real 6-pillar Buffett-style research engine for Indian stocks, powered by a Python Strands Agent microservice
 
 ---
 
 ## 🎯 Goal
 
-Replace WARRen's current fake analysis (Claude imagines stock data from training memory) with a real agentic research pipeline:
+Replace WARRen's current fake analysis (Claude imagines stock data from training memory) with a real agentic research pipeline — **Indian equities only**:
 
-- **Live financial data** via `yfinance`
-- **Real news, sentiment & macro** via Tavily Python SDK
-- **Buffett 6-pillar methodology** from `warren-analysis-updated.md`
-- **Persistent research files** saved to Supabase Storage
-- **Streaming pillar-by-pillar output** to the existing chat UI
+- 📊 **Live price + technical indicators** via `yfinance` + `pandas-ta`
+- 🏰 **Deep fundamentals** via Screener.in (fetched with Jina Reader)
+- 📰 **News + analyst sentiment** via Screener.in news tab + 2 targeted Tavily searches
+- 📈 **Option chain intel** (PCR, max pain, OI) via Tavily search of MoneyControl/Sensibull
+- 🌍 **Global macro + India VIX** via Tavily search
+- 💰 **FII/DII institutional flows** via Screener.in shareholding + Tavily market flows
+- 💾 **Persistent research files** (9 files) saved to Supabase Storage per analysis
+- ⚡ **Streaming pillar-by-pillar output** to the existing WARRen chat UI
 
 ---
 
@@ -24,36 +27,40 @@ Replace WARRen's current fake analysis (Claude imagines stock data from training
          │
          │  SSE stream  (event: pillar, event: verdict, event: files, event: done)
          ▼
-⚡  Next.js  /api/agents/warren/stream   [existing route — modified to proxy]
+⚡  Next.js  /api/agents/warren/stream       [existing route — modified to proxy]
          │
-         │  HTTP POST → SSE proxy
+         │  HTTP POST with { ticker, userId } → SSE proxy
          ▼
-🐍  Python FastAPI  warren-agent/        [new service — Railway / Render]
+🐍  Python FastAPI  warren-agent/            [new service — Railway / Render]
          │
          ▼
 🤖  Strands Agent  (claude-sonnet-4-6)
-         ├── 📊 tool: get_stock_data(ticker)             → yfinance
-         ├── 📐 tool: compute_indicators(ticker)         → pandas-ta on OHLCV
+         ├── 📊 tool: get_price_and_technicals(symbol)   → yfinance + pandas-ta
+         ├── 🏰 tool: fetch_screener(symbol)             → Jina Reader → screener.in
          ├── 🔍 tool: search_web(query)                  → Tavily Python SDK
-         └── 💾 tool: save_research_file(symbol, file)  → Supabase Storage
+         └── 💾 tool: save_research_file(symbol, name, content) → Supabase Storage
 ```
 
 ### 🔄 Request Flow (step-by-step)
 
-1. User types `AAPL` or `RELIANCE.NS` in WARRen chat
-2. Next.js route performs **auth check + paywall** (unchanged), then proxies to Python microservice
-3. Strands agent runs tool-calling loop: fetches data → synthesizes each pillar → emits SSE events
-4. Next.js **forwards SSE stream** to browser — chat thread renders pillar cards as they arrive
-5. After all 6 pillars: agent saves 9 research files to Supabase Storage, emits a `files` event with signed download URLs (24h expiry)
-6. WARRen chat shows **"📥 Download Research Pack"** button beneath the pillar cards
+1. User types `RELIANCE` or `KPITTECH` in WARRen chat
+2. **Auto-detect exchange**: append `.NS` → try yfinance; if not found fallback `.BO`
+3. Next.js route performs **auth check + paywall** (unchanged), proxies `{ ticker: "RELIANCE.NS", userId }` to Python microservice
+4. Strands agent runs tool-calling loop: fetches data → synthesises each pillar → emits SSE events
+5. Next.js **forwards SSE stream** to browser — chat thread renders pillar cards as they arrive, one by one
+6. After all 6 pillars + verdict: agent saves 9 research files to Supabase Storage, emits `files` event with signed download URLs (24h expiry)
+7. WARRen chat shows **"📥 Download Research Pack"** button beneath the pillar cards
 
-### 🌐 Ticker Handling
+### 🇮🇳 Ticker Handling (Indian equities only)
 
-| Format | Exchange | Option Chain |
-|--------|----------|-------------|
-| `AAPL`, `MSFT`, `TSLA` | 🇺🇸 NYSE / NASDAQ | Included if listed |
-| `RELIANCE.NS`, `KPITTECH.NS` | 🇮🇳 NSE | Full PCR + max pain via Tavily |
-| `RELIANCE.BO` | 🇮🇳 BSE | No option chain |
+| User types | Auto-resolved to | Exchange | Option Chain |
+|------------|-----------------|----------|-------------|
+| `RELIANCE` | `RELIANCE.NS` → fallback `RELIANCE.BO` | 🟢 NSE preferred | ✅ Full PCR + max pain |
+| `KPITTECH` | `KPITTECH.NS` | 🟢 NSE | ✅ Full PCR + max pain |
+| `RELIANCE.NS` | Used as-is | 🟢 NSE | ✅ |
+| `RELIANCE.BO` | Used as-is | 🔵 BSE | ⚠️ Tavily only (BSE options limited) |
+
+**Non-Indian ticker handling:** If yfinance returns no data for `.NS` or `.BO`, WARRen responds: *"I specialise in Indian equities. Try a NSE-listed stock like RELIANCE or INFY. — WARRen 🧐"*
 
 ---
 
@@ -61,14 +68,14 @@ Replace WARRen's current fake analysis (Claude imagines stock data from training
 
 ```
 warren-agent/
-├── main.py                  # FastAPI app — /analyze SSE endpoint
-├── agent.py                 # Strands Agent definition + tool wiring
+├── main.py                    # FastAPI app — /analyze SSE endpoint + health check
+├── agent.py                   # Strands Agent definition, tool wiring, pillar orchestration
 ├── tools/
-│   ├── 📊 stock_data.py     # get_stock_data() via yfinance
-│   ├── 📐 indicators.py     # compute_indicators() via pandas-ta (RSI, MACD, MA)
-│   ├── 🔍 web_search.py     # search_web() via Tavily Python SDK
-│   └── 💾 file_storage.py   # save_research_file() + get_existing_context() via Supabase Python SDK
-├── prompts.py               # Warren system prompt + per-pillar instructions
+│   ├── 📊 technicals.py       # get_price_and_technicals() — yfinance OHLCV + pandas-ta
+│   ├── 🏰 screener.py         # fetch_screener() — Jina Reader → screener.in/{symbol}
+│   ├── 🔍 web_search.py       # search_web(query) — Tavily Python SDK
+│   └── 💾 file_storage.py     # save_research_file() + get_existing_context() — Supabase
+├── prompts.py                 # Warren system prompt + per-pillar synthesis instructions
 └── requirements.txt
 ```
 
@@ -81,67 +88,171 @@ uvicorn
 yfinance
 pandas-ta
 pandas
+numpy
+httpx                  # for Jina Reader fetch
 tavily-python
 supabase
 python-dotenv
 ```
 
-### 🔗 Tool → Source Mapping
+### 🔗 Tool → Data Source Mapping
 
-| Personal Skill MCP | Strands Tool | Data Source |
+| 🛠️ Strands Tool | 📡 Data Source | 🎯 Used For |
 |---|---|---|
-| `Filesystem:write_file` | `save_research_file()` | ☁️ Supabase Storage |
-| `Filesystem:read_text_file` | `get_existing_context()` | ☁️ Supabase Storage |
-| *(web browsing)* | `search_web()` | 🔍 Tavily Python SDK |
-| *(implied)* | `get_stock_data()` | 📊 yfinance |
-| *(implied)* | `compute_indicators()` | 📐 pandas-ta |
+| `get_price_and_technicals()` | 📊 yfinance + pandas-ta | Current price, RSI, MACD, 50/200-day MA, volume, support/resistance |
+| `fetch_screener()` | 🏰 `https://r.jina.ai/https://www.screener.in/company/{symbol}/` | PE, PBV, ROE, D/E, margins, FCF, promoter holding, FII/DII %, news tab |
+| `search_web(query)` | 🔍 Tavily Python SDK | Sentiment news, analyst ratings, option chain, global macro, FII/DII market flows |
+| `save_research_file()` | ☁️ Supabase Storage | Write 9 `.md` research files per analysis |
+| `get_existing_context()` | ☁️ Supabase Storage | Load prior summary.md + decision_log.md for the same symbol |
 
 ---
 
 ## 📋 Section 3 — 6-Pillar Execution Flow
 
-Warren executes the full Buffett methodology in sequence. Each pillar emits an SSE event the moment it completes, so the UI streams in results live.
+Warren executes the full Buffett methodology in sequence. Each pillar emits an SSE event the moment it completes.
 
-| # | 🏛️ Pillar | 🔧 Tools Used | 📡 SSE Event |
+### Pillar Summary Table
+
+| # | 🏛️ Pillar | 🔧 Tools Called | 📡 SSE Event |
 |---|---|---|---|
-| 1 | 📊 **Technical** | `get_stock_data` + `compute_indicators` | `pillar:Technical` |
-| 2 | 🏰 **Fundamental** | `get_stock_data` (financials) | `pillar:Fundamental` |
-| 3 | 📰 **Sentiment** | `search_web` (news, analyst ratings) | `pillar:Sentiment` |
-| 4 | 📈 **Option Chain** | `search_web` (NSE PCR, max pain, OI) | `pillar:OptionChain` |
-| 5 | 🌍 **Global Impact** | `search_web` (VIX, DXY, Fed, macro) | `pillar:GlobalImpact` |
-| 6 | 💰 **FII/DII Flows** | `search_web` (institutional activity) | `pillar:FIIDIIFlows` |
-| — | 🎯 **Verdict** | Claude synthesizes composite score | `verdict` |
-| — | 💾 **File Save** | `save_research_file` × 9 | `files` (download URLs) |
+| 1 | 📊 **Technical** | `get_price_and_technicals` | `pillar:Technical` |
+| 2 | 🏰 **Fundamental** | `fetch_screener` | `pillar:Fundamental` |
+| 3 | 📰 **Sentiment** | `fetch_screener` (news tab) + `search_web` × 2 | `pillar:Sentiment` |
+| 4 | 📈 **Option Chain** | `search_web` (PCR + max pain query) | `pillar:OptionChain` |
+| 5 | 🌍 **Global Impact** | `search_web` (India VIX, macro, sector) | `pillar:GlobalImpact` |
+| 6 | 💰 **FII/DII Flows** | `fetch_screener` (shareholding %) + `search_web` (market flows) | `pillar:FIIDIIFlows` |
+| — | 🎯 **Verdict** | Claude synthesises composite score | `verdict` |
+| — | 💾 **File Save** | `save_research_file` × 9 | `files` (signed URLs) |
 
-### 🔢 Scoring Logic (from `warren-analysis-updated.md`)
+---
+
+### 📊 Pillar 1 — Technical
+
+**Tool:** `get_price_and_technicals(symbol)`  
+**Data fetched from yfinance:**
+- Current price, day change %, volume
+- 1-year OHLCV history for indicator computation
+
+**Indicators computed with pandas-ta:**
+- RSI (14) — oversold <30, overbought >70
+- MACD (12/26/9) — signal crossover
+- 50-day MA, 200-day MA — golden/death cross
+- Support (recent 20-day low), Resistance (recent 20-day high)
+
+**Score 1–4:** trend strength + momentum + volume confirmation
+
+---
+
+### 🏰 Pillar 2 — Fundamental
+
+**Tool:** `fetch_screener(symbol)`  
+**URL pattern:** `https://r.jina.ai/https://www.screener.in/company/{SYMBOL}/`  
+**Data extracted by Claude from Screener.in page:**
+- PE ratio, PBV, Market Cap (₹ Cr)
+- ROE %, ROCE %, Profit After Tax margin %
+- Debt-to-Equity ratio
+- Revenue growth (TTM vs prior year)
+- Free Cash Flow (positive/negative)
+- Promoter holding %
+- Buffett Checklist: consistent earnings 5yr, low D/E, high ROE, MOS ≥30%
+
+**Score 1–4:** valuation vs intrinsic value (DCF-estimated) + moat quality
+
+---
+
+### 📰 Pillar 3 — Sentiment
+
+**Three data pulls:**
+
+1. **Screener.in news tab** (free — same page already fetched for Pillar 2)  
+   → Recent company-specific news headlines
+
+2. **Tavily search:** `"{company name} stock news India {current month} {year}"`  
+   → ET Markets, MoneyControl, Business Standard coverage
+
+3. **Tavily search:** `"{NSE symbol} analyst rating target price buy sell hold 2026"`  
+   → Broker upgrades/downgrades, consensus target price, BUY/HOLD/SELL ratio
+
+**Score 1–4:** news sentiment polarity + analyst consensus direction
+
+---
+
+### 📈 Pillar 4 — Option Chain
+
+**Tool:** `search_web(query)`  
+**Query:** `"{NSE symbol} NSE option chain PCR put call ratio max pain open interest today"`  
+**Sources:** MoneyControl, Sensibull, Optionstrat pages indexed by Tavily
+
+**Data extracted:**
+- Put-Call Ratio (PCR) — >1.2 bullish, <0.8 bearish
+- Max Pain level (₹)
+- OI concentration at key strikes
+- IV percentile (high/normal/low)
+
+**Score 1–4 or N/A** (N/A if stock not in F&O segment)
+
+---
+
+### 🌍 Pillar 5 — Global Impact
+
+**Tool:** `search_web(query)`  
+**Two searches:**
+
+1. `"India VIX DXY US Fed rate market sentiment {current month} 2026"`
+2. `"{sector of stock} sector India outlook headwinds tailwinds 2026"`
+
+**Data analysed:**
+- India VIX (fear level) — low <15, elevated 15–25, high >25
+- DXY trend (strong USD = FII outflows from India)
+- Fed policy stance (hawkish = risk-off)
+- Sector tailwinds / headwinds
+
+**Output:** Strong Positive / Positive / Neutral / Negative / Strong Negative (qualitative, no numeric score)
+
+---
+
+### 💰 Pillar 6 — FII/DII Flows
+
+**Two data pulls:**
+
+1. **`fetch_screener(symbol)`** — shareholding pattern section (already fetched)  
+   → FII holding %, DII holding %, Promoter % — QoQ changes
+
+2. **`search_web`:** `"FII DII flows India NSE {current month} 2026 institutional buying selling"`  
+   → Aggregate market-level smart money direction
+
+**Combined output:**
+- Stock-level: FII/DII holding % + QoQ change (increasing = bullish signal)
+- Market-level: overall institutional tone (buying / neutral / selling)
+
+**Output:** Bullish / Neutral / Bearish (qualitative)
+
+---
+
+### 🔢 Composite Scoring
 
 ```
-Technical Score:    1–4   (trend, momentum, volume)
-Fundamental Score:  1–4   (valuation, moat, MOS, ROE)
-Sentiment Score:    1–4   (news, analyst, management tone)
-Option Chain Score: 1–4 or N/A  (PCR, max pain, IV)
-Global Impact:      qualitative  (Strong Positive → Strong Negative)
-FII/DII Flows:      qualitative  (Bullish / Neutral / Bearish)
-
-Composite Score (F&O):     avg(Technical, Fundamental, Sentiment, OptionChain)
-Composite Score (non-F&O): avg(Technical, Fundamental, Sentiment)
+F&O stocks:     Avg Score = (Technical + Fundamental + Sentiment + OptionChain) / 4
+Non-F&O stocks: Avg Score = (Technical + Fundamental + Sentiment) / 3
 
 Conviction:
-  3.5–4.0 → 🔥 HIGH      (accumulate, max 10% portfolio)
-  2.5–3.5 → ✅ MEDIUM    (hold or dips, max 6%)
-  1.5–2.5 → ⚠️ LOW       (reduce / avoid, max 3%)
-  < 1.5   → ❌ AVOID     (EXIT)
+  3.5 – 4.0 → 🔥 HIGH      ACCUMULATE  (max 10% portfolio allocation)
+  2.5 – 3.5 → ✅ MEDIUM    HOLD/DIPS   (max 6% portfolio allocation)
+  1.5 – 2.5 → ⚠️  LOW       REDUCE      (max 3% portfolio allocation)
+  < 1.5     → ❌ AVOID      EXIT
 ```
 
-### ⏳ Chat UI Thinking Steps (updated labels)
+---
+
+### ⏳ Chat UI — Thinking Steps (updated for Indian equities)
 
 ```
-📊 Fetching live price data...
+📊 Fetching live NSE price data...
 📐 Computing RSI, MACD & moving averages...
-🏰 Analysing fundamentals & moat...
+🏰 Reading Screener.in fundamentals...
 📰 Scanning news & analyst sentiment...
-📈 Reading option chain & PCR...
-🌍 Assessing global macro & VIX...
+📈 Checking option chain & PCR...
+🌍 Assessing India VIX & global macro...
 💰 Tracking FII/DII institutional flows...
 🎯 Forming conviction & verdict...
 💾 Saving research files...
@@ -153,13 +264,13 @@ Conviction:
 
 ### 📁 Supabase Storage Structure
 
-All 9 research files (from the personal skill methodology) are saved at:
+All 9 research files saved per analysis (mirrors personal skill methodology):
 
 ```
 supabase-storage/
 └── warren-research/
     └── {user_id}/
-        └── {symbol}/
+        └── {NSE_SYMBOL}/           e.g. RELIANCE
             └── {YYYYMMDD}/
                 ├── 📊 technical.md
                 ├── 🏰 fundamental.md
@@ -172,56 +283,71 @@ supabase-storage/
                 └── 📄 summary_YYYYMMDD.md
 ```
 
-After all 9 files are saved, the microservice emits a `files` SSE event containing signed URLs (24h expiry). The WARRen chat thread renders a **"📥 Download Research Pack"** button — premium differentiator.
+- Files saved **after** all 6 pillars complete + verdict formed
+- `files` SSE event carries **signed URLs** (24h expiry) for all 9 files
+- WARRen chat renders **"📥 Download Research Pack"** button — premium differentiator
+- `get_existing_context()` loads prior `summary.md` + `decision_log.md` at session start so WARRen can reference past analyses of the same stock
 
-### ⚡ Next.js Changes (minimal surface area)
+### ⚡ Next.js Changes (minimal)
 
-| File | Change |
-|------|--------|
-| `app/api/agents/warren/stream/route.ts` | Replace direct Claude call with HTTP + SSE proxy to `WARREN_AGENT_URL` |
-| `components/agents/PillarCards.tsx` | Add FII/DII pillar card + Global Impact row + verdict card |
-| `components/agents/ChatThread.tsx` | Handle `files` event → render "📥 Download Research Pack" button |
+| 📄 File | 🔧 Change |
+|---------|-----------|
+| `app/api/agents/warren/stream/route.ts` | Replace direct Claude call with HTTP SSE proxy to `WARREN_AGENT_URL`; auth + paywall unchanged |
+| `components/agents/PillarCards.tsx` | Extend from 5 to 6 pillars; add Global Impact qualitative row; add FII/DII row; add Verdict card |
+| `components/agents/ChatThread.tsx` | Handle `files` SSE event → render "📥 Download Research Pack" button |
+| `app/agents/[name]/page.tsx` | Update `WARREN_THINKING` steps array with 9 Indian-specific steps |
 
 ### 🔑 Environment Variables
 
-**Next.js / Vercel:**
+**Next.js (Vercel) — add one:**
 ```
 WARREN_AGENT_URL=https://warren-agent.railway.app
 ```
 
-**Python Microservice / Railway:**
+**Python Microservice (Railway) — all four required:**
 ```
-ANTHROPIC_API_KEY=...
-TAVILY_API_KEY=...
-SUPABASE_URL=...
-SUPABASE_SERVICE_ROLE_KEY=...
+ANTHROPIC_API_KEY=sk-ant-...
+TAVILY_API_KEY=tvly-...
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```
 
 ---
 
-## 🚀 Deployment
+## 🚀 Deployment Plan
 
-| Service | Platform | Notes |
-|---------|----------|-------|
-| 🐍 Python microservice | Railway (free tier) | `warren-agent/` repo or subdirectory |
-| ⚡ Next.js app | Vercel (existing) | Add `WARREN_AGENT_URL` env var |
-| ☁️ Supabase Storage | Supabase (existing) | New `warren-research` bucket, RLS per user |
+| 🛠️ Service | 🌐 Platform | 📝 Notes |
+|------------|-------------|---------|
+| 🐍 Python microservice | Railway (free tier → Hobby if needed) | Deploy `warren-agent/` as separate Railway service |
+| ⚡ Next.js app | Vercel (existing) | Add `WARREN_AGENT_URL` env var only |
+| ☁️ Supabase Storage | Supabase (existing project) | Create `warren-research` bucket; RLS policy: users access own `{user_id}/` prefix |
 
 ---
 
 ## ✅ Success Criteria
 
-- [ ] `AAPL` returns real current price, RSI, MACD, PE, ROE from yfinance
-- [ ] `RELIANCE.NS` returns full 6-pillar analysis including NSE option chain data
-- [ ] News sentiment pillar references headlines from the last 7 days (Tavily)
-- [ ] All 9 research files saved to Supabase Storage + download URLs in chat
-- [ ] Pillar cards stream into the chat UI one by one (not all at once)
-- [ ] Paywall + auth enforced by Next.js before the microservice is ever called
-- [ ] `warren-research` Supabase Storage bucket created with per-user RLS policy
+- [ ] User types `RELIANCE` → auto-resolved to `RELIANCE.NS`, full 6-pillar analysis returns
+- [ ] Technical pillar shows real current NSE price, computed RSI and MACD (not training-data estimates)
+- [ ] Fundamental pillar pulls real PE, ROE, D/E from Screener.in
+- [ ] Sentiment pillar references actual headlines from the last 7 days
+- [ ] Option chain pillar returns real PCR and max pain level from MoneyControl/Sensibull via Tavily
+- [ ] FII/DII pillar shows QoQ shareholding changes from Screener.in
+- [ ] All 9 research files saved to Supabase Storage; "📥 Download Research Pack" button appears in chat
+- [ ] Pillar cards stream into the chat one by one — not all at once
+- [ ] Non-Indian ticker → graceful refusal message in Warren's voice
+- [ ] Paywall + auth enforced in Next.js — microservice never called for locked users
+- [ ] `warren-research` Supabase Storage bucket created with per-user RLS
 - [ ] Build passes: `npx tsc --noEmit && npm run lint && npm run build`
 
 ---
 
-*Methodology source: `D:\2025-2030\claude-stock-research-memory\warren-analysis-updated.md`*  
-*Agent framework: [Strands Agents SDK](https://strandsagents.com)*  
-*Model: `claude-sonnet-4-6`*
+## 📚 References
+
+| 📖 Resource | 🔗 |
+|-------------|---|
+| Methodology source | `D:\2025-2030\claude-stock-research-memory\warren-analysis-updated.md` |
+| Agent framework | Strands Agents SDK |
+| Fundamentals data | `https://www.screener.in/company/{SYMBOL}/` via Jina Reader |
+| Price + indicators | yfinance + pandas-ta |
+| News + search | Tavily Python SDK |
+| Model | `claude-sonnet-4-6` |
