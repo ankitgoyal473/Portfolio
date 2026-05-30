@@ -1,6 +1,6 @@
-import type { Pillar, CaseFileData, Prospect } from "@/lib/agent-types";
+import type { Pillar, CaseFileData, Prospect, Verdict } from "@/lib/agent-types";
 
-export type { Pillar, CaseFileData, Prospect };
+export type { Pillar, CaseFileData, Prospect, Verdict };
 
 export interface ChatMessage {
   id: string;
@@ -16,6 +16,7 @@ export interface ChatMessage {
     url?: string;
     totalCount?: number;
     pillars?: Pillar[];
+    verdict?: Verdict;
     caseFile?: CaseFileData;
     prospects?: Array<{
       name: string;

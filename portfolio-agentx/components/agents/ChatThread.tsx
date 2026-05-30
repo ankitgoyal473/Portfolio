@@ -100,6 +100,7 @@ export function ChatThread({
                     agentColor={agentColor}
                     isLocked={false}
                     pillars={msg.metadata.pillars}
+                    verdict={msg.metadata.verdict}
                   />
                 ) : msg.metadata?.type === "case-file" ? (
                   <CaseFileCard

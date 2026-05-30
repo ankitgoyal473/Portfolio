@@ -1,8 +1,21 @@
 export interface Pillar {
   name: string;
   icon: string;
-  signal: "BULLISH" | "BEARISH" | "NEUTRAL";
+  signal: "BULLISH" | "BEARISH" | "NEUTRAL" | "N/A" | "POSITIVE" | "NEGATIVE";
   body: string;
+  score?: number | null;
+  keyMetrics?: Record<string, string | number>;
+}
+
+export interface Verdict {
+  verdict: string;
+  conviction: "HIGH" | "MEDIUM" | "LOW" | "AVOID";
+  avgScore?: number;
+  entry?: string;
+  target?: string;
+  stopLoss?: string;
+  riskReward?: string;
+  nextReview?: string;
 }
 
 export interface CaseFileSection {
