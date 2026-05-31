@@ -63,17 +63,23 @@ async def analyze(req: AnalyzeRequest):
         task = asyncio.create_task(
             _run_and_signal(symbol, req.user_id, on_event, queue)
         )
+        deadline = asyncio.get_event_loop().time() + 300.0  # 5 min hard cap
         while True:
+            now = asyncio.get_event_loop().time()
+            if now >= deadline:
+                yield f"event: error\ndata: {json.dumps({'message': 'Analysis timed out'})}\n\n"
+                task.cancel()
+                break
             try:
-                item = await asyncio.wait_for(queue.get(), timeout=180.0)
+                # Short wait so we can send keepalives while the agent is thinking
+                item = await asyncio.wait_for(queue.get(), timeout=15.0)
                 if item is None:
                     break
                 event_type, data = item
                 yield f"event: {event_type}\ndata: {json.dumps(data)}\n\n"
             except asyncio.TimeoutError:
-                yield f"event: error\ndata: {json.dumps({'message': 'Analysis timed out'})}\n\n"
-                task.cancel()
-                break
+                # Send a keepalive comment to prevent Railway edge from dropping the connection
+                yield ": keepalive\n\n"
         yield "event: done\ndata: {}\n\n"
 
     return StreamingResponse(
