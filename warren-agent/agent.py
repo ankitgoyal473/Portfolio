@@ -1,8 +1,10 @@
 import asyncio
 import json
+import os
 import re
 from datetime import datetime
 from strands import Agent
+from strands.models.anthropic import AnthropicModel
 from tools.technicals import get_price_and_technicals
 from tools.screener import fetch_screener
 from tools.web_search import search_web
@@ -41,7 +43,13 @@ async def run_analysis(symbol: str, user_id: str, on_event):
     prior = get_existing_context(user_id, base)
     prompt = build_prompt(symbol, prior)
 
+    model = AnthropicModel(
+        client_args={"api_key": os.environ["ANTHROPIC_API_KEY"]},
+        model_id="claude-sonnet-4-6",
+        max_tokens=8096,
+    )
     agent = Agent(
+        model=model,
         system_prompt=WARREN_SYSTEM_PROMPT,
         tools=[get_price_and_technicals, fetch_screener, search_web, save_research_file],
     )
