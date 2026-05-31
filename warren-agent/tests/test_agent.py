@@ -1,6 +1,7 @@
 import pytest
 import queue as _sync_queue
 from unittest.mock import patch, MagicMock
+from agent import _SENTINEL
 
 
 def test_resolve_symbol_appends_ns():
@@ -22,7 +23,7 @@ def test_resolve_symbol_uppercases():
 def test_run_agent_sets_and_clears_thread_local():
     """_run_agent injects the queue into _reporting_local and clears it after."""
     from tools.reporting import _local as reporting_local
-    from agent import _run_agent
+    from agent import _run_agent, _SENTINEL
 
     q = _sync_queue.Queue()
     mock_agent = MagicMock()
@@ -32,6 +33,8 @@ def test_run_agent_sets_and_clears_thread_local():
 
     # Queue should be cleared from thread-local after run
     assert getattr(reporting_local, "q", None) is None
+    # Sentinel must be in the queue
+    assert q.get_nowait() is _SENTINEL
 
 
 @pytest.mark.asyncio
@@ -65,6 +68,7 @@ async def test_run_analysis_emits_6_pillar_events():
             "riskReward": "2.8:1",
             "nextReview": "7 days",
         }))
+        q.put(_SENTINEL)  # signal completion
         return "Agent completed."
 
     with patch("agent.Agent"):
@@ -100,6 +104,7 @@ async def test_run_analysis_emits_verdict_event():
             "riskReward": "2:1",
             "nextReview": "7 days",
         }))
+        q.put(_SENTINEL)  # signal completion
         return "done"
 
     with patch("agent.Agent"):
@@ -123,6 +128,7 @@ async def test_run_analysis_empty_queue_emits_no_pillar_events():
         events.append((event_type, data))
 
     def mock_run_agent(agent, prompt, q):
+        q.put(_SENTINEL)  # signal completion immediately
         return "Agent produced no structured output."
 
     with patch("agent.Agent"):

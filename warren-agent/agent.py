@@ -53,23 +53,29 @@ def extract_json_objects(text: str) -> list[dict]:
     return objects
 
 
+_SENTINEL = object()  # signals agent thread is done
+
+
 def _run_agent(agent, prompt: str, q: _sync_queue.Queue) -> str:
     """
     Run the Strands agent synchronously in a worker thread.
     Injects the SSE queue into thread-local storage so report_pillar /
     report_verdict tool calls can enqueue events, then clears it when done.
+    Puts a _SENTINEL sentinel onto the queue when finished.
     """
     _reporting_local.q = q
     try:
         return str(agent(prompt))
     finally:
         _reporting_local.q = None
+        q.put(_SENTINEL)  # signal the async drainer that we're done
 
 
 async def run_analysis(symbol: str, user_id: str, on_event):
     """
     Runs the full 6-pillar analysis and calls on_event(event_type, data)
     for each pillar, the verdict, and the saved file URLs.
+    Events are forwarded to on_event in real-time as the agent produces them.
     """
     base = symbol.replace(".NS", "").replace(".BO", "")
     prior = get_existing_context(user_id, base)
@@ -88,19 +94,39 @@ async def run_analysis(symbol: str, user_id: str, on_event):
     )
 
     # Agent call is synchronous in Strands — run in executor to not block event loop.
-    # _run_agent injects the queue into thread-local so tool calls can enqueue events.
+    # _run_agent injects the sync queue into thread-local so tool calls can enqueue events.
     q: _sync_queue.Queue = _sync_queue.Queue()
     loop = asyncio.get_event_loop()
-    response_text = await loop.run_in_executor(None, _run_agent, agent, prompt, q)
 
-    # Drain the queue: each item is (event_type, data) put there by report_pillar / report_verdict
+    # Start the agent in a thread; drain events in real-time on the async side.
+    future = loop.run_in_executor(None, _run_agent, agent, prompt, q)
+
+    # Forward events from sync queue to on_event callback as they arrive.
+    # Poll every 0.5s so the event loop stays responsive.
+    response_text = None
     while True:
         try:
-            event_type, data = q.get_nowait()
+            item = q.get_nowait()
+            if item is _SENTINEL:
+                break
+            event_type, data = item
             await on_event(event_type, data)
-            await asyncio.sleep(0.25)
         except _sync_queue.Empty:
-            break
+            if future.done():
+                # Agent finished — drain any remaining events
+                while True:
+                    try:
+                        item = q.get_nowait()
+                        if item is _SENTINEL:
+                            break
+                        event_type, data = item
+                        await on_event(event_type, data)
+                    except _sync_queue.Empty:
+                        break
+                break
+            await asyncio.sleep(0.5)
+
+    response_text = await future
 
     # Save research files to Supabase Storage (parsed from markdown text response)
     date_str = datetime.now().strftime("%Y%m%d")

@@ -63,7 +63,7 @@ async def analyze(req: AnalyzeRequest):
         task = asyncio.create_task(
             _run_and_signal(symbol, req.user_id, on_event, queue)
         )
-        deadline = asyncio.get_event_loop().time() + 300.0  # 5 min hard cap
+        deadline = asyncio.get_event_loop().time() + 1200.0  # 20 min hard cap
         while True:
             now = asyncio.get_event_loop().time()
             if now >= deadline:
