@@ -633,7 +633,7 @@ export default function AgentPage() {
       setChips([]);
 
       if (agentSlug === "warren") {
-        const isTicker = /^[A-Z]{1,5}(\.NS|\.BSE)?$/i.test(text.trim());
+        const isTicker = /^[A-Z]{1,15}(\.NS|\.BO|\.BSE)?$/i.test(text.trim());
         if (isTicker) {
           await runWarren(text.trim().toUpperCase());
         } else {
