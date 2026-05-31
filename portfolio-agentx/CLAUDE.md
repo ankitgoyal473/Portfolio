@@ -87,7 +87,9 @@ export const AGENT_ICONS: Record<string, LucideIcon> = {
      Query agent_usage for count
      If count >= LIMITS[agent] → 403 paywall
      Else → increment usage
-5. Call Claude API → stream SSE events
+5. Stream SSE events:
+     WARRen → proxy to WARREN_AGENT_URL/analyze (Python Strands microservice)
+     Sherlock/Harvey → call Claude API directly
 ```
 
 **Key invariant:** `is_premium` in user_metadata is a cache hint, not authoritative. The `subscriptions` table is authoritative.
@@ -300,6 +302,7 @@ RAZORPAY_KEY_ID                  # Server only (returned to client via API respo
 RAZORPAY_KEY_SECRET              # Server only, never frontend
 GMAIL_USER                       # ankitgoyal473@gmail.com
 GMAIL_APP_PASSWORD               # 16-char Gmail App Password (graceful skip if absent)
+WARREN_AGENT_URL                 # https://warren-agent-production.up.railway.app (Python microservice)
 ```
 
 ## Portfolio Content
@@ -308,3 +311,52 @@ GMAIL_APP_PASSWORD               # 16-char Gmail App Password (graceful skip if 
 - **Projects (4, all private):** Enterprise RAG System, Hypothesis Testing Agent, QA Testing Agent, Developer MCP Suite
 - **Hire page:** Project-based, dual audience (freelance + full-time), no rate shown
 - **Availability:** Open to freelance & full-time
+
+---
+
+## WARRen Agent Microservice (`../warren-agent/`)
+
+Separate Python service deployed on Railway. The Next.js stream route proxies WARRen requests to it after auth/paywall checks.
+
+### Commands
+```bash
+cd ../warren-agent
+pip install -r requirements.txt        # Python 3.12+
+uvicorn main:app --reload              # Dev — localhost:8000
+python -m pytest tests/ -v            # All 23 tests
+python -m pytest tests/test_technicals.py -v  # Single file
+```
+
+### Architecture
+```
+main.py           FastAPI — /health + /analyze SSE endpoint
+agent.py          Strands orchestration — resolve_symbol(), extract_json_objects(), run_analysis()
+prompts.py        WARREN_SYSTEM_PROMPT + build_prompt()
+tools/
+  technicals.py   get_price_and_technicals() — yfinance + pandas-ta (RSI, MACD, MA)
+  screener.py     fetch_screener() — Jina Reader → screener.in/{SYMBOL}/
+  web_search.py   search_web() — Tavily Python SDK
+  file_storage.py save_research_file() + get_existing_context() — Supabase Storage bucket "warren-research"
+```
+
+### Request flow
+1. `resolve_symbol()` — auto-appends `.NS`, falls back to `.BO`
+2. `_symbol_is_valid()` validates via yfinance; invalid → error SSE
+3. Strands `Agent` runs with `AnthropicModel` (explicit — Strands defaults to AWS Bedrock, not Anthropic)
+4. Tool calls: yfinance → screener.in → Tavily ×4 — takes 3–5 minutes total
+5. `extract_json_objects()` (brace-balanced) parses pillar/verdict JSON from agent response
+6. SSE emits `pillar` / `verdict` / `files` / `done`; `: keepalive` comments every 15s prevent Railway edge timeout
+7. Research files saved to `warren-research/{user_id}/{SYMBOL}/{YYYYMMDD}/` in Supabase Storage
+
+### SSE event contract
+| Event | Key payload fields |
+|-------|--------------------|
+| `pillar` | `{ pillar, score, signal, summary, keyMetrics }` |
+| `verdict` | `{ verdict, conviction, avgScore, entry, target, stopLoss, riskReward }` |
+| `files` | `{ urls: Record<filename, signedUrl>, symbol, date }` |
+| `error` | `{ message }` |
+
+### Critical quirks
+- **Always pass `AnthropicModel` explicitly** — `Agent(model=AnthropicModel(...), ...)`. Without this, Strands tries AWS Bedrock credentials and fails.
+- **Ticker regex in `app/agents/[name]/page.tsx`** uses `{1,15}` chars — Indian tickers like RELIANCE, TATAMOTORS exceed the old `{1,5}` limit.
+- **Supabase Storage RLS:** `warren_research_user_isolation` policy — users can only access their own `{user_id}/` prefix.
