@@ -100,6 +100,7 @@ export function ChatThread({
                     agentColor={agentColor}
                     isLocked={false}
                     pillars={msg.metadata.pillars}
+                    verdict={msg.metadata.verdict}
                   />
                 ) : msg.metadata?.type === "case-file" ? (
                   <CaseFileCard
@@ -138,7 +139,25 @@ export function ChatThread({
 
             {/* SYSTEM */}
             {msg.role === "system" && (
-              <div className="text-xs text-foreground-muted py-2">{msg.content}</div>
+              <div className="text-xs text-foreground-muted py-2">
+                {msg.content.startsWith("__download__") ? (
+                  <a
+                    href={msg.content.replace("__download__", "")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                    style={{
+                      backgroundColor: `${agentColor}22`,
+                      color: agentColor,
+                      border: `1px solid ${agentColor}44`,
+                    }}
+                  >
+                    📥 Download Research Pack
+                  </a>
+                ) : (
+                  msg.content
+                )}
+              </div>
             )}
 
             {/* PAYWALL */}

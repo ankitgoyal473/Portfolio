@@ -1,271 +1,214 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { TrendingUp, BarChart3, MessageCircle, Target, Globe, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Pillar } from "@/lib/agent-types";
+
+export interface Pillar {
+  name: string;
+  icon: string;
+  signal: "BULLISH" | "BEARISH" | "NEUTRAL" | "N/A" | "POSITIVE" | "NEGATIVE";
+  body: string;
+  score?: number | null;
+  keyMetrics?: Record<string, string | number>;
+}
+
+export interface Verdict {
+  verdict: string;
+  conviction: "HIGH" | "MEDIUM" | "LOW" | "AVOID";
+  avgScore?: number;
+  entry?: string;
+  target?: string;
+  stopLoss?: string;
+  riskReward?: string;
+  nextReview?: string;
+}
 
 interface PillarCardsProps {
   ticker: string;
   agentColor: string;
   isLocked: boolean;
   pillars?: Pillar[];
+  verdict?: Verdict;
 }
 
-type Signal = "BULLISH" | "BEARISH" | "NEUTRAL";
-
-interface GeneratedPillar {
-  name: string;
-  icon: LucideIcon;
-  signal: Signal;
-  body: string;
-}
-
-interface Verdict {
-  action: "BUY" | "SELL" | "HOLD";
-  conviction: number;
-  entry: string;
-  target: string;
-  stop: string;
-}
-
-const PILLAR_TEMPLATES: { name: string; icon: LucideIcon; body: string }[] = [
-  {
-    name: "Technical",
-    icon: TrendingUp,
-    body: "Price at $178, holding 200-day MA. RSI 52 — neutral territory. Support $170, resistance $185.",
-  },
-  {
-    name: "Fundamental",
-    icon: BarChart3,
-    body: "P/E 28x vs 5yr avg 25x. Services revenue +16% YoY. Net cash $57B.",
-  },
-  {
-    name: "Sentiment",
-    icon: MessageCircle,
-    body: "Analyst consensus 82% Buy. Social sentiment slightly bearish post-earnings.",
-  },
-  {
-    name: "Options",
-    icon: Target,
-    body: "PCR 0.72. Max pain $175. IV percentile 34% — options cheap.",
-  },
-  {
-    name: "Global",
-    icon: Globe,
-    body: "China revenue risk priced in. AI narrative tailwind. Services moat deepening.",
-  },
-];
-
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash + str.charCodeAt(i) * (i + 1)) % 10007;
-  }
-  return hash;
-}
-
-function generatePillars(ticker: string): { pillars: GeneratedPillar[]; verdict: Verdict } {
-  const hash = hashString(ticker.toUpperCase());
-
-  const signals: Signal[] = ["BULLISH", "BEARISH", "NEUTRAL"];
-  const pillars: GeneratedPillar[] = PILLAR_TEMPLATES.map((template, index) => {
-    const signalIndex = (hash + index * 37) % 3;
-    return {
-      ...template,
-      signal: signals[signalIndex],
-    };
-  });
-
-  const bullishCount = pillars.filter((p) => p.signal === "BULLISH").length;
-  const bearishCount = pillars.filter((p) => p.signal === "BEARISH").length;
-
-  const action: "BUY" | "SELL" | "HOLD" =
-    bullishCount >= 3 ? "BUY" : bearishCount >= 3 ? "SELL" : "HOLD";
-
-  const conviction = 6 + (hash % 4); // 6-9
-
-  const basePrice = 50 + (hash % 300);
-  const entry = `$${basePrice - 3}-${basePrice}`;
-  const target = `$${basePrice + Math.floor(basePrice * 0.12)}`;
-  const stop = `$${basePrice - Math.floor(basePrice * 0.08)}`;
-
-  return {
-    pillars,
-    verdict: { action, conviction, entry, target, stop },
-  };
-}
-
-const SIGNAL_COLORS: Record<Signal, { bg: string; text: string }> = {
-  BULLISH: { bg: "#16a34a20", text: "#22c55e" },
-  BEARISH: { bg: "#dc262620", text: "#ef4444" },
-  NEUTRAL: { bg: "#71717a20", text: "#a1a1aa" },
+const SIGNAL_COLORS: Record<string, string> = {
+  BULLISH: "#00c896",
+  POSITIVE: "#00c896",
+  NEUTRAL: "#f0b429",
+  NEGATIVE: "#ff6b6b",
+  BEARISH: "#ff6b6b",
+  "N/A": "#6b7280",
 };
 
-export function PillarCards({ ticker, agentColor, isLocked, pillars }: PillarCardsProps) {
-  // When real pillars are provided, use them; otherwise generate from ticker hash
-  const generated = generatePillars(ticker);
-  const verdict = generated.verdict;
+const CONVICTION_COLORS: Record<string, string> = {
+  HIGH: "#00c896",
+  MEDIUM: "#f0b429",
+  LOW: "#ff9500",
+  AVOID: "#ff6b6b",
+};
 
-  const verdictColors: Record<string, { bg: string; text: string }> = {
-    BUY: { bg: "#16a34a20", text: "#22c55e" },
-    SELL: { bg: "#dc262620", text: "#ef4444" },
-    HOLD: { bg: "#71717a20", text: "#a1a1aa" },
-  };
+const PILLAR_ICONS: Record<string, string> = {
+  Technical: "📊",
+  Fundamental: "🏰",
+  Sentiment: "📰",
+  OptionChain: "📈",
+  GlobalImpact: "🌍",
+  FIIDIIFlows: "💰",
+};
+
+function SignalBadge({ signal }: { signal: string }) {
+  const color = SIGNAL_COLORS[signal] ?? "#6b7280";
+  return (
+    <span
+      className="text-xs font-semibold px-2 py-0.5 rounded-full"
+      style={{ backgroundColor: `${color}22`, color }}
+    >
+      {signal}
+    </span>
+  );
+}
+
+function ScoreDots({ score }: { score?: number | null }) {
+  if (score == null) return null;
+  return (
+    <span className="flex gap-0.5 items-center ml-1">
+      {[1, 2, 3, 4].map((i) => (
+        <span
+          key={i}
+          className="w-1.5 h-1.5 rounded-full"
+          style={{
+            backgroundColor: i <= score ? "#f0b429" : "#374151",
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function PillarCard({
+  pillar,
+  index,
+  agentColor,
+  isLocked,
+}: {
+  pillar: Pillar;
+  index: number;
+  agentColor: string;
+  isLocked: boolean;
+}) {
+  const icon = PILLAR_ICONS[pillar.name] ?? "📋";
+  const blurred = isLocked && index >= 1;
 
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <p
-        className="text-xs font-medium uppercase tracking-wider mb-1"
-        style={{ color: agentColor }}
-      >
-        {ticker} — 5-Pillar Analysis
-      </p>
-
-      {pillars
-        ? // Real data path: use Pillar[] from agent-types (has emoji icon string)
-          pillars.map((pillar, index) => {
-            const locked = isLocked && index > 0;
-            return (
-              <div key={pillar.name} className="relative">
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.3 }}
-                  className={cn(
-                    "rounded-lg border border-border bg-background-card p-3",
-                    locked && "select-none"
-                  )}
-                  style={locked ? { filter: "blur(4px)", pointerEvents: "none" } : undefined}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">{pillar.icon}</span>
-                      <span className="text-sm font-medium text-foreground">{pillar.name}</span>
-                    </div>
-                    <span
-                      className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
-                      style={{
-                        backgroundColor: SIGNAL_COLORS[pillar.signal].bg,
-                        color: SIGNAL_COLORS[pillar.signal].text,
-                      }}
-                    >
-                      {pillar.signal}
-                    </span>
-                  </div>
-                  <p className="text-xs text-foreground-secondary leading-relaxed">{pillar.body}</p>
-                </motion.div>
-
-                {locked && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span
-                      className="text-xs font-semibold px-3 py-1.5 rounded-md bg-background/80 backdrop-blur-sm"
-                      style={{ color: agentColor }}
-                    >
-                      Unlock WARRen — $19/month
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        : // Generated data path: use Lucide icons from hash
-          generated.pillars.map((pillar, index) => {
-            const locked = isLocked && index > 0;
-            return (
-              <div key={pillar.name} className="relative">
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.3 }}
-                  className={cn(
-                    "rounded-lg border border-border bg-background-card p-3",
-                    locked && "select-none"
-                  )}
-                  style={locked ? { filter: "blur(4px)", pointerEvents: "none" } : undefined}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <pillar.icon className="w-4 h-4 text-foreground-muted" />
-                      <span className="text-sm font-medium text-foreground">{pillar.name}</span>
-                    </div>
-                    <span
-                      className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
-                      style={{
-                        backgroundColor: SIGNAL_COLORS[pillar.signal].bg,
-                        color: SIGNAL_COLORS[pillar.signal].text,
-                      }}
-                    >
-                      {pillar.signal}
-                    </span>
-                  </div>
-                  <p className="text-xs text-foreground-secondary leading-relaxed">{pillar.body}</p>
-                </motion.div>
-
-                {locked && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span
-                      className="text-xs font-semibold px-3 py-1.5 rounded-md bg-background/80 backdrop-blur-sm"
-                      style={{ color: agentColor }}
-                    >
-                      Unlock WARRen — $19/month
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-      {/* Verdict card */}
-      <div className="relative mt-1">
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.3 }}
-          className={cn("rounded-lg border p-3", isLocked && "select-none")}
-          style={
-            isLocked
-              ? { borderColor: agentColor, filter: "blur(4px)", pointerEvents: "none" as const }
-              : { borderColor: agentColor }
-          }
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1, duration: 0.2 }}
+      className="relative rounded-lg border border-border/50 bg-background p-3 overflow-hidden"
+    >
+      {blurred && (
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center rounded-lg backdrop-blur-sm"
+          style={{ backgroundColor: `${agentColor}11` }}
         >
-          <div className="flex items-center gap-3 flex-wrap">
-            <span
-              className="text-xs font-bold uppercase px-2 py-0.5 rounded-full"
-              style={{
-                backgroundColor: verdictColors[verdict.action].bg,
-                color: verdictColors[verdict.action].text,
-              }}
-            >
-              {verdict.action}
-            </span>
-            <span className="text-xs text-foreground-secondary">
-              Conviction{" "}
-              <span className="text-foreground font-medium">{verdict.conviction}/10</span>
-            </span>
-            <span className="text-xs text-foreground-secondary">
-              Entry <span className="text-foreground font-medium">{verdict.entry}</span>
-            </span>
-            <span className="text-xs text-foreground-secondary">
-              Target <span className="text-foreground font-medium">{verdict.target}</span>
-            </span>
-            <span className="text-xs text-foreground-secondary">
-              Stop <span className="text-foreground font-medium">{verdict.stop}</span>
-            </span>
-          </div>
-        </motion.div>
-
-        {isLocked && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span
-              className="text-xs font-semibold px-3 py-1.5 rounded-md bg-background/80 backdrop-blur-sm"
-              style={{ color: agentColor }}
-            >
-              Unlock WARRen — $19/month
-            </span>
-          </div>
-        )}
+          <span className="text-xs font-medium" style={{ color: agentColor }}>
+            Unlock WARRen — ₹999/month
+          </span>
+        </div>
+      )}
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-sm">{icon}</span>
+        <span className="text-xs font-semibold text-foreground">{pillar.name}</span>
+        <ScoreDots score={pillar.score} />
+        <div className="ml-auto">
+          <SignalBadge signal={pillar.signal} />
+        </div>
       </div>
+      <p className="text-xs text-foreground-secondary leading-relaxed">{pillar.body}</p>
+    </motion.div>
+  );
+}
+
+function VerdictCard({
+  verdict,
+  agentColor,
+}: {
+  verdict: Verdict;
+  agentColor: string;
+}) {
+  const convColor = CONVICTION_COLORS[verdict.conviction] ?? agentColor;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.7, duration: 0.25 }}
+      className="rounded-lg border p-3 mt-1"
+      style={{ borderColor: `${convColor}44`, backgroundColor: `${convColor}0D` }}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-bold text-foreground">🎯 Verdict</span>
+        <span
+          className="text-xs font-bold px-2 py-0.5 rounded-full"
+          style={{ backgroundColor: `${convColor}22`, color: convColor }}
+        >
+          {verdict.conviction} · {verdict.verdict}
+        </span>
+      </div>
+      {verdict.entry && (
+        <div className="grid grid-cols-3 gap-2 text-xs text-foreground-muted">
+          <div>
+            <div className="font-medium text-foreground-secondary">Entry</div>
+            <div>{verdict.entry}</div>
+          </div>
+          <div>
+            <div className="font-medium text-foreground-secondary">Target</div>
+            <div style={{ color: "#00c896" }}>{verdict.target}</div>
+          </div>
+          <div>
+            <div className="font-medium text-foreground-secondary">Stop</div>
+            <div style={{ color: "#ff6b6b" }}>{verdict.stopLoss}</div>
+          </div>
+        </div>
+      )}
+      {verdict.riskReward && (
+        <div className="mt-2 text-xs text-foreground-muted">
+          R/R: <span className="font-medium text-foreground">{verdict.riskReward}</span>
+          {verdict.nextReview && (
+            <span className="ml-3">Review: {verdict.nextReview}</span>
+          )}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+export function PillarCards({
+  ticker,
+  agentColor,
+  isLocked,
+  pillars,
+  verdict,
+}: PillarCardsProps) {
+  const displayPillars: Pillar[] = pillars ?? [
+    { name: "Technical", icon: "📊", signal: "BULLISH", body: "Loading...", score: null },
+  ];
+
+  return (
+    <div className="space-y-2 w-full">
+      <div className="text-xs font-semibold mb-2" style={{ color: agentColor }}>
+        {ticker} · 6-Pillar Analysis
+      </div>
+      {displayPillars.map((p, i) => (
+        <PillarCard
+          key={p.name}
+          pillar={p}
+          index={i}
+          agentColor={agentColor}
+          isLocked={isLocked}
+        />
+      ))}
+      {verdict && <VerdictCard verdict={verdict} agentColor={agentColor} />}
+      <p className="text-xs text-foreground-muted text-right mt-1">— WARRen 🧐</p>
     </div>
   );
 }
