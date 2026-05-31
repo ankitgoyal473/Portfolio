@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import queue as _sync_queue
 import re
 from datetime import datetime
 from strands import Agent
@@ -9,6 +10,7 @@ from tools.technicals import get_price_and_technicals
 from tools.screener import fetch_screener
 from tools.web_search import search_web
 from tools.file_storage import save_research_file, get_existing_context
+from tools.reporting import report_pillar, report_verdict, _local as _reporting_local
 from prompts import WARREN_SYSTEM_PROMPT, build_prompt
 
 _FILE_RE = re.compile(
@@ -51,6 +53,19 @@ def extract_json_objects(text: str) -> list[dict]:
     return objects
 
 
+def _run_agent(agent, prompt: str, q: _sync_queue.Queue) -> str:
+    """
+    Run the Strands agent synchronously in a worker thread.
+    Injects the SSE queue into thread-local storage so report_pillar /
+    report_verdict tool calls can enqueue events, then clears it when done.
+    """
+    _reporting_local.q = q
+    try:
+        return str(agent(prompt))
+    finally:
+        _reporting_local.q = None
+
+
 async def run_analysis(symbol: str, user_id: str, on_event):
     """
     Runs the full 6-pillar analysis and calls on_event(event_type, data)
@@ -61,38 +76,33 @@ async def run_analysis(symbol: str, user_id: str, on_event):
     prompt = build_prompt(symbol, prior)
 
     model = AnthropicModel(
-        client_args={"api_key": os.environ["ANTHROPIC_API_KEY"]},
+        client_args={"api_key": os.environ.get("ANTHROPIC_API_KEY", "")},
         model_id="claude-sonnet-4-6",
         max_tokens=8096,
     )
     agent = Agent(
         model=model,
         system_prompt=WARREN_SYSTEM_PROMPT,
-        tools=[get_price_and_technicals, fetch_screener, search_web, save_research_file],
+        tools=[get_price_and_technicals, fetch_screener, search_web, save_research_file,
+               report_pillar, report_verdict],
     )
 
-    # Agent call is synchronous in Strands — run in executor to not block event loop
-    # Use __call__ explicitly so unit-test mocks that patch __call__ are honoured.
+    # Agent call is synchronous in Strands — run in executor to not block event loop.
+    # _run_agent injects the queue into thread-local so tool calls can enqueue events.
+    q: _sync_queue.Queue = _sync_queue.Queue()
     loop = asyncio.get_event_loop()
-    response_text = await loop.run_in_executor(None, lambda: str(agent.__call__(prompt)))
+    response_text = await loop.run_in_executor(None, _run_agent, agent, prompt, q)
 
-    # Extract all JSON objects from response; route to pillar / verdict events
-    all_objects = extract_json_objects(response_text)
-
-    pillar_names = {"Technical", "Fundamental", "Sentiment", "OptionChain", "GlobalImpact", "FIIDIIFlows"}
-    verdict_obj = None
-
-    for obj in all_objects:
-        if "pillar" in obj and obj.get("pillar") in pillar_names:
-            await on_event("pillar", obj)
+    # Drain the queue: each item is (event_type, data) put there by report_pillar / report_verdict
+    while True:
+        try:
+            event_type, data = q.get_nowait()
+            await on_event(event_type, data)
             await asyncio.sleep(0.25)
-        elif "verdict" in obj and verdict_obj is None:
-            verdict_obj = obj
+        except _sync_queue.Empty:
+            break
 
-    if verdict_obj:
-        await on_event("verdict", verdict_obj)
-
-    # Save research files to Supabase Storage
+    # Save research files to Supabase Storage (parsed from markdown text response)
     date_str = datetime.now().strftime("%Y%m%d")
     file_urls: dict[str, str] = {}
 
