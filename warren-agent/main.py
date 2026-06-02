@@ -28,7 +28,15 @@ async def health():
 def _symbol_is_valid(symbol: str) -> bool:
     try:
         info = yf.Ticker(symbol).info
-        return bool(info.get("currentPrice") or info.get("regularMarketPrice"))
+        # yfinance returns different price fields depending on market state;
+        # check multiple candidates so valid tickers aren't rejected
+        return bool(
+            info.get("currentPrice")
+            or info.get("regularMarketPrice")
+            or info.get("previousClose")
+            or info.get("ask")
+            or info.get("bid")
+        )
     except Exception:
         return False
 
