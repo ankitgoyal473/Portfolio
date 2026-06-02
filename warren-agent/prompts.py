@@ -54,36 +54,37 @@ Execute these steps IN ORDER - do not skip any:
 
 STEP 1 - TECHNICAL:
 Call get_price_and_technicals("{symbol}")
-Output Technical pillar JSON
+Then call report_pillar(pillar="Technical", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences with actual numbers", key_metrics={{...}})
 
 STEP 2 - FUNDAMENTAL:
 Call fetch_screener("{base}")
 Extract PE, PBV, ROE, D/E, profit margin, FCF, promoter holding % from the page
-Output Fundamental pillar JSON
+Then call report_pillar(pillar="Fundamental", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences with actual numbers", key_metrics={{...}})
 
 STEP 3 - SENTIMENT:
 Use the news section from the Screener.in data fetched in Step 2.
 Also call search_web("{base} stock news India {month_year}")
 Also call search_web("{base} NSE analyst rating target price buy sell hold 2026")
-Output Sentiment pillar JSON
+Then call report_pillar(pillar="Sentiment", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences", key_metrics={{...}})
 
 STEP 4 - OPTION CHAIN:
 Call search_web("{base} NSE F&O option chain PCR put call ratio max pain open interest today")
-If {base} is in F&O segment: output OptionChain pillar JSON with numeric score
-If not in F&O: output OptionChain JSON with score=null and signal="N/A"
+If {base} is in F&O segment: call report_pillar(pillar="OptionChain", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="...", key_metrics={{...}})
+If not in F&O: call report_pillar(pillar="OptionChain", score=None, signal="N/A", summary="Not in F&O segment", key_metrics={{}})
 
 STEP 5 - GLOBAL IMPACT:
 Call search_web("India VIX DXY US Fed interest rate market sentiment {month_year}")
 Call search_web("{base} sector India outlook headwinds tailwinds 2026")
-Output GlobalImpact pillar JSON with signal (POSITIVE/NEUTRAL/NEGATIVE) - no numeric score
+Then call report_pillar(pillar="GlobalImpact", score=None, signal=<"POSITIVE"|"NEUTRAL"|"NEGATIVE">, summary="2-3 sentences", key_metrics={{}})
 
 STEP 6 - FII/DII FLOWS:
 Use the shareholding pattern data from Screener.in (Step 2): FII %, DII %, Promoter % and QoQ changes.
 Call search_web("FII DII institutional flows NSE India {month_year} buying selling")
-Output FIIDIIFlows pillar JSON with signal (BULLISH/NEUTRAL/BEARISH) - no numeric score
+Then call report_pillar(pillar="FIIDIIFlows", score=None, signal=<"BULLISH"|"NEUTRAL"|"BEARISH">, summary="2-3 sentences", key_metrics={{}})
 
 STEP 7 - VERDICT:
-Compute composite score and output verdict JSON.
+Compute composite score.
+Call report_verdict(verdict=<"BUY"|"ACCUMULATE"|"HOLD"|"REDUCE"|"EXIT">, conviction=<"HIGH"|"MEDIUM"|"LOW"|"AVOID">, avg_score=<float>, entry="Rs.XXXX-YYYY", target="Rs.XXXX", stop_loss="Rs.XXXX", risk_reward="X:1", next_review="7 days")
 
 STEP 8 - RESEARCH FILES:
 Write content for all 9 research files clearly labelled with === FILE: filename.md ===
