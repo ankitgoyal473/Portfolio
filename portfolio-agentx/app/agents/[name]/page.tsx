@@ -156,36 +156,17 @@ export default function AgentPage() {
 
     getUsage(agentSlug, user.id).then((u) => {
       setUsage(u);
-      const isPremiumUser = !!user?.user_metadata?.is_premium;
-      if (isPremiumUser) {
-        setLocked(false);
-        setPaywallOpen(false);
-        // still load usage for display but never lock
-      } else {
-        // existing logic: check stage, setLocked, setPaywallOpen
+      // If JWT doesn't have is_premium yet (stale), apply paywall based on usage.
+      // The subscription check below will override this if an active sub exists.
+      if (!user?.user_metadata?.is_premium) {
         const isLockedNow = checkIsLocked(u.stage);
         setLocked(isLockedNow);
         if (isLockedNow) setPaywallOpen(true);
       }
     });
 
-    loadSessions(agentSlug, user.id).then((loadedSessions) => {
-      setSessions(loadedSessions);
-      if (loadedSessions.length > 0) {
-        // Restore the most recent session
-        const recent = loadedSessions[0];
-        sessionRef.current = recent.id;
-        setActiveSessionId(recent.id);
-        setMessages(recent.messages);
-        setChips([]);
-        setHarveyContext({});
-      } else {
-        startNewSession();
-      }
-    });
-
-    // Fetch subscription for premium users
-    if (user?.user_metadata?.is_premium) {
+    // Always verify against subscriptions table — handles stale JWT + shows Pro badge
+    {
       const supabase = createBrowserSupabaseClient();
       supabase
         .from("subscriptions")
@@ -202,9 +183,26 @@ export default function AgentPage() {
               (new Date(data.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
             );
             setSubscription({ expires_at: data.expires_at, daysLeft });
+            setLocked(false);
+            setPaywallOpen(false);
           }
         });
     }
+
+    loadSessions(agentSlug, user.id).then((loadedSessions) => {
+      setSessions(loadedSessions);
+      if (loadedSessions.length > 0) {
+        // Restore the most recent session
+        const recent = loadedSessions[0];
+        sessionRef.current = recent.id;
+        setActiveSessionId(recent.id);
+        setMessages(recent.messages);
+        setChips([]);
+        setHarveyContext({});
+      } else {
+        startNewSession();
+      }
+    });
 
     // Check for ?unlocked=1 query param (post-Stripe redirect)
     const search = window.location.search;
@@ -781,6 +779,7 @@ export default function AgentPage() {
           usageCount={usage.used}
           usageLimit={usage.limit}
           isLocked={locked}
+          isPremium={subscription !== null}
           onSend={handleSend}
           onFileUpload={agentSlug === "harvey" ? handleFileUpload : undefined}
           onLockClick={() => setPaywallOpen(true)}

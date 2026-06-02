@@ -11,6 +11,7 @@ interface AgentChatbarProps {
   usageCount: number;
   usageLimit: number;
   isLocked: boolean;
+  isPremium?: boolean;
   onSend: (message: string) => void;
   onFileUpload?: (file: File) => void;
   onLockClick?: () => void;
@@ -25,6 +26,7 @@ export function AgentChatbar({
   usageCount,
   usageLimit,
   isLocked,
+  isPremium = false,
   onSend,
   onFileUpload,
   onLockClick,
@@ -39,18 +41,19 @@ export function AgentChatbar({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const remaining = usageLimit - usageCount;
-  const showCounter = usageCount > 0 && !isLocked;
+  const effectiveLocked = isLocked && !isPremium;
+  const showCounter = usageCount > 0 && !effectiveLocked && !isPremium;
 
   const handleSend = useCallback(() => {
     const trimmed = input.trim();
-    if (!trimmed || isLocked) return;
+    if (!trimmed || effectiveLocked) return;
     onSend(trimmed);
     setInput("");
     setFileName(null);
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
-  }, [input, isLocked, onSend]);
+  }, [input, effectiveLocked, onSend]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -87,7 +90,7 @@ export function AgentChatbar({
     <div className="sticky bottom-0 bg-background/80 backdrop-blur-md border-t border-border/50 px-4 py-3 z-10">
       {/* Quick-reply chips */}
       <AnimatePresence>
-        {chips && chips.length > 0 && chipsVisible && !isLocked && (
+        {chips && chips.length > 0 && chipsVisible && !effectiveLocked && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -122,7 +125,7 @@ export function AgentChatbar({
       <div
         className={cn(
           "flex items-center gap-2 rounded-3xl border border-border bg-background-card px-4 py-2 transition-shadow duration-200",
-          isLocked && "opacity-50"
+          effectiveLocked && "opacity-50"
         )}
         style={
           {
@@ -130,7 +133,7 @@ export function AgentChatbar({
           } as React.CSSProperties
         }
         onFocus={(e) => {
-          if (!isLocked) {
+          if (!effectiveLocked) {
             e.currentTarget.style.boxShadow = `0 0 0 2px ${agentColor}33`;
           }
         }}
@@ -144,7 +147,7 @@ export function AgentChatbar({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={isLocked}
+              disabled={effectiveLocked}
               className="flex-shrink-0 p-1 text-foreground-muted hover:text-foreground transition-colors disabled:opacity-40"
               aria-label="Upload CSV"
             >
@@ -182,14 +185,27 @@ export function AgentChatbar({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={isLocked}
-          placeholder={isLocked ? "Upgrade to continue..." : placeholder}
+          disabled={effectiveLocked}
+          placeholder={effectiveLocked ? "Upgrade to continue..." : placeholder}
           rows={1}
           className="flex-1 bg-transparent text-sm text-foreground placeholder:text-foreground-muted resize-none outline-none min-h-[20px] max-h-[120px] py-1"
         />
 
         {/* Right side */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Pro badge */}
+          {isPremium && (
+            <motion.span
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-xs font-mono whitespace-nowrap"
+              style={{ color: "#f0b429" }}
+            >
+              ✦ Pro
+            </motion.span>
+          )}
+
           {/* Usage counter */}
           {showCounter && (
             <motion.span
@@ -204,12 +220,12 @@ export function AgentChatbar({
           )}
 
           {/* Locked label */}
-          {isLocked && (
+          {effectiveLocked && (
             <span className="text-xs font-mono text-error whitespace-nowrap">Limit reached</span>
           )}
 
           {/* Send / Lock button */}
-          {isLocked ? (
+          {effectiveLocked ? (
             <button
               onClick={onLockClick}
               className="w-8 h-8 rounded-full bg-error flex items-center justify-center flex-shrink-0 cursor-pointer hover:brightness-110 transition-all"

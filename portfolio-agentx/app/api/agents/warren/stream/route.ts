@@ -83,18 +83,20 @@ export async function POST(request: Request) {
     }
   }
 
-  // Increment usage server-side (authoritative)
-  const { data: currentUsage } = await supabase
-    .from("agent_usage")
-    .select("count")
-    .eq("user_id", user.id)
-    .eq("agent_id", "warren")
-    .single();
-  const newCount = (currentUsage?.count ?? 0) + 1;
-  await supabase.from("agent_usage").upsert(
-    { user_id: user.id, agent_id: "warren", count: newCount },
-    { onConflict: "user_id,agent_id" }
-  );
+  // Increment usage server-side — skipped for active premium subscribers
+  if (!subscriptionActive) {
+    const { data: currentUsage } = await supabase
+      .from("agent_usage")
+      .select("count")
+      .eq("user_id", user.id)
+      .eq("agent_id", "warren")
+      .single();
+    const newCount = (currentUsage?.count ?? 0) + 1;
+    await supabase.from("agent_usage").upsert(
+      { user_id: user.id, agent_id: "warren", count: newCount },
+      { onConflict: "user_id,agent_id" }
+    );
+  }
 
   const upstream = await fetch(`${agentUrl}/analyze`, {
     method: "POST",
