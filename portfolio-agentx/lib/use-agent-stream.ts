@@ -35,6 +35,14 @@ export function useAgentStream() {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let doneCalled = false;
+
+        const callDone = () => {
+          if (!doneCalled) {
+            doneCalled = true;
+            onDone();
+          }
+        };
 
         while (true) {
           const { done, value } = await reader.read();
@@ -53,7 +61,7 @@ export function useAgentStream() {
               try {
                 const data = JSON.parse(dataStr);
                 if (currentEvent === "done") {
-                  onDone();
+                  callDone();
                 } else {
                   onEvent({ event: currentEvent, data });
                 }
@@ -65,7 +73,7 @@ export function useAgentStream() {
           }
         }
 
-        onDone();
+        callDone();
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           onError?.(err as Error);

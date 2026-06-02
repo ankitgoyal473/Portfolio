@@ -283,10 +283,12 @@ export default function AgentPage() {
         (event) => {
           if (event.event === "pillar") {
             collectedPillars.push({
-              name: event.data.name as string,
+              name: event.data.pillar as string,
               icon: "📊",
               signal: event.data.signal as "BULLISH" | "BEARISH" | "NEUTRAL",
               body: event.data.summary as string,
+              score: event.data.score as number | null,
+              keyMetrics: event.data.keyMetrics as Record<string, string | number> | undefined,
             });
           } else if (event.event === "verdict") {
             collectedVerdict = event.data as unknown as import("@/components/agents/PillarCards").Verdict;
@@ -316,6 +318,15 @@ export default function AgentPage() {
         async () => {
           // onDone
           setMessages((prev) => prev.filter((m) => m.role !== "thinking"));
+
+          // Stream dropped mid-run (e.g. Railway redeploy) — show clear error
+          if (collectedPillars.length === 0 && !collectedVerdict) {
+            addMessage(
+              createMessage("agent", "The analysis was interrupted before any results arrived. This can happen during a server update. Please try again — WARRen 🧐")
+            );
+            setIsRunning(false);
+            return;
+          }
 
           if (user?.id) {
             const newUsage = await getUsage(agentSlug, user.id);
