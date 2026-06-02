@@ -289,6 +289,7 @@ Key tokens: `bg-background` (#0A0A0A), `bg-background-card` (#1E1E1E), `text-for
 - **Agent icons NOT on Agent type:** `agent.icon` doesn't exist. Import `AGENT_ICONS` from `lib/agents.ts` and look up by `agent.slug`. Reason: Agent objects are serialized as RSC props — functions can't serialize.
 - **CosmicBackground keyframes:** Defined in `app/globals.css`, not inline. Don't move them or the animation breaks silently.
 - **`disk-gradient` SVG id:** Used inside CosmicBackground's inline SVG. If you ever render two instances on the same page, the duplicate `id` will cause one to break — make ids unique or use a single instance per page.
+- **Warren stream route Vercel timeout (known open issue):** `app/api/agents/warren/stream/route.ts` proxies Railway SSE as a serverless function. Warren analysis takes ~655s; Vercel kills the connection at 300s. Fix: `export const runtime = 'edge'` at the top of that file.
 
 ## Environment Variables
 
@@ -323,30 +324,32 @@ Separate Python service deployed on Railway. The Next.js stream route proxies WA
 cd ../warren-agent
 pip install -r requirements.txt        # Python 3.12+
 uvicorn main:app --reload              # Dev — localhost:8000
-python -m pytest tests/ -v            # All 23 tests
+python -m pytest tests/ -v            # All 32 tests
 python -m pytest tests/test_technicals.py -v  # Single file
 ```
 
 ### Architecture
 ```
-main.py           FastAPI — /health + /analyze SSE endpoint
-agent.py          Strands orchestration — resolve_symbol(), extract_json_objects(), run_analysis()
-prompts.py        WARREN_SYSTEM_PROMPT + build_prompt()
+main.py              FastAPI — /health + /analyze SSE endpoint (20-min deadline, asyncio.Queue, keepalive every 15s)
+agent.py             Strands orchestration — resolve_symbol(), _run_agent(), run_analysis()
+prompts.py           WARREN_SYSTEM_PROMPT + build_prompt()
 tools/
-  technicals.py   get_price_and_technicals() — yfinance + pandas-ta (RSI, MACD, MA)
-  screener.py     fetch_screener() — Jina Reader → screener.in/{SYMBOL}/
-  web_search.py   search_web() — Tavily Python SDK
-  file_storage.py save_research_file() + get_existing_context() — Supabase Storage bucket "warren-research"
+  technicals.py      get_price_and_technicals() — yfinance + pandas-ta (RSI, MACD, MA)
+  screener.py        fetch_screener() — Jina Reader → screener.in/{SYMBOL}/
+  web_search.py      search_web() — Tavily Python SDK
+  file_storage.py    save_research_file() + get_existing_context() — Supabase Storage bucket "warren-research"
+  reporting.py       report_pillar() + report_verdict() — @tool functions that enqueue SSE events via thread-local queue
 ```
 
 ### Request flow
 1. `resolve_symbol()` — auto-appends `.NS`, falls back to `.BO`
 2. `_symbol_is_valid()` validates via yfinance; invalid → error SSE
 3. Strands `Agent` runs with `AnthropicModel` (explicit — Strands defaults to AWS Bedrock, not Anthropic)
-4. Tool calls: yfinance → screener.in → Tavily ×4 — takes 3–5 minutes total
-5. `extract_json_objects()` (brace-balanced) parses pillar/verdict JSON from agent response
-6. SSE emits `pillar` / `verdict` / `files` / `done`; `: keepalive` comments every 15s prevent Railway edge timeout
-7. Research files saved to `warren-research/{user_id}/{SYMBOL}/{YYYYMMDD}/` in Supabase Storage
+4. Tool calls: yfinance → screener.in → Tavily ×4 — takes 8–12 minutes total
+5. As the agent completes each pillar it calls `report_pillar()` / `report_verdict()` — these `@tool` functions put `("pillar", {...})` / `("verdict", {...})` onto a `threading.Queue` stored in `_reporting_local.q` (thread-local)
+6. `_run_agent()` injects the queue before the Strands call and puts a `_SENTINEL` object in `finally`; `run_analysis()` polls the queue every 0.5s in the async event loop, forwarding events in real-time, and exits on sentinel
+7. Research files are parsed from the agent's text response via `_FILE_RE` regex (not tool calls) and saved to `warren-research/{user_id}/{SYMBOL}/{YYYYMMDD}/` in Supabase Storage
+8. SSE emits `pillar` / `verdict` / `files` / `done`; `: keepalive` comments every 15s prevent Railway edge timeout
 
 ### SSE event contract
 | Event | Key payload fields |
@@ -358,5 +361,8 @@ tools/
 
 ### Critical quirks
 - **Always pass `AnthropicModel` explicitly** — `Agent(model=AnthropicModel(...), ...)`. Without this, Strands tries AWS Bedrock credentials and fails.
+- **Thread-local queue is the only SSE bridge** — `report_pillar` / `report_verdict` write to `_reporting_local.q`. If you add a new tool that emits SSE events, follow the same pattern: `q = getattr(_local, "q", None); if q: q.put(...)`.
+- **`extract_json_objects()` still exists in `agent.py`** but is no longer called for pillar/verdict events. Don't re-introduce JSON text parsing for SSE — the tool-call queue approach is the correct path.
+- **Vercel 300s proxy timeout** — `/api/agents/warren/stream/route.ts` is a serverless function. Warren analysis takes ~655s. The proxy dies at 300s, cutting the browser stream. Fix: add `export const runtime = 'edge'` to that route (streaming responses have no wall-clock limit on edge; the route only uses `fetch` + `ReadableStream` so edge is compatible).
 - **Ticker regex in `app/agents/[name]/page.tsx`** uses `{1,15}` chars — Indian tickers like RELIANCE, TATAMOTORS exceed the old `{1,5}` limit.
 - **Supabase Storage RLS:** `warren_research_user_isolation` policy — users can only access their own `{user_id}/` prefix.

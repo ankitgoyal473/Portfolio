@@ -35,6 +35,12 @@ def _symbol_is_valid(symbol: str) -> bool:
 
 @app.post("/analyze")
 async def analyze(req: AnalyzeRequest):
+    if not req.ticker or not req.ticker.strip():
+        async def empty_stream():
+            yield f"event: error\ndata: {json.dumps({'message': 'Please enter a ticker symbol (e.g. RELIANCE, INFY, TCS). — WARRen'})}\n\n"
+            yield "event: done\ndata: {}\n\n"
+        return StreamingResponse(empty_stream(), media_type="text/event-stream")
+
     symbol = resolve_symbol(req.ticker)
 
     # Validate — try NSE, fallback BSE

@@ -1,15 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
+export const runtime = "edge";
+
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { LIMITS } from "@/lib/paywall";
-import { sendEmail, expiryReminderEmail } from "@/lib/email";
 import { NextResponse } from "next/server";
-
-const client = new Anthropic();
-
-function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
 
 export async function POST(request: Request) {
   // Auth check
@@ -37,24 +31,25 @@ export async function POST(request: Request) {
     if (sub) {
       subscriptionActive = true;
 
-      // Lazy expiry reminder: send if within 7 days and not yet sent
+      // Lazy expiry reminder: fire-and-forget via /api/send-reminder (non-edge)
       const daysLeft = Math.ceil(
         (new Date(sub.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
       );
       if (daysLeft <= 7 && !sub.reminder_sent_at) {
         const appUrl =
           process.env.NEXT_PUBLIC_APP_URL ?? "https://portfolio-one-topaz-65.vercel.app";
-        const reminderEmail = expiryReminderEmail({
-          name: user.user_metadata?.full_name ?? user.email ?? "there",
-          expiresAt: sub.expires_at,
-          daysLeft,
-          appUrl,
+        void fetch(new URL("/api/send-reminder", request.url).toString(), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subscriptionId: sub.id,
+            userEmail: user.email,
+            userName: user.user_metadata?.full_name ?? user.email ?? "there",
+            expiresAt: sub.expires_at,
+            daysLeft,
+            appUrl,
+          }),
         });
-        await sendEmail({ to: user.email!, ...reminderEmail });
-        await supabaseAdmin
-          .from("subscriptions")
-          .update({ reminder_sent_at: new Date().toISOString() })
-          .eq("id", sub.id);
       }
     } else {
       // Subscription expired — clear is_premium
