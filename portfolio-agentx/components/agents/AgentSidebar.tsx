@@ -22,6 +22,7 @@ interface AgentSidebarProps {
   agentColor: string;
   sessions: SessionRecord[];
   usage: UsageState;
+  isPremium?: boolean;
   onNewSession: () => void;
   onSelectSession: (sessionId: string) => void;
   activeSessionId: string | null;
@@ -73,6 +74,7 @@ export function AgentSidebar({
   agentColor,
   sessions,
   usage,
+  isPremium = false,
   onNewSession,
   onSelectSession,
   activeSessionId,
@@ -151,24 +153,33 @@ export function AgentSidebar({
 
       {/* Usage widget */}
       <div className="px-4 py-3 border-b border-border/50">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs text-foreground-muted">Free tier</span>
-          <div className="flex items-center gap-1">
-            {isAtLimit && <Lock className="w-3 h-3 text-error" />}
-            <span className="text-xs text-foreground-secondary font-mono">
-              {usage.used} / {usage.limit}
-            </span>
+        {isPremium ? (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-semibold" style={{ color: "#f0b429" }}>✦ Pro</span>
+            <span className="text-xs text-foreground-muted">· Unlimited</span>
           </div>
-        </div>
-        <div className="w-full h-1 rounded-full bg-border overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{
-              width: `${Math.min(progressPct, 100)}%`,
-              backgroundColor: progressColor,
-            }}
-          />
-        </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs text-foreground-muted">Free tier</span>
+              <div className="flex items-center gap-1">
+                {isAtLimit && <Lock className="w-3 h-3 text-error" />}
+                <span className="text-xs text-foreground-secondary font-mono">
+                  {usage.used} / {usage.limit}
+                </span>
+              </div>
+            </div>
+            <div className="w-full h-1 rounded-full bg-border overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${Math.min(progressPct, 100)}%`,
+                  backgroundColor: progressColor,
+                }}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* New session button */}

@@ -148,6 +148,9 @@ export default function AgentPage() {
   }>({});
 
   const sessionRef = useRef<string | null>(null);
+  // Ref so runWarren's onDone can read current subscription without stale closure
+  const subscriptionRef = useRef(subscription);
+  useEffect(() => { subscriptionRef.current = subscription; }, [subscription]);
 
   const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -331,7 +334,11 @@ export default function AgentPage() {
           if (user?.id) {
             const newUsage = await getUsage(agentSlug, user.id);
             setUsage(newUsage);
-            const isNowLocked = checkIsLocked(newUsage.stage) && !user?.user_metadata?.is_premium;
+            // Check premium via ref (avoids stale closure — subscription set <1s after load,
+            // long before any 8-12 min analysis completes)
+            const effectivelyPremium =
+              subscriptionRef.current !== null || user?.user_metadata?.is_premium === true;
+            const isNowLocked = checkIsLocked(newUsage.stage) && !effectivelyPremium;
 
             addMessage(
               createMessage("agent", ticker, {
@@ -342,7 +349,7 @@ export default function AgentPage() {
               })
             );
 
-            if (newUsage.stage === "warning" || newUsage.stage === "locked") {
+            if (!effectivelyPremium && (newUsage.stage === "warning" || newUsage.stage === "locked")) {
               await delay(500);
               addMessage(createMessage("paywall", PAYWALL_MESSAGES[agentSlug]));
               setLocked(isNowLocked);
@@ -749,6 +756,7 @@ export default function AgentPage() {
         agentColor={agent.color}
         sessions={sessions}
         usage={usage}
+        isPremium={subscription !== null}
         onNewSession={startNewSession}
         onSelectSession={handleSelectSession}
         activeSessionId={activeSessionId}
