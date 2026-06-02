@@ -23,25 +23,29 @@ export async function POST(request: Request) {
   }
 
   if (premium) {
-    // Create a permanent admin-granted subscription row so the stream route
-    // finds an active subscription and does NOT clear is_premium on first use.
+    // Delete any existing admin grant first, then insert fresh.
+    // Cannot use onConflict:"user_id" — subscriptions has no unique constraint
+    // on user_id (users can have multiple rows across payment cycles).
+    await supabaseAdmin
+      .from("subscriptions")
+      .delete()
+      .eq("user_id", userId)
+      .eq("razorpay_payment_id", "admin_grant");
+
     const { error: subError } = await supabaseAdmin
       .from("subscriptions")
-      .upsert(
-        {
-          user_id: userId,
-          status: "active",
-          started_at: new Date().toISOString(),
-          expires_at: "2099-12-31T23:59:59.000Z",
-          amount: 0,
-          currency: "INR",
-          razorpay_payment_id: "admin_grant",
-          razorpay_order_id: "admin_grant",
-        },
-        { onConflict: "user_id", ignoreDuplicates: false }
-      );
+      .insert({
+        user_id: userId,
+        status: "active",
+        started_at: new Date().toISOString(),
+        expires_at: "2099-12-31T23:59:59.000Z",
+        amount: 0,
+        currency: "INR",
+        razorpay_payment_id: "admin_grant",
+        razorpay_order_id: "admin_grant",
+      });
     if (subError) {
-      console.error("set-premium: failed to upsert subscription", subError);
+      console.error("set-premium: failed to insert subscription", subError);
     }
   } else {
     // Revoke: mark the admin-granted subscription as expired
