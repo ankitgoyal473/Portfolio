@@ -1,6 +1,7 @@
 import os
 from tavily import TavilyClient
 from strands import tool
+from tools.reporting import emit_thinking
 
 _client: TavilyClient | None = None
 
@@ -19,6 +20,7 @@ def search_web(query: str) -> str:
     chain data (PCR, max pain), macro indicators (India VIX, DXY), and FII/DII
     institutional flows. Returns summary + top 5 results.
     """
+    emit_thinking(f"Searching: '{query}'…")
     client = _get_client()
     data = client.search(
         query=query,

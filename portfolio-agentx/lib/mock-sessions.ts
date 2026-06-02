@@ -9,7 +9,7 @@ export interface ChatMessage {
   agentId?: string;
   timestamp: number;
   metadata?: {
-    type?: "pillar-cards" | "case-file" | "results-table" | "text";
+    type?: "pillar-cards" | "case-file" | "results-table" | "text" | "thinking-log";
     thinkingSteps?: ThinkingStep[];
     chips?: string[];
     ticker?: string;
@@ -18,6 +18,7 @@ export interface ChatMessage {
     pillars?: Pillar[];
     verdict?: Verdict;
     caseFile?: CaseFileData;
+    lines?: string[];
     prospects?: Array<{
       name: string;
       company: string;
@@ -82,5 +83,5 @@ export function getSession(
 }
 
 export function generateSessionId(): string {
-  return `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  return crypto.randomUUID();
 }

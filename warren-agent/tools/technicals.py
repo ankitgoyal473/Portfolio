@@ -2,6 +2,7 @@ import yfinance as yf
 import pandas as pd
 import pandas_ta as ta
 from strands import tool
+from tools.reporting import emit_thinking
 
 
 @tool
@@ -10,6 +11,7 @@ def get_price_and_technicals(symbol: str) -> str:
     Fetches live NSE/BSE price data and computes technical indicators for an Indian stock.
     Returns current price, RSI(14), MACD(12/26/9), 50/200-day MA, support, resistance.
     """
+    emit_thinking(f"Fetching live price & technical data for {symbol}…")
     ticker = yf.Ticker(symbol)
     info = ticker.info
 

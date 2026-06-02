@@ -72,3 +72,10 @@ def report_verdict(
             "nextReview": next_review,
         }))
     return f"Verdict '{verdict}' ({conviction} conviction) reported."
+
+
+def emit_thinking(message: str) -> None:
+    """Put a thinking event on the SSE queue (no-op if no queue active)."""
+    q = getattr(_local, "q", None)
+    if q is not None:
+        q.put(("thinking", {"message": message}))

@@ -94,7 +94,16 @@ export function ChatThread({
                     {agentName}
                   </div>
                 )}
-                {msg.metadata?.type === "pillar-cards" ? (
+                {msg.metadata?.type === "thinking-log" ? (
+                  <div className="text-xs text-muted-foreground font-mono px-2 py-1 space-y-0.5">
+                    {(msg.metadata.lines ?? []).map((line, i) => (
+                      <div key={i} className="flex items-center gap-1">
+                        <span className="text-primary/40">✦</span>
+                        <span>{line}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : msg.metadata?.type === "pillar-cards" ? (
                   <PillarCards
                     ticker={msg.metadata.ticker ?? msg.content}
                     agentColor={agentColor}

@@ -68,7 +68,7 @@ function getGreeting(agentSlug: string): string {
 function getPlaceholder(agentSlug: string): string {
   switch (agentSlug) {
     case "warren":
-      return "Ask WARRen... (e.g. AAPL)";
+      return "Ask WARRen... (e.g. RELIANCE, INFY)";
     case "sherlock":
       return "Give Sherlock a rival URL...";
     case "harvey":
@@ -294,6 +294,25 @@ export default function AgentPage() {
             collectedVerdict = event.data as unknown as import("@/components/agents/PillarCards").Verdict;
           } else if (event.event === "files") {
             collectedFiles = event.data as unknown as { urls: Record<string, string>; symbol: string; date: string };
+          } else if (event.event === "thinking") {
+            const { message } = event.data as { message: string };
+            setMessages((prev) => {
+              const last = prev[prev.length - 1];
+              if (last?.metadata?.type === "thinking-log") {
+                return prev.map((m, i) =>
+                  i === prev.length - 1
+                    ? { ...m, metadata: { ...m.metadata, lines: [...(m.metadata?.lines ?? []), message] } }
+                    : m
+                );
+              }
+              return [
+                ...prev,
+                createMessage("agent", "", {
+                  type: "thinking-log",
+                  lines: [message],
+                }),
+              ];
+            });
           }
         },
         async () => {
@@ -638,7 +657,7 @@ export default function AgentPage() {
           await runWarren(text.trim().toUpperCase());
         } else {
           addMessage(
-            createMessage("agent", "I work best with stock tickers. Try typing AAPL or RELIANCE.NS")
+            createMessage("agent", "I work best with Indian stock tickers (NSE/BSE). Try RELIANCE, INFY, or TCS.")
           );
         }
       } else if (agentSlug === "sherlock") {

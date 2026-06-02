@@ -1,5 +1,6 @@
 import httpx
 from strands import tool
+from tools.reporting import emit_thinking
 
 _JINA = "https://r.jina.ai/"
 _SCREENER = "https://www.screener.in/company"
@@ -12,6 +13,7 @@ def fetch_screener(symbol: str) -> str:
     stock from Screener.in via Jina Reader. Returns PE, PBV, ROE, D/E, margins,
     FCF, FII/DII holding %, promoter %, and news headlines.
     """
+    emit_thinking(f"Reading Screener.in fundamentals for {symbol}…")
     clean = symbol.replace(".NS", "").replace(".BO", "").upper()
     url = f"{_SCREENER}/{clean}/"
 

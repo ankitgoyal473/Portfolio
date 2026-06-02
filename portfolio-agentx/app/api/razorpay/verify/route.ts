@@ -51,16 +51,16 @@ export async function POST(request: Request) {
     user_metadata: { is_premium: true },
   });
 
-  // Reset usage for all 3 agents
-  const { error } = await supabaseAdmin
-    .from("agent_usage")
-    .delete()
-    .eq("user_id", user.id)
-    .in("agent_id", ["warren", "sherlock", "harvey"]);
-
-  if (error) {
-    console.error("Failed to reset usage:", error);
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+  // Reset usage for all 3 agents (non-critical — subscription is active regardless)
+  try {
+    await supabaseAdmin
+      .from("agent_usage")
+      .delete()
+      .eq("user_id", user.id)
+      .in("agent_id", ["warren", "sherlock", "harvey"]);
+  } catch (resetErr) {
+    // Non-critical — subscription is active. Log and continue.
+    console.error("verify: failed to reset agent_usage (non-fatal)", resetErr);
   }
 
   // Send confirmation emails (graceful — never throws)

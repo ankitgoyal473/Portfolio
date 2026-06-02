@@ -13,6 +13,13 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const body = await request.json().catch(() => ({}));
+  const { ticker } = body as { ticker?: string };
+  if (!ticker) return NextResponse.json({ error: "ticker required" }, { status: 400 });
+
+  const agentUrl = process.env.WARREN_AGENT_URL;
+  if (!agentUrl) return NextResponse.json({ error: "WARREN_AGENT_URL not configured" }, { status: 500 });
+
   const isPremium = user.user_metadata?.is_premium === true;
   let subscriptionActive = false;
 
@@ -40,9 +47,13 @@ export async function POST(request: Request) {
           process.env.NEXT_PUBLIC_APP_URL ?? "https://portfolio-one-topaz-65.vercel.app";
         void fetch(new URL("/api/send-reminder", request.url).toString(), {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-internal-token": process.env.INTERNAL_SECRET ?? "",
+          },
           body: JSON.stringify({
             subscriptionId: sub.id,
+            userId: user.id,
             userEmail: user.email,
             userName: user.user_metadata?.full_name ?? user.email ?? "there",
             expiresAt: sub.expires_at,
@@ -84,14 +95,6 @@ export async function POST(request: Request) {
     { user_id: user.id, agent_id: "warren", count: newCount },
     { onConflict: "user_id,agent_id" }
   );
-
-  const { ticker } = await request.json();
-  if (!ticker) return NextResponse.json({ error: "ticker required" }, { status: 400 });
-
-  const agentUrl = process.env.WARREN_AGENT_URL;
-  if (!agentUrl) {
-    return NextResponse.json({ error: "WARREN_AGENT_URL not configured" }, { status: 500 });
-  }
 
   const upstream = await fetch(`${agentUrl}/analyze`, {
     method: "POST",

@@ -82,7 +82,7 @@ async def run_analysis(symbol: str, user_id: str, on_event):
     prompt = build_prompt(symbol, prior)
 
     model = AnthropicModel(
-        client_args={"api_key": os.environ.get("ANTHROPIC_API_KEY", "")},
+        client_args={"api_key": os.environ["ANTHROPIC_API_KEY"]},
         model_id="claude-sonnet-4-6",
         max_tokens=8096,
     )
@@ -96,7 +96,7 @@ async def run_analysis(symbol: str, user_id: str, on_event):
     # Agent call is synchronous in Strands — run in executor to not block event loop.
     # _run_agent injects the sync queue into thread-local so tool calls can enqueue events.
     q: _sync_queue.Queue = _sync_queue.Queue()
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
 
     # Start the agent in a thread; drain events in real-time on the async side.
     future = loop.run_in_executor(None, _run_agent, agent, prompt, q)

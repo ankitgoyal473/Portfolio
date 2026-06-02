@@ -1,3 +1,4 @@
+import os
 import pytest
 import queue as _sync_queue
 from unittest.mock import patch, MagicMock
@@ -38,6 +39,7 @@ def test_run_agent_sets_and_clears_thread_local():
 
 
 @pytest.mark.asyncio
+@patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
 async def test_run_analysis_emits_6_pillar_events():
     """run_analysis emits one pillar event per pillar when tools are called."""
     events = []
@@ -86,6 +88,7 @@ async def test_run_analysis_emits_6_pillar_events():
 
 
 @pytest.mark.asyncio
+@patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
 async def test_run_analysis_emits_verdict_event():
     """run_analysis emits a verdict event with conviction=MEDIUM."""
     events = []
@@ -120,6 +123,7 @@ async def test_run_analysis_emits_verdict_event():
 
 
 @pytest.mark.asyncio
+@patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
 async def test_run_analysis_empty_queue_emits_no_pillar_events():
     """If agent makes no tool calls, no pillar/verdict events are emitted."""
     events = []
