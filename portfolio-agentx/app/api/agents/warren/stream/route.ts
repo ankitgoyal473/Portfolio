@@ -1,6 +1,6 @@
 // Fluid Compute (Node.js) with extended timeout — edge runtime is not recommended
 // and has compatibility issues. maxDuration gives us 15 min for the 8-12 min analysis.
-export const maxDuration = 900;
+export const maxDuration = 800;
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
