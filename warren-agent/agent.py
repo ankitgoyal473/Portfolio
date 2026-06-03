@@ -85,7 +85,7 @@ async def run_analysis(symbol: str, user_id: str, on_event, api_key: str = ""):
     effective_key = api_key.strip() or os.environ["ANTHROPIC_API_KEY"]
     model = AnthropicModel(
         client_args={"api_key": effective_key},
-        model_id="claude-sonnet-4-6",
+        model_id="claude-haiku-4-5-20251001",
         max_tokens=8096,
     )
     agent = Agent(
