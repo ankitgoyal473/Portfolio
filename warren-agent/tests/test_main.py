@@ -30,7 +30,7 @@ def test_analyze_valid_ticker_returns_event_stream():
     from main import app
     client = TestClient(app)
 
-    async def mock_run(symbol, user_id, on_event):
+    async def mock_run(symbol, user_id, on_event, api_key=""):
         await on_event("pillar", {"pillar": "Technical", "score": 3, "signal": "BULLISH", "summary": "Test"})
         await on_event("verdict", {"verdict": "ACCUMULATE", "conviction": "HIGH"})
 

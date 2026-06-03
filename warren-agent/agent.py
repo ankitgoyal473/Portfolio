@@ -71,18 +71,20 @@ def _run_agent(agent, prompt: str, q: _sync_queue.Queue) -> str:
         q.put(_SENTINEL)  # signal the async drainer that we're done
 
 
-async def run_analysis(symbol: str, user_id: str, on_event):
+async def run_analysis(symbol: str, user_id: str, on_event, api_key: str = ""):
     """
     Runs the full 6-pillar analysis and calls on_event(event_type, data)
     for each pillar, the verdict, and the saved file URLs.
     Events are forwarded to on_event in real-time as the agent produces them.
+    api_key: forwarded from the Next.js proxy; falls back to ANTHROPIC_API_KEY env var.
     """
     base = symbol.replace(".NS", "").replace(".BO", "")
     prior = get_existing_context(user_id, base)
     prompt = build_prompt(symbol, prior)
 
+    effective_key = api_key.strip() or os.environ["ANTHROPIC_API_KEY"]
     model = AnthropicModel(
-        client_args={"api_key": os.environ["ANTHROPIC_API_KEY"]},
+        client_args={"api_key": effective_key},
         model_id="claude-sonnet-4-6",
         max_tokens=8096,
     )

@@ -18,6 +18,7 @@ app = FastAPI(title="WARRen Agent", version="1.0.0")
 class AnalyzeRequest(BaseModel):
     ticker: str
     user_id: str
+    api_key: str = ""  # forwarded from Next.js proxy; falls back to env var
 
 
 @app.get("/health")
@@ -68,6 +69,7 @@ async def analyze(req: AnalyzeRequest):
 
             return StreamingResponse(err_stream(), media_type="text/event-stream")
 
+    effective_key = req.api_key.strip() or os.environ.get("ANTHROPIC_API_KEY", "")
     queue: asyncio.Queue = asyncio.Queue()
 
     async def on_event(event_type: str, data: dict):
@@ -75,7 +77,7 @@ async def analyze(req: AnalyzeRequest):
 
     async def stream_generator():
         task = asyncio.create_task(
-            _run_and_signal(symbol, req.user_id, on_event, queue)
+            _run_and_signal(symbol, req.user_id, on_event, queue, effective_key)
         )
         deadline = asyncio.get_event_loop().time() + 1200.0  # 20 min hard cap
         while True:
@@ -103,9 +105,9 @@ async def analyze(req: AnalyzeRequest):
     )
 
 
-async def _run_and_signal(symbol, user_id, on_event, queue):
+async def _run_and_signal(symbol, user_id, on_event, queue, api_key: str = ""):
     try:
-        await run_analysis(symbol, user_id, on_event)
+        await run_analysis(symbol, user_id, on_event, api_key=api_key)
     except Exception as e:
         await queue.put(("error", {"message": str(e)}))
     finally:

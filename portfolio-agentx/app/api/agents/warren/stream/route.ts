@@ -101,7 +101,11 @@ export async function POST(request: Request) {
   const upstream = await fetch(`${agentUrl}/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ticker, user_id: user.id }),
+    body: JSON.stringify({
+      ticker,
+      user_id: user.id,
+      api_key: process.env.ANTHROPIC_API_KEY ?? "",
+    }),
   });
 
   if (!upstream.ok || !upstream.body) {
