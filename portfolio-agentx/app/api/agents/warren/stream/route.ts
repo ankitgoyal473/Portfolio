@@ -105,6 +105,7 @@ export async function POST(request: Request) {
       ticker,
       user_id: user.id,
       api_key: process.env.ANTHROPIC_API_KEY ?? "",
+      test_mode: process.env.WARREN_TEST_MODE === "true",
     }),
   });
 

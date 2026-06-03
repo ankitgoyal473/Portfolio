@@ -19,6 +19,7 @@ class AnalyzeRequest(BaseModel):
     ticker: str
     user_id: str
     api_key: str = ""  # forwarded from Next.js proxy; falls back to env var
+    test_mode: bool = False  # emit mock pillar events using real yfinance data; skips LLM
 
 
 @app.get("/health")
@@ -76,8 +77,9 @@ async def analyze(req: AnalyzeRequest):
         await queue.put((event_type, data))
 
     async def stream_generator():
+        run_fn = _run_test_mode if req.test_mode else _run_and_signal
         task = asyncio.create_task(
-            _run_and_signal(symbol, req.user_id, on_event, queue, effective_key)
+            run_fn(symbol, req.user_id, on_event, queue, effective_key)
         )
         deadline = asyncio.get_event_loop().time() + 1200.0  # 20 min hard cap
         while True:
@@ -110,5 +112,45 @@ async def _run_and_signal(symbol, user_id, on_event, queue, api_key: str = ""):
         await run_analysis(symbol, user_id, on_event, api_key=api_key)
     except Exception as e:
         await queue.put(("error", {"message": str(e)}))
+    finally:
+        await queue.put(None)
+
+
+async def _run_test_mode(symbol, user_id, on_event, queue, api_key: str = ""):
+    """Emit real yfinance data as mock pillar events — no LLM call, tests full SSE pipeline."""
+    import asyncio as _a
+    try:
+        base = symbol.replace(".NS", "").replace(".BO", "")
+        try:
+            info = yf.Ticker(symbol).info
+            price = info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose") or 0.0
+            pe = info.get("trailingPE") or info.get("forwardPE") or 0.0
+            roe = info.get("returnOnEquity") or 0.0
+        except Exception:
+            price, pe, roe = 0.0, 0.0, 0.0
+
+        price_str = f"Rs.{price:.0f}" if price else "N/A"
+        pillars = [
+            ("Technical", 3, "BULLISH", f"{base} trades at {price_str}. Price above 50-day MA; RSI in mid-range. Momentum positive. [TEST MODE]", {"price": price}),
+            ("Fundamental", 3, "NEUTRAL", f"PE ratio {pe:.1f}x, ROE {roe*100:.1f}%. Fundamentals in line with sector peers.", {"pe": round(pe,1), "roe": round(roe*100,1)}),
+            ("Sentiment", 2, "NEUTRAL", f"News flow mixed for {base}. Analyst consensus cautiously positive.", {}),
+            ("OptionChain", 2, "NEUTRAL", f"PCR near 1.0 for {base}. No extreme positioning detected.", {"pcr": 1.0}),
+            ("GlobalImpact", None, "POSITIVE", "India VIX stable. US Fed rate trajectory supportive for EM flows.", {}),
+            ("FIIDIIFlows", None, "BULLISH", f"FII net buyers in {base}'s sector this month. DII flows stable.", {}),
+        ]
+
+        for pillar, score, signal, summary, metrics in pillars:
+            await on_event("thinking", {"message": f"[TEST MODE] Analysing {pillar} pillar for {base}…"})
+            await _a.sleep(1)
+            await on_event("pillar", {"pillar": pillar, "score": score, "signal": signal, "summary": summary, "keyMetrics": metrics})
+            await _a.sleep(0.5)
+
+        await on_event("verdict", {
+            "verdict": "ACCUMULATE", "conviction": "MEDIUM", "avgScore": 2.5,
+            "entry": f"Rs.{price*0.98:.0f}-{price:.0f}", "target": f"Rs.{price*1.15:.0f}",
+            "stopLoss": f"Rs.{price*0.92:.0f}", "riskReward": "2.1:1", "nextReview": "7 days"
+        })
+    except Exception as e:
+        await on_event("error", {"message": f"Test mode error: {e}"})
     finally:
         await queue.put(None)
