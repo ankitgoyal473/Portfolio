@@ -71,13 +71,14 @@ async def analyze(req: AnalyzeRequest):
             return StreamingResponse(err_stream(), media_type="text/event-stream")
 
     effective_key = req.api_key.strip() or os.environ.get("ANTHROPIC_API_KEY", "")
+    use_test_mode = req.test_mode or os.environ.get("WARREN_TEST_MODE") == "true"
     queue: asyncio.Queue = asyncio.Queue()
 
     async def on_event(event_type: str, data: dict):
         await queue.put((event_type, data))
 
     async def stream_generator():
-        run_fn = _run_test_mode if req.test_mode else _run_and_signal
+        run_fn = _run_test_mode if use_test_mode else _run_and_signal
         task = asyncio.create_task(
             run_fn(symbol, req.user_id, on_event, queue, effective_key)
         )
