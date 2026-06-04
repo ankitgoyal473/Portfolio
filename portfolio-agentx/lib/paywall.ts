@@ -133,7 +133,7 @@ export const PAYWALL_SHEET_DATA: Record<
   harvey: {
     headline: "Harvey has more prospects waiting.",
     subtext:
-      "You've used your 10 free rows. Unlock Harvey for unlimited prospects, 3 tone variants, and campaign history.",
+      "You've used your 10 free prospect emails. Unlock Harvey for unlimited prospects, 3 tone variants, and campaign history.",
     features: ["Unlimited rows", "3 tones", "Campaign history"],
     price: "$29",
     buttonText: "Unlock Harvey — $29/month",

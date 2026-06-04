@@ -54,7 +54,7 @@ export const agents: Agent[] = [
     slug: "sherlock",
     color: "#8b5cf6",
     price: "$49/month",
-    freeLimit: "1 URL, manual only",
+    freeLimit: "1 analysis/month",
     personality:
       "Sharp, analytical, slightly dramatic. Speaks like a detective who always finds what others miss.",
     signature: "The game is afoot. — Sherlock",
@@ -76,7 +76,7 @@ export const agents: Agent[] = [
     slug: "harvey",
     color: "#6366f1",
     price: "$29/month",
-    freeLimit: "10 rows/month",
+    freeLimit: "10 prospects/month",
     personality: "Elite sales copywriter. Closing energy. Confident, punchy, results-obsessed.",
     signature: "Close-worthy. Go get them. — Harvey",
     tagline: "Drop your prospect list. Harvey will make every single one feel personal.",
