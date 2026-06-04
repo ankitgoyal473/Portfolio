@@ -104,7 +104,7 @@ export function ToolsPreview() {
                   </CardHeader>
                   <CardContent className="mt-auto flex items-center justify-between">
                     {tool.comingSoon ? (
-                      <Badge variant="outline" className="text-foreground-muted">Coming Soon</Badge>
+                      <Badge variant="secondary" className="text-foreground-muted">Coming Soon</Badge>
                     ) : (
                       <Badge variant="secondary">{tool.price}</Badge>
                     )}

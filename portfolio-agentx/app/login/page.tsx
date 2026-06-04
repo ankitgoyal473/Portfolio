@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, Search, Mail } from "lucide-react";
 import { AnimatedGrid } from "@/components/shared/animated-grid";
@@ -10,6 +11,13 @@ import { useMockAuth } from "@/lib/mock-auth";
 
 export default function LoginPage() {
   const { login } = useMockAuth();
+  const [fromContext, setFromContext] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get("from");
+    if (from) setFromContext(from);
+  }, []);
 
   const agentOrbs = [
     { name: "Warren", icon: TrendingUp, color: "#f0b429", desc: "Stock analyst" },
@@ -98,6 +106,14 @@ export default function LoginPage() {
           <div className="flex justify-center mb-8 md:hidden">
             <AgentXLogo size="md" />
           </div>
+
+          {fromContext === "agents" && (
+            <div className="mb-6 rounded-lg border border-border bg-accent-muted px-4 py-3 text-sm text-foreground-secondary">
+              Sign in to access{" "}
+              <span className="font-medium text-foreground">Warren, Sherlock, and Harvey</span>{" "}
+              — your free account unlocks all three.
+            </div>
+          )}
 
           <h1 className="text-2xl font-bold text-foreground mb-2">
             Sign in to AGentX

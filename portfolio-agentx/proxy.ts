@@ -36,7 +36,9 @@ export async function proxy(request: NextRequest) {
     if (request.nextUrl.pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    return NextResponse.redirect(new URL('/login', request.url))
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('from', request.nextUrl.pathname.split('/')[1] ?? 'app')
+    return NextResponse.redirect(loginUrl)
   }
 
   return supabaseResponse
