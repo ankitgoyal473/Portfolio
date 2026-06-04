@@ -103,12 +103,18 @@ export function ToolsPreview() {
                     <CardDescription>{tool.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="mt-auto flex items-center justify-between">
-                    <Badge variant="secondary">{tool.price}</Badge>
-                    <Link href={`/tools/${tool.slug}`}>
-                      <Button variant="ghost" size="sm" className="gap-1">
-                        Try Free <ArrowRight className="h-3 w-3" />
-                      </Button>
-                    </Link>
+                    {tool.comingSoon ? (
+                      <Badge variant="outline" className="text-foreground-muted">Coming Soon</Badge>
+                    ) : (
+                      <Badge variant="secondary">{tool.price}</Badge>
+                    )}
+                    {!tool.comingSoon && (
+                      <Link href={`/tools/${tool.slug}`}>
+                        <Button variant="ghost" size="sm" className="gap-1">
+                          Try Free <ArrowRight className="h-3 w-3" />
+                        </Button>
+                      </Link>
+                    )}
                   </CardContent>
                 </Card>
               );
