@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { services } from "@/lib/constants";
+import { SectionHeader } from "@/components/shared/section-header";
+import { NeuralBackground } from "@/components/shared/neural-background";
 
 export const metadata: Metadata = {
   title: "Work With Ankit Goyal | AGentX",
 };
-import { SectionHeader } from "@/components/shared/section-header";
-import { AnimatedGrid } from "@/components/shared/animated-grid";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,7 @@ export default function HirePage() {
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-12 pb-24 sm:pt-16 sm:pb-32">
-        <AnimatedGrid />
+        <NeuralBackground />
         <div className="container relative z-10 mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl">
             Let&apos;s build something that actually works.

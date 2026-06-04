@@ -7,11 +7,11 @@ interface AgentXLogoAnimatedProps {
   className?: string;
 }
 
-// Agent node colors — violet spectrum
+// Agent node colors — brand identity
 const NODE_COLORS = [
-  "#c4b5fd", // Warren — light violet
-  "#8b5cf6", // Sherlock — mid violet
-  "#6366f1", // Harvey — deep indigo
+  "#f0b429", // Warren — gold
+  "#4a9eff", // Sherlock — blue
+  "#00c896", // Harvey — green
 ];
 
 const TRAIL_LENGTH = 45;
