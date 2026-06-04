@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedGrid } from "@/components/shared/animated-grid";
+import { NeuralBackground } from "@/components/shared/neural-background";
 import { AgentXLogoAnimated } from "@/components/shared/agentx-logo-animated";
 import { Typewriter } from "@/components/shared/typewriter";
 import { typewriterPhrases } from "@/lib/constants";
@@ -11,7 +11,7 @@ import { typewriterPhrases } from "@/lib/constants";
 export function Hero() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      <AnimatedGrid />
+      <NeuralBackground />
 
       <AgentXLogoAnimated />
 
