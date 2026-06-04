@@ -36,7 +36,9 @@
 }
 
 body {
-  background: var(--color-background);
+  background:
+    radial-gradient(ellipse 80% 40% at 50% -5%, rgba(139, 92, 246, 0.09) 0%, transparent 60%),
+    var(--color-background);
   color: var(--color-foreground);
   font-family:
     var(--font-sans),
