@@ -55,7 +55,7 @@ function getGreeting(agentSlug: string): string {
 
   switch (agentSlug) {
     case "warren":
-      return `Good ${timeOfDay}. Give me a ticker and I will tell you what the market is missing. — WARRen 🧐`;
+      return `Good ${timeOfDay}. Give me a ticker and I will tell you what the market is missing. — Warren 🧐`;
     case "sherlock":
       return "I am ready. Give me a rival to watch — a URL or company name. — Sherlock 🔎";
     case "harvey":
@@ -68,7 +68,7 @@ function getGreeting(agentSlug: string): string {
 function getPlaceholder(agentSlug: string): string {
   switch (agentSlug) {
     case "warren":
-      return "Ask WARRen... (e.g. RELIANCE, INFY)";
+      return "Ask Warren... (e.g. RELIANCE, INFY)";
     case "sherlock":
       return "Give Sherlock a rival URL...";
     case "harvey":
@@ -325,7 +325,7 @@ export default function AgentPage() {
           // Stream dropped mid-run (e.g. Railway redeploy) — show clear error
           if (collectedPillars.length === 0 && !collectedVerdict) {
             addMessage(
-              createMessage("agent", "The analysis was interrupted before any results arrived. This can happen during a server update. Please try again — WARRen 🧐")
+              createMessage("agent", "The analysis was interrupted before any results arrived. This can happen during a server update. Please try again — Warren 🧐")
             );
             setIsRunning(false);
             return;
@@ -403,7 +403,7 @@ export default function AgentPage() {
           addMessage(
             createMessage(
               "agent",
-              `I couldn't pull that ticker right now. Try again — WARRen 🧐`
+              `I couldn't pull that ticker right now. Try again — Warren 🧐`
             )
           );
           setIsRunning(false);

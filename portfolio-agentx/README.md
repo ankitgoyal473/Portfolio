@@ -11,7 +11,7 @@ Live AI agent platform featuring three persona-driven Claude agents backed by re
 
 | Agent | Role | Free Limit |
 |-------|------|-----------|
-| **WARRen** | Stock analysis — 5-pillar deep research via yfinance, Screener.in, Tavily | 1 run |
+| **Warren** | Stock analysis — 5-pillar deep research via yfinance, Screener.in, Tavily | 1 run |
 | **Sherlock** | Research & investigation assistant | 1 run |
 | **Harvey** | Professional email & communication drafter | 10 runs |
 

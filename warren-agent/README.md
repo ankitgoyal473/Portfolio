@@ -1,6 +1,6 @@
 # warren-agent
 
-FastAPI microservice powering WARRen — the stock analysis agent on AGentX. Deployed on Railway, proxied by `portfolio-agentx` after auth and paywall checks.
+FastAPI microservice powering Warren — the stock analysis agent on AGentX. Deployed on Railway, proxied by `portfolio-agentx` after auth and paywall checks.
 
 **Live:** https://warren-agent-production.up.railway.app  
 **Proxied by:** https://portfolio-one-topaz-65.vercel.app → `/api/agents/warren/stream`

@@ -22,7 +22,7 @@ const AGENT_ICONS: Record<string, LucideIcon> = {
 };
 
 const AGENT_NAMES: Record<string, string> = {
-  warren: "WARRen",
+  warren: "Warren",
   sherlock: "Sherlock",
   harvey: "Harvey",
 };

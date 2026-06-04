@@ -112,7 +112,7 @@ function PillarCard({
           style={{ backgroundColor: `${agentColor}11` }}
         >
           <span className="text-xs font-medium" style={{ color: agentColor }}>
-            Unlock WARRen — ₹999/month
+            Unlock Warren — ₹999/month
           </span>
         </div>
       )}
@@ -208,7 +208,7 @@ export function PillarCards({
         />
       ))}
       {verdict && <VerdictCard verdict={verdict} agentColor={agentColor} />}
-      <p className="text-xs text-foreground-muted text-right mt-1">— WARRen 🧐</p>
+      <p className="text-xs text-foreground-muted text-right mt-1">— Warren 🧐</p>
     </div>
   );
 }

@@ -96,7 +96,7 @@ export function isLocked(stage: PaywallStage): boolean {
 
 export const PAYWALL_MESSAGES: Record<string, string> = {
   warren:
-    "That was my last free report for you this month. I have more to say — shall we continue? — WARRen \u{1F9D0}",
+    "That was my last free report for you this month. I have more to say — shall we continue? — Warren \u{1F9D0}",
   sherlock:
     "I've used up my free surveillance quota for the month. I have more intelligence to gather. The game doesn't have to end here. — Sherlock \u{1F50E}",
   harvey:
@@ -115,12 +115,12 @@ export const PAYWALL_SHEET_DATA: Record<
   }
 > = {
   warren: {
-    headline: "WARRen has more analysis to share.",
+    headline: "Warren has more analysis to share.",
     subtext:
-      "You've used your 1 free report this month. Unlock WARRen for full 5-pillar analysis, PDF export, and unlimited reports.",
+      "You've used your 1 free report this month. Unlock Warren for full 5-pillar analysis, PDF export, and unlimited reports.",
     features: ["5-pillar analysis", "PDF export", "Unlimited"],
     price: "$19",
-    buttonText: "Unlock WARRen — $19/month",
+    buttonText: "Unlock Warren — $19/month",
   },
   sherlock: {
     headline: "Sherlock is still on the case.",

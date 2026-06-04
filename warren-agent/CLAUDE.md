@@ -1,6 +1,6 @@
 # CLAUDE.md — warren-agent
 
-Python FastAPI microservice. Powers WARRen stock analysis on portfolio-agentx.
+Python FastAPI microservice. Powers Warren stock analysis on portfolio-agentx.
 Deployed on Railway. Proxied by Next.js `/api/agents/warren/stream/` in portfolio-agentx.
 
 ## Relationship to Other Projects
@@ -42,18 +42,34 @@ tools/
 2. **Thread-local queue is the SSE bridge** — `_reporting_local.q`. New tools emitting SSE events must follow this pattern.
 3. **32 tests must pass** before any Railway deploy.
 4. **Ticker resolution** — auto-appends `.NS`, falls back to `.BO`. Invalid tickers emit an error SSE event.
+5. **`build_prompt()` must say `call report_pillar(...)` at each step** — NOT "Output JSON". The LLM follows user-prompt instructions over system prompt; "Output JSON" caused 0/6 pillars.
 
 ## SSE: `thinking` events
-Tools can emit live progress updates via `emit_thinking(message)` from `tools/reporting.py`. The frontend renders these as a scrolling `✦ message…` log during the 8–12 min analysis. Call it at the start of each tool function body.
+Tools emit live progress via `emit_thinking(message)` from `tools/reporting.py`. Frontend renders as scrolling `✦ message…` log. Call at the start of each tool function body.
 
 Currently wired: `get_price_and_technicals`, `fetch_screener`, `search_web`.
 
+## Test Mode (pipeline testing without LLM)
+`AnalyzeRequest` accepts `test_mode: bool = False` and `api_key: str = ""`.
+
+When `test_mode=True` (or `WARREN_TEST_MODE=true` env var), `_run_test_mode()` emits all 6 pillar events + verdict using real yfinance data, bypassing the LLM entirely. Use this to verify the SSE pipeline and UI rendering without Anthropic API credits.
+
+```bash
+# Test pipeline directly
+curl -X POST https://warren-agent-production.up.railway.app/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"ticker":"HDFCBANK","user_id":"test","test_mode":true}'
+```
+
+The `api_key` field is forwarded by the Next.js proxy from its own `ANTHROPIC_API_KEY` env var. Railway falls back to its own `ANTHROPIC_API_KEY` if the forwarded key is empty.
+
 ## Environment Variables
 ```
-ANTHROPIC_API_KEY
+ANTHROPIC_API_KEY          # LLM calls (falls back to api_key from request body)
 SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY
 TAVILY_API_KEY
+WARREN_TEST_MODE           # Set "true" to force test_mode on all requests (useful when credits exhausted)
 ```
 
 ## Session End Rule

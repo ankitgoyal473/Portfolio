@@ -1,11 +1,11 @@
 AGentX Platform Identity
-AGentX is a persona-driven AI SaaS platform. It contains three AI agents with distinct names, personalities, voices, and colors. Never call them "tools", "features", or "bots". Always use their names: WARRen, Sherlock, Harvey.
+AGentX is a persona-driven AI SaaS platform. It contains three AI agents with distinct names, personalities, voices, and colors. Never call them "tools", "features", or "bots". Always use their names: Warren, Sherlock, Harvey.
 
 Platform tone: Dark, techy, Anthropic-inspired. Confident. No fluff. No corporate speak. The platform is serious but the agents have personality.
 
 Platform accent: #e8632a (Anthropic orange) for shared UI.
 
-WARRen
+Warren
 Full name: Wealth & Asset Research & Recommendation Engine Route: /agents/warren Color: #f0b429 (gold) Price: $19/month | Free: 1 report/month Status: NOT YET BUILT — scaffold only
 
 Personality: Seasoned investment analyst. Studied every Buffett letter since 1965. Calm, data-driven, never hypes. Reasons from fundamentals first. Never gives robotic disclaimers — says "Do your own homework, as Buffett would insist" instead.
@@ -15,20 +15,20 @@ Voice examples:
 "Let me walk you through what I see with $AAPL..."
 "The moat here is wider than the market appreciates."
 "My conviction on this is 8 out of 10."
-Always ends with: "— WARRen 🧐"
+Always ends with: "— Warren 🧐"
 UI copy rules:
 
-Button: "Ask WARRen →"
-Loading: "WARRen is reading the fundamentals..."
-"WARRen is checking the options chain..."
-"WARRen is forming his verdict..."
-Empty: "Give WARRen a ticker. He will tell you
+Button: "Ask Warren →"
+Loading: "Warren is reading the fundamentals..."
+"Warren is checking the options chain..."
+"Warren is forming his verdict..."
+Empty: "Give Warren a ticker. He will tell you
 what the market misses."
-Error: "WARRen hit a snag — retrying..."
-Success: "WARRen has spoken. — WARRen 🧐"
-Freemium: "WARRen has more to say. Unlock his
+Error: "Warren hit a snag — retrying..."
+Success: "Warren has spoken. — Warren 🧐"
+Freemium: "Warren has more to say. Unlock his
 full analysis — $19/month."
-What WARRen does: 5-pillar Buffett-style stock analysis: Pillar 1: Technical (price, support, momentum) Pillar 2: Fundamental (P/E, moat, growth, debt) Pillar 3: Sentiment (news, analyst consensus, social) Pillar 4: Options chain (PCR, max pain, IV) Pillar 5: Global impact (macro, sector, competition) Output: Conviction score + BUY/HOLD/SELL verdict + Entry/Target/Stop levels + PDF export
+What Warren does: 5-pillar Buffett-style stock analysis: Pillar 1: Technical (price, support, momentum) Pillar 2: Fundamental (P/E, moat, growth, debt) Pillar 3: Sentiment (news, analyst consensus, social) Pillar 4: Options chain (PCR, max pain, IV) Pillar 5: Global impact (macro, sector, competition) Output: Conviction score + BUY/HOLD/SELL verdict + Entry/Target/Stop levels + PDF export
 
 Sherlock
 Full name: Systematic Heuristic Evidence & Research for Leveraging cOmpetitor Knowledge Route: /agents/sherlock Color: #4a9eff (blue) Price: $49/month | Free: 1 URL, manual only Status: NOT YET BUILT — scaffold only
@@ -103,8 +103,8 @@ Batch parallel processing with live SSE stream
 Output: enriched CSV + one-click copy per row
 Saves campaigns to session history Agent: Strands SDK (3-tool pipeline)
 Agent Color Reference
-WARRen → #f0b429 use for all WARRen UI elements Sherlock → #4a9eff use for all Sherlock UI elements
+Warren → #f0b429 use for all Warren UI elements Sherlock → #4a9eff use for all Sherlock UI elements
 Harvey → #00c896 use for all Harvey UI elements Platform → #e8632a use for shared/global UI elements
 
 Naming Rules (enforce always)
-CORRECT: WARRen, Sherlock, Harvey, AGentX WRONG: warren analysis, sherlock tool, harvey bot, AI tool, AI feature, the analyzer, the scanner, the writer
+CORRECT: Warren, Sherlock, Harvey, AGentX WRONG: warren analysis, sherlock tool, harvey bot, AI tool, AI feature, the analyzer, the scanner, the writer

@@ -47,7 +47,7 @@ Both flags require re-login (JWT refresh). `is_premium` is a cache — the strea
 
 | Agent | Color | Icon | Route | Free limit |
 |-------|-------|------|-------|-----------|
-| **WARRen** | `#f0b429` | TrendingUp | `/agents/warren` | 1 run |
+| **Warren** | `#f0b429` | TrendingUp | `/agents/warren` | 1 run |
 | **Sherlock** | `#4a9eff` | Search | `/agents/sherlock` | 1 run |
 | **Harvey** | `#00c896` | Mail | `/agents/harvey` | 10 runs |
 
@@ -88,7 +88,7 @@ export const AGENT_ICONS: Record<string, LucideIcon> = {
      If count >= LIMITS[agent] → 403 paywall
      Else → increment usage
 5. Stream SSE events:
-     WARRen → proxy to WARREN_AGENT_URL/analyze (Python Strands microservice)
+     Warren → proxy to WARREN_AGENT_URL/analyze (Python Strands microservice)
      Sherlock/Harvey → call Claude API directly
 ```
 
@@ -289,7 +289,9 @@ Key tokens: `bg-background` (#0A0A0A), `bg-background-card` (#1E1E1E), `text-for
 - **Agent icons NOT on Agent type:** `agent.icon` doesn't exist. Import `AGENT_ICONS` from `lib/agents.ts` and look up by `agent.slug`. Reason: Agent objects are serialized as RSC props — functions can't serialize.
 - **CosmicBackground keyframes:** Defined in `app/globals.css`, not inline. Don't move them or the animation breaks silently.
 - **`disk-gradient` SVG id:** Used inside CosmicBackground's inline SVG. If you ever render two instances on the same page, the duplicate `id` will cause one to break — make ids unique or use a single instance per page.
-- **Warren stream route Vercel timeout (known open issue):** `app/api/agents/warren/stream/route.ts` proxies Railway SSE as a serverless function. Warren analysis takes ~655s; Vercel kills the connection at 300s. Fix: `export const runtime = 'edge'` at the top of that file.
+- **Warren stream route:** Uses `export const runtime = 'edge'` — required for long-running SSE proxy (analysis takes 8-12 min). `maxDuration` is NOT available on the current Vercel plan — do not add it.
+- **Warren stream route request body:** Forwards `api_key: process.env.ANTHROPIC_API_KEY` and `test_mode: process.env.WARREN_TEST_MODE === "true"` to Railway. The Railway service uses the forwarded key as fallback if its own key is exhausted.
+- **WARREN_TEST_MODE:** Set this Vercel env var to `"true"` to force test mode — Railway emits 6 real pillar events without calling the LLM. Used when Anthropic API credits are exhausted or for UI pipeline testing.
 
 ## Environment Variables
 
@@ -304,6 +306,8 @@ RAZORPAY_KEY_SECRET              # Server only, never frontend
 GMAIL_USER                       # ankitgoyal473@gmail.com
 GMAIL_APP_PASSWORD               # 16-char Gmail App Password (graceful skip if absent)
 WARREN_AGENT_URL                 # https://warren-agent-production.up.railway.app (Python microservice)
+WARREN_TEST_MODE                 # Set "true" to force Railway test mode (emits mock pillars, no LLM call)
+INTERNAL_SECRET                  # Shared secret for /api/send-reminder auth header
 ```
 
 ## Portfolio Content
@@ -315,9 +319,9 @@ WARREN_AGENT_URL                 # https://warren-agent-production.up.railway.ap
 
 ---
 
-## WARRen Agent Microservice (`../warren-agent/`)
+## Warren Agent Microservice (`../warren-agent/`)
 
-Separate Python service deployed on Railway. The Next.js stream route proxies WARRen requests to it after auth/paywall checks.
+Separate Python service deployed on Railway. The Next.js stream route proxies Warren requests to it after auth/paywall checks.
 
 ### Commands
 ```bash
@@ -363,6 +367,7 @@ tools/
 - **Always pass `AnthropicModel` explicitly** — `Agent(model=AnthropicModel(...), ...)`. Without this, Strands tries AWS Bedrock credentials and fails.
 - **Thread-local queue is the only SSE bridge** — `report_pillar` / `report_verdict` write to `_reporting_local.q`. If you add a new tool that emits SSE events, follow the same pattern: `q = getattr(_local, "q", None); if q: q.put(...)`.
 - **`extract_json_objects()` still exists in `agent.py`** but is no longer called for pillar/verdict events. Don't re-introduce JSON text parsing for SSE — the tool-call queue approach is the correct path.
-- **Vercel 300s proxy timeout** — `/api/agents/warren/stream/route.ts` is a serverless function. Warren analysis takes ~655s. The proxy dies at 300s, cutting the browser stream. Fix: add `export const runtime = 'edge'` to that route (streaming responses have no wall-clock limit on edge; the route only uses `fetch` + `ReadableStream` so edge is compatible).
+- **`build_prompt()` must use "call report_pillar(...)" not "Output JSON"** — user-prompt instructions override the system prompt. If `build_prompt` says "Output Technical pillar JSON" the model writes text; if it says "call report_pillar(...)" the model calls the tool. This was the root cause of 0/6 pillars.
+- **Vercel edge runtime required** — `export const runtime = 'edge'` on the Warren stream route. Analysis takes 8-12 min; edge has no wall-clock limit on streaming. `maxDuration` is NOT available on the current plan (causes ERROR deployments).
 - **Ticker regex in `app/agents/[name]/page.tsx`** uses `{1,15}` chars — Indian tickers like RELIANCE, TATAMOTORS exceed the old `{1,5}` limit.
 - **Supabase Storage RLS:** `warren_research_user_isolation` policy — users can only access their own `{user_id}/` prefix.

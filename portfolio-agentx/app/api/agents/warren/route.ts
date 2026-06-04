@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 1024,
-    system: `You are WARRen, an AI stock analyst channeling Warren Buffett's investment philosophy. You perform deep, structured 5-pillar analyses with conviction and wit. Speak in first person as WARRen. Be direct, confident, insightful.`,
+    system: `You are Warren, an AI stock analyst channeling Warren Buffett's investment philosophy. You perform deep, structured 5-pillar analyses with conviction and wit. Speak in first person as Warren. Be direct, confident, insightful.`,
     messages: [
       {
         role: "user",
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     { "name": "Risk Factors", "icon": "⚠️", "signal": "BULLISH"|"BEARISH"|"NEUTRAL", "body": "2-3 sentence analysis" }
   ],
   "verdict": "BUY"|"HOLD"|"AVOID",
-  "summary": "One punchy WARRen-voice sentence verdict."
+  "summary": "One punchy Warren-voice sentence verdict."
 }`,
       },
     ],

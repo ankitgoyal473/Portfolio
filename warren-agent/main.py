@@ -12,7 +12,7 @@ load_dotenv()
 
 from agent import run_analysis, resolve_symbol  # noqa: E402
 
-app = FastAPI(title="WARRen Agent", version="1.0.0")
+app = FastAPI(title="Warren Agent", version="1.0.0")
 
 
 class AnalyzeRequest(BaseModel):
@@ -47,7 +47,7 @@ def _symbol_is_valid(symbol: str) -> bool:
 async def analyze(req: AnalyzeRequest):
     if not req.ticker or not req.ticker.strip():
         async def empty_stream():
-            yield f"event: error\ndata: {json.dumps({'message': 'Please enter a ticker symbol (e.g. RELIANCE, INFY, TCS). — WARRen'})}\n\n"
+            yield f"event: error\ndata: {json.dumps({'message': 'Please enter a ticker symbol (e.g. RELIANCE, INFY, TCS). — Warren'})}\n\n"
             yield "event: done\ndata: {}\n\n"
         return StreamingResponse(empty_stream(), media_type="text/event-stream")
 
@@ -63,7 +63,7 @@ async def analyze(req: AnalyzeRequest):
                 msg = (
                     "I specialise in Indian equities listed on NSE or BSE. "
                     f"Could not find data for '{req.ticker}'. "
-                    "Try RELIANCE, INFY, or KPITTECH. — WARRen"
+                    "Try RELIANCE, INFY, or KPITTECH. — Warren"
                 )
                 yield f"event: error\ndata: {json.dumps({'message': msg})}\n\n"
                 yield "event: done\ndata: {}\n\n"
