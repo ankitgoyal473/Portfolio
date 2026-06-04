@@ -44,21 +44,6 @@ export function Hero() {
             </Button>
           </Link>
         </div>
-
-        <div className="animate-fade-up mt-16 grid grid-cols-3 gap-8 border-t border-border/50 pt-8 [animation-delay:400ms]">
-          <div>
-            <p className="text-2xl font-bold text-foreground sm:text-3xl">20+</p>
-            <p className="text-sm text-foreground-muted">AI Tools Shipped</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground sm:text-3xl">5,000+</p>
-            <p className="text-sm text-foreground-muted">Hours Automated</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground sm:text-3xl">3+</p>
-            <p className="text-sm text-foreground-muted">Enterprise Teams</p>
-          </div>
-        </div>
       </div>
     </section>
   );
