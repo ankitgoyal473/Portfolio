@@ -17,7 +17,7 @@ export default function ToolsPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero */}
-      <section className="relative px-6 pt-32 pb-16">
+      <section className="relative px-6 pt-12 pb-16">
         <div className="mx-auto max-w-7xl text-center">
           <Badge className="mb-6">
             {liveTools.length} Live · {comingSoonTools.length} Coming Soon

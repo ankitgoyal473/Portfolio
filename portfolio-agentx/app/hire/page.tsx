@@ -54,7 +54,7 @@ export default function HirePage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-24 sm:py-32">
+      <section className="relative overflow-hidden pt-12 pb-24 sm:pt-16 sm:pb-32">
         <AnimatedGrid />
         <div className="container relative z-10 mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl">

@@ -91,7 +91,7 @@ export default function ProjectsPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="container mx-auto px-4 py-20 sm:py-28">
+      <section className="container mx-auto px-4 pt-10 pb-20 sm:pt-12 sm:pb-28">
         <SectionHeader
           title="Projects"
           subtitle="Production AI systems built at enterprise scale. All projects are from real deployments — no demos, no prototypes."

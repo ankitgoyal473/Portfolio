@@ -75,7 +75,7 @@ const mcpProjects = [
 
 export default function McpPage() {
   return (
-    <main className="py-24 px-6">
+    <main className="pt-12 pb-24 px-6">
       <div className="mx-auto max-w-7xl">
         {/* Hero */}
         <section className="mb-20 text-center">
