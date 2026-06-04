@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AnimatedGrid } from "@/components/shared/animated-grid";
+import { NeuralBackground } from "@/components/shared/neural-background";
 import { Button } from "@/components/ui/button";
 
 const MESSAGES = [
@@ -28,7 +28,7 @@ export default function NotFound() {
 
   return (
     <main className="relative min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      <AnimatedGrid />
+      <NeuralBackground />
       <div className="relative z-10 flex flex-col items-center text-center">
         <h1 className="text-accent font-bold" style={{ fontSize: "clamp(80px, 15vw, 160px)" }}>
           404
