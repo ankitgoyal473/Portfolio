@@ -49,6 +49,12 @@ const HARVEY_THINKING: ThinkingStep[] = [
   { icon: "⚡", label: "Processing batch...", status: "pending" },
 ];
 
+function formatElapsed(secs: number): string {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
 function getGreeting(agentSlug: string): string {
   const hour = new Date().getHours();
   const timeOfDay = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
@@ -131,6 +137,9 @@ export default function AgentPage() {
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [currentTicker, setCurrentTicker] = useState("");
+  const elapsedTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [usage, setUsage] = useState<UsageState>({ used: 0, limit: 1, stage: "fresh" });
   const [locked, setLocked] = useState(false);
@@ -151,6 +160,23 @@ export default function AgentPage() {
   // Ref so runWarren's onDone can read current subscription without stale closure
   const subscriptionRef = useRef(subscription);
   useEffect(() => { subscriptionRef.current = subscription; }, [subscription]);
+
+  useEffect(() => {
+    if (isRunning) {
+      setElapsedSeconds(0);
+      elapsedTimerRef.current = setInterval(() => {
+        setElapsedSeconds((s) => s + 1);
+      }, 1000);
+    } else {
+      if (elapsedTimerRef.current) {
+        clearInterval(elapsedTimerRef.current);
+        elapsedTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
+    };
+  }, [isRunning]);
 
   const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -268,6 +294,7 @@ export default function AgentPage() {
       }
 
       setIsRunning(true);
+      setCurrentTicker(ticker.trim().toUpperCase());
       addMessage(createMessage("agent", `${ticker} it is. Let me walk you through what I see...`));
 
       const collectedPillars: Pillar[] = [];
@@ -748,6 +775,10 @@ export default function AgentPage() {
     notFound();
   }
 
+  const pillarCount = messages.filter(
+    (m) => m.role === "agent" && m.metadata?.type === "pillar-cards"
+  ).length;
+
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden">
       {/* Sidebar */}
@@ -768,11 +799,22 @@ export default function AgentPage() {
       <div className="flex flex-1 flex-col min-w-0">
         {/* Chat thread */}
         <div className="flex-1 overflow-y-auto">
+          {isRunning && elapsedSeconds > 300 && pillarCount === 0 && (
+            <div className="mx-4 mb-3 flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+              <span className="animate-pulse">●</span>
+              <span>
+                Warren is still working — deep analysis takes 8–12 minutes.{" "}
+                Elapsed: <strong>{formatElapsed(elapsedSeconds)}</strong>
+              </span>
+            </div>
+          )}
           <ChatThread
             messages={messages}
             agentId={agentSlug}
             agentColor={agent.color}
             isRunning={isRunning}
+            elapsedSeconds={elapsedSeconds}
+            currentTicker={currentTicker}
           />
         </div>
 
