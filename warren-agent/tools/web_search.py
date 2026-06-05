@@ -25,7 +25,7 @@ def search_web(query: str) -> str:
     data = client.search(
         query=query,
         search_depth="basic",
-        max_results=5,
+        max_results=3,
         include_answer=True,
     )
 
@@ -35,7 +35,7 @@ def search_web(query: str) -> str:
 
     for i, r in enumerate(data.get("results", []), 1):
         parts.append(
-            f"\n[{i}] {r.get('title', '')}\n{r.get('content', '')[:500]}"
+            f"\n[{i}] {r.get('title', '')}\n{r.get('content', '')[:300]}"
         )
 
     return "\n".join(parts) if parts else "No results found."
