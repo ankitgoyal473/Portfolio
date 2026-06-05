@@ -3,6 +3,7 @@ import json
 import os
 import queue as _sync_queue
 import re
+import time as _time
 from datetime import datetime
 from strands import Agent
 from strands.models.anthropic import AnthropicModel
@@ -105,6 +106,9 @@ async def run_analysis(symbol: str, user_id: str, on_event, api_key: str = ""):
 
     # Forward events from sync queue to on_event callback as they arrive.
     # Poll every 0.5s so the event loop stays responsive.
+    last_event_at = _time.monotonic()
+    KEEPALIVE_INTERVAL = 120  # 2 minutes
+
     response_text = None
     while True:
         try:
@@ -113,9 +117,9 @@ async def run_analysis(symbol: str, user_id: str, on_event, api_key: str = ""):
                 break
             event_type, data = item
             await on_event(event_type, data)
+            last_event_at = _time.monotonic()
         except _sync_queue.Empty:
             if future.done():
-                # Agent finished — drain any remaining events
                 while True:
                     try:
                         item = q.get_nowait()
@@ -126,6 +130,9 @@ async def run_analysis(symbol: str, user_id: str, on_event, api_key: str = ""):
                     except _sync_queue.Empty:
                         break
                 break
+            if _time.monotonic() - last_event_at > KEEPALIVE_INTERVAL:
+                await on_event("thinking", {"message": "Warren is still analysing — synthesising pillars takes a few minutes…"})
+                last_event_at = _time.monotonic()
             await asyncio.sleep(0.5)
 
     response_text = await future
