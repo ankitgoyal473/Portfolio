@@ -24,7 +24,7 @@ def fetch_screener(symbol: str) -> str:
             timeout=30.0,
         )
         resp.raise_for_status()
-        return resp.text[:8000]
+        return resp.text[:4000]
     except httpx.HTTPStatusError:
         try:
             cons_url = f"{_SCREENER}/{clean}/consolidated/"
@@ -34,7 +34,7 @@ def fetch_screener(symbol: str) -> str:
                 timeout=30.0,
             )
             resp2.raise_for_status()
-            return resp2.text[:8000]
+            return resp2.text[:4000]
         except Exception as e:
             return f"Could not fetch Screener.in data for {clean}: {e}"
     except Exception as e:
