@@ -16,6 +16,8 @@ interface ChatThreadProps {
   agentColor: string;
   isRunning: boolean;
   isLocked?: boolean;
+  elapsedSeconds?: number;
+  currentTicker?: string;
 }
 
 const AGENT_ICONS: Record<string, LucideIcon> = {
@@ -36,6 +38,8 @@ export function ChatThread({
   agentColor,
   isRunning,
   isLocked = true,
+  elapsedSeconds,
+  currentTicker,
 }: ChatThreadProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -139,7 +143,12 @@ export function ChatThread({
             {msg.role === "thinking" && (
               <div className="max-w-[85%] rounded-xl rounded-tl-sm border border-border/50 bg-background-card px-4 py-3">
                 {msg.metadata?.thinkingSteps ? (
-                  <ThinkingBubble steps={msg.metadata.thinkingSteps} agentColor={agentColor} />
+                  <ThinkingBubble
+                    steps={msg.metadata.thinkingSteps}
+                    agentColor={agentColor}
+                    elapsedSeconds={isRunning ? elapsedSeconds : undefined}
+                    ticker={agentId === "warren" ? currentTicker : undefined}
+                  />
                 ) : (
                   <div className="text-sm text-foreground-muted">{msg.content}</div>
                 )}

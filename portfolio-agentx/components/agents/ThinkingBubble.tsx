@@ -40,13 +40,21 @@ const ICON_MAP: Record<string, LucideIcon> = {
   zap: Zap,
 };
 
+function formatElapsed(secs: number): string {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
 interface ThinkingBubbleProps {
   steps: ThinkingStep[];
   agentColor: string;
+  elapsedSeconds?: number;
+  ticker?: string;
   onComplete?: () => void;
 }
 
-export function ThinkingBubble({ steps, agentColor, onComplete }: ThinkingBubbleProps) {
+export function ThinkingBubble({ steps, agentColor, elapsedSeconds, ticker, onComplete }: ThinkingBubbleProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -107,6 +115,11 @@ export function ThinkingBubble({ steps, agentColor, onComplete }: ThinkingBubble
           </motion.div>
         );
       })}
+      {elapsedSeconds !== undefined && elapsedSeconds > 0 && (
+        <div className="mt-2 text-xs" style={{ color: agentColor }}>
+          {ticker ? `Analysing ${ticker}` : "Analysing"} · {formatElapsed(elapsedSeconds)}
+        </div>
+      )}
     </div>
   );
 }
