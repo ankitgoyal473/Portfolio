@@ -50,41 +50,45 @@ def build_prompt(symbol: str, prior_context: str = "") -> str:
 
     prompt = f"""Analyze {base} (NSE: {symbol}) using the 6-pillar Warren Buffett methodology. Today is {now}.
 
+MANDATORY RULE — READ BEFORE PROCEEDING:
+You MUST call report_pillar() and report_verdict() as tool calls — not as text output.
+Writing pillar analysis as plain text is a critical failure. Use the tools exclusively.
+After each data-gathering step, immediately call the report_pillar tool with the results.
+
 Execute these steps IN ORDER - do not skip any:
 
 STEP 1 - TECHNICAL:
 Call get_price_and_technicals("{symbol}")
-Then call report_pillar(pillar="Technical", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences with actual numbers", key_metrics={{...}})
+Immediately call: report_pillar(pillar="Technical", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences with actual numbers from the tool output", key_metrics={{...}})
 
 STEP 2 - FUNDAMENTAL:
 Call fetch_screener("{base}")
-Extract PE, PBV, ROE, D/E, profit margin, FCF, promoter holding % from the page
-Then call report_pillar(pillar="Fundamental", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences with actual numbers", key_metrics={{...}})
+Extract PE, PBV, ROE, D/E, profit margin, FCF, promoter holding % from the response.
+Immediately call: report_pillar(pillar="Fundamental", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences with actual numbers", key_metrics={{...}})
 
 STEP 3 - SENTIMENT:
-Use the news section from the Screener.in data fetched in Step 2.
-Also call search_web("{base} stock news India {month_year}")
-Also call search_web("{base} NSE analyst rating target price buy sell hold 2026")
-Then call report_pillar(pillar="Sentiment", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences", key_metrics={{...}})
+Call search_web("{base} stock news India {month_year}")
+Call search_web("{base} NSE analyst rating target price buy sell hold 2026")
+Immediately call: report_pillar(pillar="Sentiment", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="2-3 sentences", key_metrics={{...}})
 
 STEP 4 - OPTION CHAIN:
 Call search_web("{base} NSE F&O option chain PCR put call ratio max pain open interest today")
-If {base} is in F&O segment: call report_pillar(pillar="OptionChain", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="...", key_metrics={{...}})
-If not in F&O: call report_pillar(pillar="OptionChain", score=None, signal="N/A", summary="Not in F&O segment", key_metrics={{}})
+If {base} is in F&O segment: immediately call report_pillar(pillar="OptionChain", score=<1-4>, signal=<"BULLISH"|"BEARISH"|"NEUTRAL">, summary="...", key_metrics={{...}})
+If not in F&O: immediately call report_pillar(pillar="OptionChain", score=None, signal="N/A", summary="Not in F&O segment", key_metrics={{}})
 
 STEP 5 - GLOBAL IMPACT:
 Call search_web("India VIX DXY US Fed interest rate market sentiment {month_year}")
 Call search_web("{base} sector India outlook headwinds tailwinds 2026")
-Then call report_pillar(pillar="GlobalImpact", score=None, signal=<"POSITIVE"|"NEUTRAL"|"NEGATIVE">, summary="2-3 sentences", key_metrics={{}})
+Immediately call: report_pillar(pillar="GlobalImpact", score=None, signal=<"POSITIVE"|"NEUTRAL"|"NEGATIVE">, summary="2-3 sentences", key_metrics={{}})
 
 STEP 6 - FII/DII FLOWS:
-Use the shareholding pattern data from Screener.in (Step 2): FII %, DII %, Promoter % and QoQ changes.
+Use shareholding data from screener (Step 2): FII %, DII %, Promoter % and QoQ changes.
 Call search_web("FII DII institutional flows NSE India {month_year} buying selling")
-Then call report_pillar(pillar="FIIDIIFlows", score=None, signal=<"BULLISH"|"NEUTRAL"|"BEARISH">, summary="2-3 sentences", key_metrics={{}})
+Immediately call: report_pillar(pillar="FIIDIIFlows", score=None, signal=<"BULLISH"|"NEUTRAL"|"BEARISH">, summary="2-3 sentences", key_metrics={{}})
 
 STEP 7 - VERDICT:
-Compute composite score.
-Call report_verdict(verdict=<"BUY"|"ACCUMULATE"|"HOLD"|"REDUCE"|"EXIT">, conviction=<"HIGH"|"MEDIUM"|"LOW"|"AVOID">, avg_score=<float>, entry="Rs.XXXX-YYYY", target="Rs.XXXX", stop_loss="Rs.XXXX", risk_reward="X:1", next_review="7 days")
+Compute composite score from the scored pillars.
+Immediately call: report_verdict(verdict=<"BUY"|"ACCUMULATE"|"HOLD"|"REDUCE"|"EXIT">, conviction=<"HIGH"|"MEDIUM"|"LOW"|"AVOID">, avg_score=<float>, entry="Rs.XXXX-YYYY", target="Rs.XXXX", stop_loss="Rs.XXXX", risk_reward="X:1", next_review="7 days")
 
 STEP 8 - RESEARCH FILES:
 Write content for all 9 research files clearly labelled with === FILE: filename.md ===
