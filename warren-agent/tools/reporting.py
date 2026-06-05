@@ -23,6 +23,7 @@ def report_pillar(
     summary: 2-3 sentence analysis grounded in the data you fetched
     key_metrics: dict of the most important numbers e.g. {"rsi": 58, "pe": 25.3}
     """
+    emit_thinking(f"Reporting {pillar} pillar — {signal}…")
     q = getattr(_local, "q", None)
     if q is not None:
         q.put(("pillar", {
@@ -59,6 +60,7 @@ def report_verdict(
     risk_reward: ratio e.g. "2.8:1"
     next_review: when to re-analyse e.g. "7 days"
     """
+    emit_thinking(f"Forming verdict — {verdict} ({conviction} conviction)…")
     q = getattr(_local, "q", None)
     if q is not None:
         q.put(("verdict", {
