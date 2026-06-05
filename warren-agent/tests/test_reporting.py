@@ -12,6 +12,14 @@ def _clear_queue():
     _local.q = None
 
 
+def _get_non_thinking(q):
+    """Drain any leading 'thinking' events and return the first substantive event."""
+    while True:
+        event_type, data = q.get_nowait()
+        if event_type != "thinking":
+            return event_type, data
+
+
 def test_report_pillar_puts_event_on_queue():
     q = queue.Queue()
     _set_queue(q)
@@ -26,7 +34,7 @@ def test_report_pillar_puts_event_on_queue():
     )
 
     assert not q.empty()
-    event_type, data = q.get_nowait()
+    event_type, data = _get_non_thinking(q)
     assert event_type == "pillar"
     assert data["pillar"] == "Technical"
     assert data["score"] == 3
@@ -43,7 +51,7 @@ def test_report_pillar_key_metrics_none_becomes_empty_dict():
     from tools.reporting import report_pillar
     report_pillar("Sentiment", 3, "BULLISH", "Positive news.", None)
 
-    _, data = q.get_nowait()
+    _, data = _get_non_thinking(q)
     assert data["keyMetrics"] == {}
 
 
@@ -62,7 +70,7 @@ def test_report_pillar_score_can_be_none():
     from tools.reporting import report_pillar
     report_pillar("GlobalImpact", None, "POSITIVE", "Macro is favourable.", None)
 
-    _, data = q.get_nowait()
+    _, data = _get_non_thinking(q)
     assert data["score"] is None
     assert data["signal"] == "POSITIVE"
 
@@ -84,7 +92,7 @@ def test_report_verdict_puts_event_on_queue():
     )
 
     assert not q.empty()
-    event_type, data = q.get_nowait()
+    event_type, data = _get_non_thinking(q)
     assert event_type == "verdict"
     assert data["verdict"] == "ACCUMULATE"
     assert data["conviction"] == "MEDIUM"
@@ -102,7 +110,7 @@ def test_report_verdict_default_next_review():
     from tools.reporting import report_verdict
     report_verdict("HOLD", "LOW", 1.8, "Rs.1300", "Rs.1500", "Rs.1250", "2:1")
 
-    _, data = q.get_nowait()
+    _, data = _get_non_thinking(q)
     assert data["nextReview"] == "7 days"
 
 
