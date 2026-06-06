@@ -1,22 +1,17 @@
-import type { Metadata } from "next";
-import { Hero } from "@/components/home/hero";
-import { ToolsPreview } from "@/components/home/tools-preview";
-import { SocialProof } from "@/components/home/social-proof";
-import { CtaSection } from "@/components/home/cta-section";
+import HeroSection from "@/components/store/hero-section";
+import ExplainerSection from "@/components/store/explainer-section";
+import ProductsSection from "@/components/store/products-section";
+import HowItWorksSection from "@/components/store/how-it-works-section";
+import FaqSection from "@/components/store/faq-section";
 
-export const metadata: Metadata = {
-  title: "AGentX — AI Agents by Ankit Goyal",
-  description:
-    "Meet Warren, Sherlock & Harvey — three AI agents that replace your most expensive hires.",
-};
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <>
-      <Hero />
-      <SocialProof />
-      <ToolsPreview />
-      <CtaSection />
-    </>
+    <main>
+      <HeroSection />
+      <ExplainerSection />
+      <ProductsSection />
+      <HowItWorksSection />
+      <FaqSection />
+    </main>
   );
 }
