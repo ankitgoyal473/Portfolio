@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import { ChatWidget } from "@/components/chat/chat-widget";
 
 export const metadata: Metadata = {
   title: "AGentX — Claude Code Solutions",
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         {children}
         <Footer />
+        <ChatWidget />
       </body>
     </html>
   );
