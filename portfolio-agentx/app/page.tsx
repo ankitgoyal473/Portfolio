@@ -5,17 +5,32 @@ import HowItWorksSection from "@/components/store/how-it-works-section";
 import FaqSection from "@/components/store/faq-section";
 import ProjectsSection from "@/components/store/projects-section";
 import HireCtaSection from "@/components/store/hire-cta-section";
+import { StatsSection } from "@/components/store/stats-section";
+import { AnimatedSection } from "@/components/shared/animated-section";
 
 export default function HomePage() {
   return (
     <main>
       <HeroSection />
-      <ExplainerSection />
-      <ProductsSection />
-      <HowItWorksSection />
-      <FaqSection />
-      <ProjectsSection />
-      <HireCtaSection />
+      <StatsSection />
+      <AnimatedSection>
+        <ExplainerSection />
+      </AnimatedSection>
+      <AnimatedSection delay={0.05}>
+        <ProductsSection />
+      </AnimatedSection>
+      <AnimatedSection>
+        <HowItWorksSection />
+      </AnimatedSection>
+      <AnimatedSection>
+        <FaqSection />
+      </AnimatedSection>
+      <AnimatedSection>
+        <ProjectsSection />
+      </AnimatedSection>
+      <AnimatedSection>
+        <HireCtaSection />
+      </AnimatedSection>
     </main>
   );
 }
