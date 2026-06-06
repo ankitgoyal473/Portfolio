@@ -34,3 +34,14 @@ body {
 .animate-fade-up {
   animation: fade-up 0.5s ease forwards;
 }
+
+@keyframes floatCode {
+  0%   { transform: translateY(0);       opacity: 0; }
+  8%   { opacity: 1; }
+  85%  { opacity: 0.75; }
+  100% { transform: translateY(-110vh);  opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-code-bg { display: none; }
+}
