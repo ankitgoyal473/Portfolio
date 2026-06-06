@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { TrendingUp, Search, Mail } from "lucide-react";
 import { AgentXLogo } from "@/components/shared/agentx-logo";
 import { NeuralBackground } from "@/components/shared/neural-background";
@@ -13,6 +14,11 @@ const agentOrbs = [
   { name: "Sherlock", icon: Search, color: "#4a9eff", desc: "Research agent" },
   { name: "Harvey", icon: Mail, color: "#00c896", desc: "Email writer" },
 ];
+
+const orbVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export default function LoginPage() {
   const { user, isLoading, login } = useAuth();
@@ -41,10 +47,17 @@ export default function LoginPage() {
               Sign in to access Claude Code solutions and run AI agents in your own terminal.
             </p>
           </div>
-          <div className="flex gap-4">
+          <motion.div
+            className="flex gap-4"
+            initial="hidden"
+            animate="visible"
+            variants={{ visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } } }}
+          >
             {agentOrbs.map(({ name, icon: Icon, color, desc }) => (
-              <div
+              <motion.div
                 key={name}
+                variants={orbVariants}
+                transition={{ duration: 0.35, ease: "easeOut" }}
                 className="flex flex-col items-center gap-2 p-4 rounded-xl border border-[#27272A] bg-[#0A0A0A]/60 backdrop-blur-sm"
                 style={{ borderTopColor: color, borderTopWidth: "2px" }}
               >
@@ -56,9 +69,9 @@ export default function LoginPage() {
                 </div>
                 <span className="text-xs font-semibold text-[#F8FAFC]">{name}</span>
                 <span className="text-xs text-[#71717A]">{desc}</span>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
         <div className="relative z-10 text-xs text-[#71717A]">
           Built by Ankit Goyal · Gurgaon, India
@@ -66,7 +79,12 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel — login form */}
-      <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
+      <motion.div
+        className="flex-1 flex flex-col items-center justify-center px-8 py-12"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+      >
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="flex justify-center mb-10 md:hidden">
@@ -107,7 +125,7 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
     </main>
   );
 }
