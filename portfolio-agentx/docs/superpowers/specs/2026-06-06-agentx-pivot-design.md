@@ -14,7 +14,7 @@ Replace the current AGentX portfolio with a storefront that sells Claude Code-na
 
 | Slug | Name | What it does |
 |------|------|--------------|
-| `job-hunter` | Job Hunter | Autonomous job search + apply pipeline across LinkedIn, Naukri, Indeed |
+| `rudy` | Rudy | Autonomous job search + apply pipeline across LinkedIn, Naukri, Indeed |
 | `warren` | Warren | Stock research agent — fundamentals, technicals, web search |
 | `harvey` | Harvey | Email and outreach agent — drafts, follow-ups, prospecting |
 | `sherlock` | Sherlock | Deep research and investigation agent — web + document analysis |
@@ -64,7 +64,7 @@ Service role only. No RLS needed — buyers never query this directly.
 ### File Delivery
 
 - Supabase Storage bucket: `solutions` (private)
-- Files: `solutions/job-hunter.zip`, `solutions/warren.zip`, `solutions/harvey.zip`, `solutions/sherlock.zip`
+- Files: `solutions/rudy.zip`, `solutions/warren.zip`, `solutions/harvey.zip`, `solutions/sherlock.zip`
 - On successful payment: generate signed URL with **24h expiry**
 - Shown on `/success` page AND emailed to buyer
 
@@ -119,7 +119,7 @@ Six sections, top to bottom:
 
 Each ZIP is a self-contained Claude Code workspace:
 
-**job-hunter.zip:**
+**rudy.zip:**
 ```
 CLAUDE.md                    ← operating manual (the product)
 buyer-config.example.json    ← template — buyer fills this in
