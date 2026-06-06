@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import type { Product } from "@/lib/products";
 import { formatPrice } from "@/lib/products";
@@ -11,13 +12,12 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <>
-      <div
+      <motion.div
         id={product.slug}
-        className="relative bg-[#141414] border border-[#27272A] rounded-xl p-6 flex flex-col gap-4 hover:scale-[1.02] transition-transform duration-150 group"
-        style={{
-          borderTop: `3px solid ${product.color}`,
-          boxShadow: `0 0 0 0 ${product.color}`,
-        }}
+        className="relative bg-[#141414] border border-[#27272A] rounded-xl p-6 flex flex-col gap-4 group cursor-default"
+        style={{ borderTop: `3px solid ${product.color}` }}
+        whileHover={{ scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 200, damping: 22 }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 20px 0 ${product.color}22`;
         }}
@@ -59,7 +59,7 @@ export default function ProductCard({ product }: { product: Product }) {
             Buy Now →
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {modalOpen && (
         <BuyModal product={product} onClose={() => setModalOpen(false)} />
