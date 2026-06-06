@@ -32,9 +32,10 @@ export async function POST(req: NextRequest) {
   // 3. Insert purchase (idempotent — unique constraint on payment_id)
   await supabaseAdmin
     .from("purchases")
-    .insert({ email, product_slug, razorpay_payment_id, razorpay_order_id })
-    .onConflict("razorpay_payment_id")
-    .ignore();
+    .upsert(
+      { email, product_slug, razorpay_payment_id, razorpay_order_id },
+      { onConflict: "razorpay_payment_id", ignoreDuplicates: true }
+    );
 
   // 4. Generate signed download URL (24h)
   const { data: urlData, error: urlError } = await supabaseAdmin.storage
