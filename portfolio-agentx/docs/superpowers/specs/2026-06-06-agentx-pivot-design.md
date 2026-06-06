@@ -188,6 +188,91 @@ Removed vs current: `ANTHROPIC_API_KEY`, `WARREN_AGENT_URL`, `INTERNAL_SECRET`, 
 
 ---
 
+## UI/UX Design System
+
+### Visual Style
+Dark + Social Proof-Focused. Dark background signals premium AI tool; social proof (how it works, what you get) builds trust for the impulse buy. Non-technical buyers need clarity over cleverness.
+
+### Color Palette
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `bg-background` | `#0A0A0A` | Page background |
+| `bg-card` | `#141414` | Product cards |
+| `border-border` | `#27272A` | Card borders |
+| `text-foreground` | `#F8FAFC` | Body text |
+| `text-muted` | `#71717A` | Secondary text |
+| Rudy accent | `#a855f7` | Purple — ambition |
+| Warren accent | `#f0b429` | Gold — keep existing |
+| Sherlock accent | `#4a9eff` | Blue — keep existing |
+| Harvey accent | `#00c896` | Green — keep existing |
+| CTA | `#F97316` | Buy button (warm orange, high contrast) |
+
+Each product card: persona color as top border accent + icon tint.
+
+### Typography
+**Plus Jakarta Sans** — single family, all weights (300–700).
+- Heading: weight 700, tight tracking (`-0.02em`)
+- Body: weight 400, line-height 1.6
+- Price: weight 600
+- Mood: friendly, modern, approachable — right for non-technical buyers
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+```
+
+### Page Structure
+
+```
+1. Navbar       — AGentX logo + "What is Claude Code?" anchor
+2. Hero         — Bold headline, 1-line subhead, scroll-down CTA
+3. Explainer    — "What is Claude Code?" — 3 icons + bullets, < 100 words
+4. Products     — 2×2 grid (desktop) / 1-col (mobile), persona color accents
+5. How it works — 3 horizontal steps: Buy → Unzip → Run
+6. FAQ          — Accordion, 6 questions
+7. Footer       — Logo + product anchors + "Built by Ankit Goyal"
+```
+
+### Product Card Anatomy
+
+```
+┌──────────────────────────────────┐
+│ ▐▐ [persona color top border 3px]│
+│                                  │
+│  [Icon]  Rudy                    │
+│  Autonomous job search & apply   │
+│                                  │
+│  ✓ CLAUDE.md operating manual    │
+│  ✓ Config template               │
+│  ✓ 5 portal playbooks            │
+│                                  │
+│  ₹999           [Buy Now →]      │
+└──────────────────────────────────┘
+```
+
+Buy Now → opens email modal → Razorpay checkout.
+
+### Interactions & Effects
+
+| Element | Effect |
+|---------|--------|
+| Product card hover | `scale-[1.02]` + persona color border glow, `150ms` |
+| Buy button | Orange, full-width on mobile, `cursor-pointer`, disabled during async |
+| Explainer steps | Fade-in on scroll via `IntersectionObserver` |
+| FAQ accordion | Smooth expand, `200ms ease` |
+| Page | No horizontal scroll, no complex animations |
+
+### Icons
+Lucide React throughout. No emojis as icons.
+
+### Anti-Patterns to Avoid
+- Horizontal scroll (breaks mobile UX for non-technical buyers)
+- Complex scroll-triggered animations (slow perceived load)
+- Emoji as icons
+- Pricing table (one price, one button per product — keep it simple)
+
+---
+
 ## Out of Scope
 
 - Admin dashboard (purchase history) — add later if needed
