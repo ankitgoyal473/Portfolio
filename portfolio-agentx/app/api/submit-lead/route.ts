@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 export async function POST(req: Request) {
   const { name, email, company, message } = await req.json();
 
-  if (!name || !email || !message) {
+  if (!name || !message) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     await transporter.sendMail({
       from: `"AGentX Hire" <${process.env.GMAIL_USER}>`,
       to: process.env.GMAIL_USER,
-      replyTo: email,
+      ...(email ? { replyTo: email } : {}),
       subject: `New hire inquiry from ${name}${company ? ` (${company})` : ""}`,
       text: `Name: ${name}\nEmail: ${email}\nCompany: ${company || "—"}\n\n${message}`,
       html: `
