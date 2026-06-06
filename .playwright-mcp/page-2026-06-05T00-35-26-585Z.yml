@@ -1,0 +1,138 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "AGentX" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - img [ref=e7]
+            - generic [ref=e14]: AGentX
+        - generic [ref=e15]:
+          - link "Agents" [ref=e16] [cursor=pointer]:
+            - /url: /agents
+          - link "Projects" [ref=e17] [cursor=pointer]:
+            - /url: /projects
+          - link "MCPs" [ref=e18] [cursor=pointer]:
+            - /url: /mcp
+          - link "Tools" [ref=e19] [cursor=pointer]:
+            - /url: /tools
+          - link "Work With Me" [ref=e20] [cursor=pointer]:
+            - /url: /hire
+        - generic [ref=e21]:
+          - button "AG Ankit Goyal" [ref=e61]:
+            - generic [ref=e62]: AG
+            - generic [ref=e63]: Ankit Goyal
+          - link "Work With Me" [ref=e24] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e25]
+    - main [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - img [ref=e32]
+              - text: Warren
+            - button "Close sidebar" [ref=e35]:
+              - img [ref=e36]
+          - generic [ref=e39]:
+            - generic [ref=e40]: ✦ Pro
+            - generic [ref=e64]: · Unlimited
+          - button "New session" [ref=e45]:
+            - img [ref=e46]
+            - text: New session
+          - generic [ref=e47]:
+            - button "INFY · Quick scan 2 days ago 7 msgs" [ref=e65]:
+              - generic [ref=e66]: INFY · Quick scan
+              - generic [ref=e67]:
+                - generic [ref=e68]: 2 days ago
+                - generic [ref=e69]: 7 msgs
+            - button "CDSL · Quick scan 2 days ago 7 msgs" [ref=e70]:
+              - generic [ref=e71]: CDSL · Quick scan
+              - generic [ref=e72]:
+                - generic [ref=e73]: 2 days ago
+                - generic [ref=e74]: 7 msgs
+        - generic [ref=e49]:
+          - generic [ref=e51]:
+            - generic [ref=e172]: Session started
+            - generic [ref=e174]:
+              - generic [ref=e175]:
+                - img [ref=e176]
+                - text: Warren
+              - generic [ref=e179]: Good morning. Give me a ticker and I will tell you what the market is missing. — Warren 🧐
+            - generic [ref=e181]: CDSL
+            - generic [ref=e183]:
+              - generic [ref=e184]:
+                - img [ref=e185]
+                - text: Warren
+              - generic [ref=e188]: CDSL it is. Let me walk you through what I see...
+            - generic [ref=e191]:
+              - generic [ref=e192]:
+                - generic [ref=e193]: ✓
+                - generic [ref=e194]: 📊
+                - generic [ref=e195]: Fetching live NSE price data...
+              - generic [ref=e196]:
+                - generic [ref=e197]: ✓
+                - generic [ref=e198]: 📐
+                - generic [ref=e199]: Computing RSI, MACD & moving averages...
+              - generic [ref=e200]:
+                - generic [ref=e201]: ✓
+                - generic [ref=e202]: 🏰
+                - generic [ref=e203]: Reading Screener.in fundamentals...
+              - generic [ref=e204]:
+                - generic [ref=e205]: ✓
+                - generic [ref=e206]: 📰
+                - generic [ref=e207]: Scanning news & analyst sentiment...
+              - generic [ref=e208]:
+                - generic [ref=e209]: ✓
+                - generic [ref=e210]: 📈
+                - generic [ref=e211]: Checking option chain & PCR...
+              - generic [ref=e212]:
+                - generic [ref=e213]: ✓
+                - generic [ref=e214]: 🌍
+                - generic [ref=e215]: Assessing India VIX & global macro...
+              - generic [ref=e216]:
+                - generic [ref=e217]: ✓
+                - generic [ref=e218]: 💰
+                - generic [ref=e219]: Tracking FII/DII institutional flows...
+              - generic [ref=e220]:
+                - generic [ref=e221]: ✓
+                - generic [ref=e222]: 🎯
+                - generic [ref=e223]: Forming conviction & verdict...
+              - generic [ref=e224]:
+                - generic [ref=e225]: ✓
+                - generic [ref=e226]: 💾
+                - generic [ref=e227]: Saving research files...
+              - generic [ref=e228]: Analysing CDSL · 2m 41s
+            - generic [ref=e236]:
+              - generic [ref=e237]:
+                - img [ref=e238]
+                - text: Warren
+              - generic [ref=e241]:
+                - generic [ref=e242]:
+                  - generic [ref=e243]: ✦
+                  - generic [ref=e244]: "Searching: 'CDSL stock news India June 2026'…"
+                - generic [ref=e245]:
+                  - generic [ref=e246]: ✦
+                  - generic [ref=e247]: "Searching: 'CDSL NSE analyst rating target price buy sell hold 2026'…"
+                - generic [ref=e248]:
+                  - generic [ref=e249]: ✦
+                  - generic [ref=e250]: "Searching: 'CDSL NSE F&O option chain PCR put call ratio max pain open interest today 2026'…"
+                - generic [ref=e251]:
+                  - generic [ref=e252]: ✦
+                  - generic [ref=e253]: "Searching: 'India VIX DXY US Fed interest rate market sentiment June 2026'…"
+                - generic [ref=e254]:
+                  - generic [ref=e255]: ✦
+                  - generic [ref=e256]: "Searching: 'CDSL sector India capital markets depository outlook headwinds tailwinds 2026'…"
+                - generic [ref=e257]:
+                  - generic [ref=e258]: ✦
+                  - generic [ref=e259]: "Searching: 'FII DII institutional flows NSE India June 2026 buying selling'…"
+                - generic [ref=e260]:
+                  - generic [ref=e261]: ✦
+                  - generic [ref=e262]: Warren is still analysing — synthesising pillars takes a few minutes…
+          - generic [ref=e53]:
+            - textbox "Ask Warren... (e.g. RELIANCE, INFY)" [active] [ref=e54]
+            - generic [ref=e55]:
+              - generic [ref=e84]: ✦ Pro
+              - button "Send message" [disabled] [ref=e56]:
+                - img [ref=e57]
+  - alert [ref=e59]

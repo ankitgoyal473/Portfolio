@@ -1,161 +1,36 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 @theme inline {
-  --color-background: #050505;
-  --color-background-secondary: #080808;
-  --color-background-card: #0d0d12;
-  --color-foreground: #ffffff;
-  --color-foreground-secondary: #8887a0;
-  --color-foreground-muted: #55546e;
-  --color-accent: #b6a3ff;
-  --color-accent-hover: #c4b5fd;
-  --color-accent-muted: rgba(182, 163, 255, 0.08);
-  --color-border: #1c1c2e;
-  --color-border-hover: #2d2d45;
-  --color-success: #10b981;
-  --color-error: #ef4444;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --color-background: #0A0A0A;
+  --color-background-card: #141414;
+  --color-foreground: #F8FAFC;
+  --color-foreground-muted: #71717A;
+  --color-border: #27272A;
+  --color-cta: #F97316;
+  --color-cta-hover: #EA6C0A;
+  --color-rudy: #a855f7;
+  --color-warren: #f0b429;
+  --color-sherlock: #4a9eff;
+  --color-harvey: #00c896;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
-:root {
-  --color-accent-strong: #8b5cf6;
-  --color-glass-bg: rgba(13, 13, 18, 0.6);
-  --color-glass-border: rgba(182, 163, 255, 0.08);
-}
-
-.glass {
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-glass-border);
-}
-
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
-  background:
-    radial-gradient(ellipse 80% 40% at 50% -5%, rgba(139, 92, 246, 0.09) 0%, transparent 60%),
-    var(--color-background);
+  background: var(--color-background);
   color: var(--color-foreground);
-  font-family:
-    var(--font-sans),
-    system-ui,
-    -apple-system,
-    sans-serif;
-}
-
-@keyframes grid-scroll {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(50px, 50px);
-  }
+  font-family: var(--font-sans), system-ui, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
 @keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@keyframes typewriter-cursor {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-up {
-  animation: fade-up 0.6s ease-out forwards;
-}
-
-.animate-grid {
-  animation: grid-scroll 20s linear infinite;
-}
-
-.animate-cursor {
-  animation: typewriter-cursor 0.8s ease-in-out infinite;
-}
-
-.animated-grid-bg {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.animated-grid-bg::before {
-  content: "";
-  position: absolute;
-  inset: -50px;
-  background-image: radial-gradient(circle, var(--color-accent) 1px, transparent 1px);
-  background-size: 50px 50px;
-  opacity: 0.07;
-  animation: grid-scroll 20s linear infinite;
-}
-
-.animated-grid-bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 0%, var(--color-background) 70%);
-}
-
-/* ── Cosmic background animations ───────────────────────────── */
-@keyframes aurora-1 {
-  0%   { transform: translate(0px, 0px) scale(1); }
-  25%  { transform: translate(40px, -30px) scale(1.08); }
-  50%  { transform: translate(-20px, 20px) scale(0.94); }
-  75%  { transform: translate(25px, 10px) scale(1.04); }
-  100% { transform: translate(0px, 0px) scale(1); }
-}
-
-@keyframes aurora-2 {
-  0%   { transform: translate(0px, 0px) scale(1); }
-  30%  { transform: translate(-35px, 25px) scale(1.06); }
-  60%  { transform: translate(20px, -15px) scale(0.96); }
-  100% { transform: translate(0px, 0px) scale(1); }
-}
-
-@keyframes aurora-3 {
-  0%   { transform: translate(0px, 0px) scale(1); }
-  40%  { transform: translate(30px, 20px) scale(1.05); }
-  70%  { transform: translate(-25px, -10px) scale(0.97); }
-  100% { transform: translate(0px, 0px) scale(1); }
-}
-
-@keyframes ring-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-@keyframes ring-spin-reverse {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
-}
-
-@keyframes ring-pulse {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 0.9; }
+  animation: fade-up 0.5s ease forwards;
 }

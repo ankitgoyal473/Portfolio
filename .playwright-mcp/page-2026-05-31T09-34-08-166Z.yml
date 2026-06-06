@@ -1,0 +1,122 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "AGentX" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - img [ref=e7]
+            - generic [ref=e14]: AGentX
+        - generic [ref=e15]:
+          - link "Agents" [ref=e16] [cursor=pointer]:
+            - /url: /agents
+          - link "Projects" [ref=e17] [cursor=pointer]:
+            - /url: /projects
+          - link "MCPs" [ref=e18] [cursor=pointer]:
+            - /url: /mcp
+          - link "Tools" [ref=e19] [cursor=pointer]:
+            - /url: /tools
+          - link "Work With Me" [ref=e20] [cursor=pointer]:
+            - /url: /hire
+        - generic [ref=e21]:
+          - button "AG Ankit Goyal" [ref=e23]:
+            - generic [ref=e24]: AG
+            - generic [ref=e25]: Ankit Goyal
+          - link "Work With Me" [ref=e26] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e27]
+    - main [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - img [ref=e34]
+              - text: WARRen
+            - button "Close sidebar" [ref=e37]:
+              - img [ref=e38]
+          - generic [ref=e41]:
+            - generic [ref=e42]: Free tier
+            - generic [ref=e43]:
+              - img [ref=e125]
+              - generic [ref=e44]: 1 / 1
+          - button "New session" [ref=e47]:
+            - img [ref=e48]
+            - text: New session
+          - paragraph [ref=e50]: No sessions yet
+        - generic [ref=e51]:
+          - generic [ref=e53]:
+            - generic [ref=e63]: Session started
+            - generic [ref=e65]:
+              - generic [ref=e66]:
+                - img [ref=e67]
+                - text: WARRen
+              - generic [ref=e70]: Good afternoon. Give me a ticker and I will tell you what the market is missing. — WARRen 🧐
+            - generic [ref=e72]: RELIANCE
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - img [ref=e76]
+                - text: WARRen
+              - generic [ref=e79]: RELIANCE it is. Let me walk you through what I see...
+            - generic [ref=e131]:
+              - generic [ref=e132]: RELIANCE · 6-Pillar Analysis
+              - generic [ref=e133]:
+                - generic [ref=e134]:
+                  - generic [ref=e135]: 📋
+                  - generic [ref=e136]: NEUTRAL
+                - paragraph [ref=e137]: "FII flows in May 2026 have been mixed-to-negative — FIIs largely selling while DIIs have provided strong counterbalance, with DIIs net buyers for 9 consecutive sessions through May 29 (₹16,764 Cr on that day alone). For RELIANCE, with ~50% promoter holding, free-float is limited, making institutional flows disproportionately impactful. The FII selling pressure on India's most weighted Nifty stock is a drag, but persistent DII buying is preventing a deeper breakdown. Net signal: NEUTRAL with a DII-supported floor."
+              - generic [ref=e138]:
+                - generic [ref=e139]:
+                  - generic [ref=e140]: 🎯 Verdict
+                  - generic [ref=e141]: LOW · BUY ON DIPS
+                - generic [ref=e142]:
+                  - generic [ref=e143]:
+                    - generic [ref=e144]: Entry
+                    - generic [ref=e145]: ₹1,290–1,320
+                  - generic [ref=e146]:
+                    - generic [ref=e147]: Target
+                    - generic [ref=e148]: ₹1,600–1,700
+                  - generic [ref=e149]:
+                    - generic [ref=e150]: Stop
+                    - generic [ref=e151]: ₹1,230
+                - generic [ref=e152]:
+                  - text: "R/R: 2.8:1"
+                  - generic [ref=e153]: "Review: Post AGM — 20 Jun 2026"
+              - paragraph [ref=e154]: — WARRen 🧐
+            - generic [ref=e157]:
+              - generic [ref=e158]: RELIANCE · 6-Pillar Analysis
+              - generic [ref=e159]:
+                - generic [ref=e160]:
+                  - generic [ref=e161]: 📋
+                  - generic [ref=e162]: NEUTRAL
+                - paragraph [ref=e163]: "FII flows in May 2026 have been mixed-to-negative — FIIs largely selling while DIIs have provided strong counterbalance, with DIIs net buyers for 9 consecutive sessions through May 29 (₹16,764 Cr on that day alone). For RELIANCE, with ~50% promoter holding, free-float is limited, making institutional flows disproportionately impactful. The FII selling pressure on India's most weighted Nifty stock is a drag, but persistent DII buying is preventing a deeper breakdown. Net signal: NEUTRAL with a DII-supported floor."
+              - generic [ref=e164]:
+                - generic [ref=e165]:
+                  - generic [ref=e166]: 🎯 Verdict
+                  - generic [ref=e167]: LOW · BUY ON DIPS
+                - generic [ref=e168]:
+                  - generic [ref=e169]:
+                    - generic [ref=e170]: Entry
+                    - generic [ref=e171]: ₹1,290–1,320
+                  - generic [ref=e172]:
+                    - generic [ref=e173]: Target
+                    - generic [ref=e174]: ₹1,600–1,700
+                  - generic [ref=e175]:
+                    - generic [ref=e176]: Stop
+                    - generic [ref=e177]: ₹1,230
+                - generic [ref=e178]:
+                  - text: "R/R: 2.8:1"
+                  - generic [ref=e179]: "Review: Post AGM — 20 Jun 2026"
+              - paragraph [ref=e180]: — WARRen 🧐
+            - generic [ref=e183]: That was my last free report for you this month. I have more to say — shall we continue? — WARRen 🧐
+            - link "📥 Download Research Pack" [ref=e186] [cursor=pointer]:
+              - /url: https://dwcdzjhelmjjhsdcyrgc.supabase.co/storage/v1/object/sign/warren-research/274f090b-4d52-4efe-a1b3-1e77ea985f4a/RELIANCE/20260531/technical.md?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV81MDJmZGI3Mi0wMmZiLTQ1NDctODhhMS04ZWE4N2IwNmZiMmEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3YXJyZW4tcmVzZWFyY2gvMjc0ZjA5MGItNGQ1Mi00ZWZlLWExYjMtMWU3N2VhOTg1ZjRhL1JFTElBTkNFLzIwMjYwNTMxL3RlY2huaWNhbC5tZCIsImlhdCI6MTc4MDIyMDAyOSwiZXhwIjoxNzgwMzA2NDI5fQ.Ja4bDEsoB9I7Z8kziGXBwTM_lSWp7ACJq1nlCiCoCdY
+            - generic [ref=e189]: That was my last free report for you this month. I have more to say — shall we continue? — WARRen 🧐
+            - link "📥 Download Research Pack" [ref=e192] [cursor=pointer]:
+              - /url: https://dwcdzjhelmjjhsdcyrgc.supabase.co/storage/v1/object/sign/warren-research/274f090b-4d52-4efe-a1b3-1e77ea985f4a/RELIANCE/20260531/technical.md?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV81MDJmZGI3Mi0wMmZiLTQ1NDctODhhMS04ZWE4N2IwNmZiMmEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3YXJyZW4tcmVzZWFyY2gvMjc0ZjA5MGItNGQ1Mi00ZWZlLWExYjMtMWU3N2VhOTg1ZjRhL1JFTElBTkNFLzIwMjYwNTMxL3RlY2huaWNhbC5tZCIsImlhdCI6MTc4MDIyMDAyOSwiZXhwIjoxNzgwMzA2NDI5fQ.Ja4bDEsoB9I7Z8kziGXBwTM_lSWp7ACJq1nlCiCoCdY
+          - generic [ref=e55]:
+            - textbox "Upgrade to continue..." [disabled] [ref=e193]
+            - generic [ref=e57]:
+              - generic [ref=e194]: Limit reached
+              - button "Upgrade to continue" [ref=e195] [cursor=pointer]:
+                - img [ref=e196]
+  - alert [ref=e61]

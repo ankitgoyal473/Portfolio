@@ -1,0 +1,99 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "AGentX" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - img [ref=e7]
+            - generic [ref=e14]: AGentX
+        - generic [ref=e15]:
+          - link "Agents" [ref=e16] [cursor=pointer]:
+            - /url: /agents
+          - link "Projects" [ref=e17] [cursor=pointer]:
+            - /url: /projects
+          - link "MCPs" [ref=e18] [cursor=pointer]:
+            - /url: /mcp
+          - link "Tools" [ref=e19] [cursor=pointer]:
+            - /url: /tools
+          - link "Work With Me" [ref=e20] [cursor=pointer]:
+            - /url: /hire
+        - generic [ref=e21]:
+          - button "AG Ankit Goyal" [ref=e61]:
+            - generic [ref=e62]: AG
+            - generic [ref=e63]: Ankit Goyal
+          - link "Work With Me" [ref=e24] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e25]
+    - main [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - img [ref=e32]
+              - text: WARRen
+            - button "Close sidebar" [ref=e35]:
+              - img [ref=e36]
+          - generic [ref=e39]:
+            - generic [ref=e40]: Free tier
+            - generic [ref=e42]: 0 / 1
+          - button "New session" [ref=e45]:
+            - img [ref=e46]
+            - text: New session
+          - paragraph [ref=e48]: No sessions yet
+        - generic [ref=e49]:
+          - generic [ref=e51]:
+            - generic [ref=e65]: Session started
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - img [ref=e69]
+                - text: WARRen
+              - generic [ref=e72]: Good morning. Give me a ticker and I will tell you what the market is missing. — WARRen 🧐
+            - generic [ref=e74]: INFY
+            - generic [ref=e76]:
+              - generic [ref=e77]:
+                - img [ref=e78]
+                - text: WARRen
+              - generic [ref=e81]: INFY it is. Let me walk you through what I see...
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - generic [ref=e86]: ✓
+                - generic [ref=e87]: 📊
+                - generic [ref=e88]: Fetching live NSE price data...
+              - generic [ref=e89]:
+                - generic [ref=e90]: ✓
+                - generic [ref=e91]: 📐
+                - generic [ref=e92]: Computing RSI, MACD & moving averages...
+              - generic [ref=e93]:
+                - generic [ref=e94]: ✓
+                - generic [ref=e95]: 🏰
+                - generic [ref=e96]: Reading Screener.in fundamentals...
+              - generic [ref=e97]:
+                - generic [ref=e98]: ✓
+                - generic [ref=e99]: 📰
+                - generic [ref=e100]: Scanning news & analyst sentiment...
+              - generic [ref=e101]:
+                - generic [ref=e102]: ✓
+                - generic [ref=e103]: 📈
+                - generic [ref=e104]: Checking option chain & PCR...
+              - generic [ref=e105]:
+                - generic [ref=e106]: ✓
+                - generic [ref=e107]: 🌍
+                - generic [ref=e108]: Assessing India VIX & global macro...
+              - generic [ref=e109]:
+                - generic [ref=e110]: ✓
+                - generic [ref=e111]: 💰
+                - generic [ref=e112]: Tracking FII/DII institutional flows...
+              - generic [ref=e113]:
+                - generic [ref=e114]: ✓
+                - generic [ref=e115]: 🎯
+                - generic [ref=e116]: Forming conviction & verdict...
+              - generic [ref=e117]:
+                - generic [ref=e118]: ◉
+                - generic [ref=e119]: 💾
+                - generic [ref=e120]: Saving research files...
+          - generic [ref=e53]:
+            - textbox "Ask WARRen... (e.g. AAPL)" [ref=e54]
+            - button "Send message" [disabled] [ref=e56]:
+              - img [ref=e57]
+  - alert [ref=e59]

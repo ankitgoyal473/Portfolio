@@ -1,0 +1,2 @@
+[  256220ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/rest/v1/agent_sessions?on_conflict=id:0
+[  256221ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/rest/v1/agent_sessions?on_conflict=id:0

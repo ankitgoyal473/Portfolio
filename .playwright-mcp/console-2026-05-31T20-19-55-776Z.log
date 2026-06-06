@@ -1,0 +1,27 @@
+[  349858ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/rest/v1/agent_sessions?on_conflict=id:0
+[  606418ms] [ERROR] Failed to load resource: the server responded with a status of 406 () @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/rest/v1/subscriptions?select=expires_at&user_id=eq.274f090b-4d52-4efe-a1b3-1e77ea985f4a&status=eq.active&expires_at=gt.2026-05-31T20%3A30%3A02.155Z&order=expires_at.desc&limit=1:0
+[  613080ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://portfolio-one-topaz-65.vercel.app/api/agents/warren/stream:0
+[  613080ms] [ERROR] Warren stream error: Error: Stream failed: 403
+    at https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/093cifpx5c1vm.js:1:39089
+    at async https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/093cifpx5c1vm.js:1:41812
+    at async https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/093cifpx5c1vm.js:1:45825 @ https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/093cifpx5c1vm.js:0
+[47265555ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/auth/v1/token?grant_type=refresh_token:0
+[47265555ms] [ERROR] TypeError: Failed to fetch
+    at https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:24:37926
+    at rt (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:24:43313)
+    at re (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:24:42841)
+    at r (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:37:25090)
+    at https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:37:25353
+    at https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:37:25430
+    at new Promise (<anonymous>)
+    at rG._refreshAccessToken (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:37:25284)
+    at rG._callRefreshToken (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:37:28033)
+    at rG.__loadSession (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:37:14221) @ https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:23
+[47273305ms] [ERROR] Failed to load resource: net::ERR_NETWORK_CHANGED @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/auth/v1/token?grant_type=refresh_token:0
+[47273305ms] [ERROR] TypeError: Failed to fetch
+    at https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:24:37926
+    at rt (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:24:43313)
+    at re (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:24:42841)
+    at r (https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:37:25090)
+    at async https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:37:25347 @ https://portfolio-one-topaz-65.vercel.app/_next/static/chunks/0x_~-ahl~~3qo.js:23
+[50788494ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/auth/v1/token?grant_type=refresh_token:0

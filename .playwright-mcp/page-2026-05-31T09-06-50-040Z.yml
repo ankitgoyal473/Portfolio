@@ -1,0 +1,60 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "AGentX" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - img [ref=e7]
+            - generic [ref=e14]: AGentX
+        - generic [ref=e15]:
+          - link "Agents" [ref=e16] [cursor=pointer]:
+            - /url: /agents
+          - link "Projects" [ref=e17] [cursor=pointer]:
+            - /url: /projects
+          - link "MCPs" [ref=e18] [cursor=pointer]:
+            - /url: /mcp
+          - link "Tools" [ref=e19] [cursor=pointer]:
+            - /url: /tools
+          - link "Work With Me" [ref=e20] [cursor=pointer]:
+            - /url: /hire
+        - generic [ref=e21]:
+          - button "AG Ankit Goyal" [ref=e23]:
+            - generic [ref=e24]: AG
+            - generic [ref=e25]: Ankit Goyal
+          - link "Work With Me" [ref=e26] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e27]
+    - main [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - img [ref=e34]
+              - text: WARRen
+            - button "Close sidebar" [ref=e37]:
+              - img [ref=e38]
+          - generic [ref=e41]:
+            - generic [ref=e42]: Free tier
+            - generic [ref=e43]:
+              - img [ref=e62]
+              - generic [ref=e44]: 1 / 1
+          - button "New session" [ref=e47]:
+            - img [ref=e48]
+            - text: New session
+          - paragraph [ref=e50]: No sessions yet
+        - generic [ref=e51]:
+          - generic [ref=e53]:
+            - generic [ref=e67]: Session started
+            - generic [ref=e69]:
+              - generic [ref=e70]:
+                - img [ref=e71]
+                - text: WARRen
+              - generic [ref=e74]: Good afternoon. Give me a ticker and I will tell you what the market is missing. — WARRen 🧐
+          - generic [ref=e55]:
+            - textbox "Upgrade to continue..." [disabled] [ref=e75]
+            - generic [ref=e57]:
+              - generic [ref=e76]: Limit reached
+              - button "Upgrade to continue" [ref=e77] [cursor=pointer]:
+                - img [ref=e78]
+  - alert [ref=e61]

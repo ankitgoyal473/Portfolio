@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "AGentX" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - img [ref=e7]
+            - generic [ref=e14]: AGentX
+        - generic [ref=e15]:
+          - link "Agents" [ref=e16] [cursor=pointer]:
+            - /url: /agents
+          - link "Projects" [ref=e17] [cursor=pointer]:
+            - /url: /projects
+          - link "MCPs" [ref=e18] [cursor=pointer]:
+            - /url: /mcp
+          - link "Tools" [ref=e19] [cursor=pointer]:
+            - /url: /tools
+          - link "Work With Me" [ref=e20] [cursor=pointer]:
+            - /url: /hire
+        - generic [ref=e21]:
+          - link "Sign In" [ref=e22] [cursor=pointer]:
+            - /url: /login
+            - button "Sign In" [ref=e23]
+          - link "Work With Me" [ref=e24] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e25]
+    - main [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - img [ref=e32]
+              - text: Warren
+            - button "Close sidebar" [ref=e35]:
+              - img [ref=e36]
+          - generic [ref=e39]:
+            - generic [ref=e40]: Free tier
+            - generic [ref=e42]: 0 / 1
+          - button "New session" [ref=e45]:
+            - img [ref=e46]
+            - text: New session
+          - paragraph [ref=e48]: No sessions yet
+        - generic [ref=e53]:
+          - textbox "Ask Warren... (e.g. RELIANCE, INFY)" [ref=e54]
+          - button "Send message" [disabled] [ref=e56]:
+            - img [ref=e57]
+  - alert [ref=e59]

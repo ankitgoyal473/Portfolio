@@ -1,0 +1,178 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "AGentX" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - img [ref=e7]
+            - generic [ref=e14]: AGentX
+        - generic [ref=e15]:
+          - link "Agents" [ref=e16] [cursor=pointer]:
+            - /url: /agents
+          - link "Projects" [ref=e17] [cursor=pointer]:
+            - /url: /projects
+          - link "MCPs" [ref=e18] [cursor=pointer]:
+            - /url: /mcp
+          - link "Tools" [ref=e19] [cursor=pointer]:
+            - /url: /tools
+          - link "Work With Me" [ref=e20] [cursor=pointer]:
+            - /url: /hire
+        - generic [ref=e21]:
+          - link "Sign In" [ref=e22] [cursor=pointer]:
+            - /url: /login
+            - button "Sign In" [ref=e23]
+          - link "Work With Me" [ref=e24] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e25]
+    - main [ref=e26]:
+      - main [ref=e27]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: 2 Live · 4 Coming Soon
+          - heading "Tools That Run While You Sleep" [level=1] [ref=e31]:
+            - text: Tools That Run
+            - text: While You Sleep
+          - paragraph [ref=e32]: AI-powered tools for real business workflows. Upload, process, ship.
+        - generic [ref=e35]:
+          - generic [ref=e37] [cursor=pointer]:
+            - img [ref=e39]
+            - generic [ref=e42]:
+              - heading "Report Bot" [level=3] [ref=e43]
+              - generic [ref=e44]: $9/mo
+            - paragraph [ref=e45]: Transform raw Excel data into polished PDF reports with AI-generated insights and charts.
+            - list [ref=e46]:
+              - listitem [ref=e47]: Excel upload
+              - listitem [ref=e49]: Auto-charts
+              - listitem [ref=e51]: AI summaries
+            - link "Open Tool" [ref=e53]:
+              - /url: /tools/reports
+              - button "Open Tool" [ref=e54]:
+                - text: Open Tool
+                - img [ref=e55]
+          - generic [ref=e58] [cursor=pointer]:
+            - img [ref=e60]
+            - generic [ref=e63]:
+              - heading "AI Chatbot Builder" [level=3] [ref=e64]
+              - generic [ref=e65]: $49/mo
+            - paragraph [ref=e66]: Build and deploy custom AI chatbots trained on your data. No code required.
+            - list [ref=e67]:
+              - listitem [ref=e68]: Custom training
+              - listitem [ref=e70]: Multi-platform
+              - listitem [ref=e72]: Analytics
+            - link "Open Tool" [ref=e74]:
+              - /url: /tools/chatbot
+              - button "Open Tool" [ref=e75]:
+                - text: Open Tool
+                - img [ref=e76]
+          - generic [ref=e78]:
+            - generic:
+              - generic: Coming Soon
+            - generic [ref=e79]:
+              - img [ref=e81]
+              - generic [ref=e82]:
+                - heading "Data Insights Bot" [level=3] [ref=e83]
+                - generic [ref=e84]: Coming Soon
+              - paragraph [ref=e85]: Ask your spreadsheet anything. Get answers in seconds.
+              - list [ref=e86]:
+                - listitem [ref=e87]: CSV & Excel upload
+                - listitem [ref=e89]: Natural language queries
+                - listitem [ref=e91]: Auto-charts
+          - generic [ref=e93]:
+            - generic:
+              - generic: Coming Soon
+            - generic [ref=e94]:
+              - img [ref=e96]
+              - generic [ref=e101]:
+                - heading "Resume Screener AI" [level=3] [ref=e102]
+                - generic [ref=e103]: Coming Soon
+              - paragraph [ref=e104]: Upload 100 CVs. Get a ranked shortlist in 30 seconds.
+              - list [ref=e105]:
+                - listitem [ref=e106]: Bulk CV upload
+                - listitem [ref=e108]: Job description matching
+                - listitem [ref=e110]: Fit score ranking
+          - generic [ref=e112]:
+            - generic:
+              - generic: Coming Soon
+            - generic [ref=e113]:
+              - img [ref=e115]
+              - generic [ref=e120]:
+                - heading "Contract Reviewer" [level=3] [ref=e121]
+                - generic [ref=e122]: Coming Soon
+              - paragraph [ref=e123]: Plain-English breakdown of any contract. Flag risks instantly.
+              - list [ref=e124]:
+                - listitem [ref=e125]: PDF upload
+                - listitem [ref=e127]: Clause breakdown
+                - listitem [ref=e129]: Risk flagging
+          - generic [ref=e131]:
+            - generic:
+              - generic: Coming Soon
+            - generic [ref=e132]:
+              - img [ref=e134]
+              - generic [ref=e137]:
+                - heading "Meeting Notes Summariser" [level=3] [ref=e138]
+                - generic [ref=e139]: Coming Soon
+              - paragraph [ref=e140]: From transcript to action items in one click.
+              - list [ref=e141]:
+                - listitem [ref=e142]: Transcript upload
+                - listitem [ref=e144]: Auto-summary
+                - listitem [ref=e146]: Action item extraction
+        - generic [ref=e149]:
+          - heading "Have a specific workflow in mind?" [level=2] [ref=e150]
+          - paragraph [ref=e151]: Let's build it. Custom agentic tools tailored to your exact process.
+          - link "Work With Me" [ref=e152] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e153]:
+              - text: Work With Me
+              - img [ref=e154]
+    - contentinfo [ref=e156]:
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - link "AGentX" [ref=e160] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e161]:
+                - img [ref=e162]
+                - generic [ref=e169]: AGentX
+            - paragraph [ref=e170]: Agentic AI solutions that solve real business problems. Custom automation, intelligent agents, and production-grade AI systems.
+            - generic [ref=e171]:
+              - link [ref=e172] [cursor=pointer]:
+                - /url: https://github.com
+                - img [ref=e173]
+              - link [ref=e175] [cursor=pointer]:
+                - /url: https://linkedin.com
+                - img [ref=e176]
+              - link [ref=e178] [cursor=pointer]:
+                - /url: https://twitter.com
+                - img [ref=e179]
+          - generic [ref=e181]:
+            - heading "Pages" [level=4] [ref=e182]
+            - list [ref=e183]:
+              - listitem [ref=e184]:
+                - link "Projects" [ref=e185] [cursor=pointer]:
+                  - /url: /projects
+              - listitem [ref=e186]:
+                - link "AI Tools" [ref=e187] [cursor=pointer]:
+                  - /url: /tools
+              - listitem [ref=e188]:
+                - link "Work With Me" [ref=e189] [cursor=pointer]:
+                  - /url: /hire
+          - generic [ref=e190]:
+            - heading "Tools" [level=4] [ref=e191]
+            - list [ref=e192]:
+              - listitem [ref=e193]:
+                - link "Warren Analysis" [ref=e194] [cursor=pointer]:
+                  - /url: /tools/warren
+              - listitem [ref=e195]:
+                - link "Lead Automation" [ref=e196] [cursor=pointer]:
+                  - /url: /tools/leads
+              - listitem [ref=e197]:
+                - link "Report Bot" [ref=e198] [cursor=pointer]:
+                  - /url: /tools/reports
+              - listitem [ref=e199]:
+                - link "Chatbot Builder" [ref=e200] [cursor=pointer]:
+                  - /url: /tools/chatbot
+        - generic [ref=e201]:
+          - paragraph [ref=e202]: © 2026 AGentX. All rights reserved.
+          - paragraph [ref=e203]: Built with Next.js, Tailwind CSS, and Claude API
+    - button "Open chat"
+  - alert [ref=e204]

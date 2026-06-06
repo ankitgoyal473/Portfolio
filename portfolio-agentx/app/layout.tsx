@@ -1,35 +1,20 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/layout/navbar";
-import { ClientFooter } from "@/components/layout/client-footer";
-import { ChatWidget } from "@/components/chat/chat-widget";
 import "./globals.css";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 
 export const metadata: Metadata = {
-  title: "AGentX — AI Solutions & Agentic Systems",
-  description:
-    "I turn business problems into AI-powered products. Custom AI automation, chatbots, data pipelines, and ML systems.",
-  keywords: ["AI Engineer", "Freelance", "Claude API", "Machine Learning", "Automation"],
-  openGraph: {
-    title: "AGentX — AI Solutions & Agentic Systems",
-    description: "I turn business problems into AI-powered products.",
-    type: "website",
-  },
+  title: "AGentX — Claude Code Solutions",
+  description: "AI solutions that run in your terminal. Buy once, own forever.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen flex flex-col antialiased">
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-1 pt-16">{children}</main>
-          <ClientFooter />
-          <ChatWidget />
-        </div>
+    <html lang="en">
+      <body>
+        <Navbar />
+        {children}
+        <Footer />
       </body>
     </html>
   );

@@ -1,0 +1,2 @@
+[  159451ms] [ERROR] Failed to load resource: the server responded with a status of 406 () @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/rest/v1/agent_usage?select=count&user_id=eq.274f090b-4d52-4efe-a1b3-1e77ea985f4a&agent_id=eq.sherlock:0
+[  165218ms] [ERROR] Failed to load resource: the server responded with a status of 406 () @ https://dwcdzjhelmjjhsdcyrgc.supabase.co/rest/v1/agent_usage?select=count&user_id=eq.274f090b-4d52-4efe-a1b3-1e77ea985f4a&agent_id=eq.harvey:0

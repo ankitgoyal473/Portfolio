@@ -1,0 +1,229 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "AGentX" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - img [ref=e7]
+            - generic [ref=e14]: AGentX
+        - generic [ref=e15]:
+          - link "Agents" [ref=e16] [cursor=pointer]:
+            - /url: /agents
+          - link "Projects" [ref=e17] [cursor=pointer]:
+            - /url: /projects
+          - link "MCPs" [ref=e18] [cursor=pointer]:
+            - /url: /mcp
+          - link "Tools" [ref=e19] [cursor=pointer]:
+            - /url: /tools
+          - link "Work With Me" [ref=e20] [cursor=pointer]:
+            - /url: /hire
+        - generic [ref=e21]:
+          - button "AG Ankit Goyal" [ref=e23]:
+            - generic [ref=e24]: AG
+            - generic [ref=e25]: Ankit Goyal
+          - link "Work With Me" [ref=e26] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e27]
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e32]: Open to freelance & full-time
+        - heading "I turn business pr|" [level=1] [ref=e34]:
+          - generic [ref=e35]: I turn business pr|
+        - paragraph [ref=e36]: ML Engineer building production-grade AI systems. From concept to deployment — I ship tools that automate thousands of hours and scale across enterprise teams.
+        - generic [ref=e37]:
+          - link "Work With Me" [ref=e38] [cursor=pointer]:
+            - /url: /hire
+            - button "Work With Me" [ref=e39]:
+              - text: Work With Me
+              - img [ref=e40]
+          - link "Try AI Tools Free" [ref=e42] [cursor=pointer]:
+            - /url: /tools
+            - button "Try AI Tools Free" [ref=e43]:
+              - img [ref=e44]
+              - text: Try AI Tools Free
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - paragraph [ref=e50]: 20+
+          - paragraph [ref=e51]: AI Tools Shipped
+        - generic [ref=e52]:
+          - paragraph [ref=e53]: 5,000+
+          - paragraph [ref=e54]: Hours Automated
+        - generic [ref=e55]:
+          - paragraph [ref=e56]: 3+
+          - paragraph [ref=e57]: Enterprise Teams
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - heading "Meet Our Agents" [level=2] [ref=e61]
+          - paragraph [ref=e62]: AI personas with distinct expertise. Each one solves a different problem — pick yours.
+        - generic [ref=e63]:
+          - 'link "Warren $19/month Seasoned investment analyst. Studied every Buffett letter since 1965. Calm, data-driven, never hypes. Free: 1 report/month" [ref=e64] [cursor=pointer]':
+            - /url: /agents/warren
+            - generic [ref=e66]:
+              - img [ref=e68]
+              - generic [ref=e71]:
+                - heading "Warren" [level=3] [ref=e72]
+                - generic [ref=e73]: $19/month
+              - paragraph [ref=e74]: Seasoned investment analyst. Studied every Buffett letter since 1965. Calm, data-driven, never hypes.
+              - paragraph [ref=e75]: "Free: 1 report/month"
+          - 'link "Sherlock $49/month Sharp, analytical, slightly dramatic. Speaks like a detective who always finds what others miss. Free: 1 analysis/month" [ref=e76] [cursor=pointer]':
+            - /url: /agents/sherlock
+            - generic [ref=e78]:
+              - img [ref=e80]
+              - generic [ref=e83]:
+                - heading "Sherlock" [level=3] [ref=e84]
+                - generic [ref=e85]: $49/month
+              - paragraph [ref=e86]: Sharp, analytical, slightly dramatic. Speaks like a detective who always finds what others miss.
+              - paragraph [ref=e87]: "Free: 1 analysis/month"
+          - 'link "Harvey $29/month Elite sales copywriter. Closing energy. Confident, punchy, results-obsessed. Free: 10 prospects/month" [ref=e88] [cursor=pointer]':
+            - /url: /agents/harvey
+            - generic [ref=e90]:
+              - img [ref=e92]
+              - generic [ref=e95]:
+                - heading "Harvey" [level=3] [ref=e96]
+                - generic [ref=e97]: $29/month
+              - paragraph [ref=e98]: Elite sales copywriter. Closing energy. Confident, punchy, results-obsessed.
+              - paragraph [ref=e99]: "Free: 10 prospects/month"
+        - link "Explore all agents" [ref=e101] [cursor=pointer]:
+          - /url: /agents
+          - button "Explore all agents" [ref=e102]:
+            - text: Explore all agents
+            - img [ref=e103]
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - heading "Utility Tools" [level=2] [ref=e107]
+            - paragraph [ref=e108]: Standalone productivity tools — upload, generate, export.
+          - generic [ref=e109]:
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - img [ref=e113]
+                - heading "Report Bot" [level=3] [ref=e116]
+                - paragraph [ref=e117]: Transform raw Excel data into polished PDF reports with AI-generated insights and charts.
+              - generic [ref=e118]:
+                - generic [ref=e119]: $9/mo
+                - link "Try Free" [ref=e120] [cursor=pointer]:
+                  - /url: /tools/reports
+                  - button "Try Free" [ref=e121]:
+                    - text: Try Free
+                    - img [ref=e122]
+            - generic [ref=e124]:
+              - generic [ref=e125]:
+                - img [ref=e127]
+                - heading "AI Chatbot Builder" [level=3] [ref=e130]
+                - paragraph [ref=e131]: Build and deploy custom AI chatbots trained on your data. No code required.
+              - generic [ref=e132]:
+                - generic [ref=e133]: $49/mo
+                - link "Try Free" [ref=e134] [cursor=pointer]:
+                  - /url: /tools/chatbot
+                  - button "Try Free" [ref=e135]:
+                    - text: Try Free
+                    - img [ref=e136]
+            - generic [ref=e138]:
+              - generic [ref=e139]:
+                - img [ref=e141]
+                - heading "Data Insights Bot" [level=3] [ref=e142]
+                - paragraph [ref=e143]: Ask your spreadsheet anything. Get answers in seconds.
+              - generic [ref=e145]: Coming Soon
+            - generic [ref=e146]:
+              - generic [ref=e147]:
+                - img [ref=e149]
+                - heading "Resume Screener AI" [level=3] [ref=e154]
+                - paragraph [ref=e155]: Upload 100 CVs. Get a ranked shortlist in 30 seconds.
+              - generic [ref=e157]: Coming Soon
+            - generic [ref=e158]:
+              - generic [ref=e159]:
+                - img [ref=e161]
+                - heading "Contract Reviewer" [level=3] [ref=e166]
+                - paragraph [ref=e167]: Plain-English breakdown of any contract. Flag risks instantly.
+              - generic [ref=e169]: Coming Soon
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - img [ref=e173]
+                - heading "Meeting Notes Summariser" [level=3] [ref=e176]
+                - paragraph [ref=e177]: From transcript to action items in one click.
+              - generic [ref=e179]: Coming Soon
+          - link "View All Tools" [ref=e181] [cursor=pointer]:
+            - /url: /tools
+            - button "View All Tools" [ref=e182]:
+              - text: View All Tools
+              - img [ref=e183]
+      - generic [ref=e188]:
+        - generic [ref=e189]:
+          - img [ref=e191]
+          - heading "Need AI Automation?" [level=3] [ref=e194]
+          - paragraph [ref=e195]: I help businesses automate workflows, build intelligent systems, and ship AI products. Projects range from $1.5K to $8K with 2-6 week timelines.
+          - list [ref=e196]:
+            - listitem [ref=e197]: Custom AI chatbots & agents
+            - listitem [ref=e199]: Data pipeline automation
+            - listitem [ref=e201]: ML model development & deployment
+          - link "Discuss Your Project" [ref=e203] [cursor=pointer]:
+            - /url: /hire
+            - button "Discuss Your Project" [ref=e204]:
+              - text: Discuss Your Project
+              - img [ref=e205]
+        - generic [ref=e207]:
+          - img [ref=e209]
+          - heading "Hiring Senior AI Engineers?" [level=3] [ref=e213]
+          - paragraph [ref=e214]: Open to senior AI/ML engineering roles at companies building meaningful products. 5+ years shipping production ML systems at scale.
+          - list [ref=e215]:
+            - listitem [ref=e216]: LLM systems & RAG architectures
+            - listitem [ref=e218]: MLOps & production ML pipelines
+            - listitem [ref=e220]: Full-stack AI product development
+          - link "View Experience" [ref=e222] [cursor=pointer]:
+            - /url: /hire#roles
+            - button "View Experience" [ref=e223]:
+              - text: View Experience
+              - img [ref=e224]
+    - contentinfo [ref=e226]:
+      - generic [ref=e227]:
+        - generic [ref=e228]:
+          - generic [ref=e229]:
+            - link "AGentX" [ref=e230] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e231]:
+                - img [ref=e232]
+                - generic [ref=e239]: AGentX
+            - paragraph [ref=e240]: Agentic AI solutions that solve real business problems. Custom automation, intelligent agents, and production-grade AI systems.
+            - generic [ref=e241]:
+              - link [ref=e242] [cursor=pointer]:
+                - /url: https://github.com
+                - img [ref=e243]
+              - link [ref=e245] [cursor=pointer]:
+                - /url: https://linkedin.com
+                - img [ref=e246]
+              - link [ref=e248] [cursor=pointer]:
+                - /url: https://twitter.com
+                - img [ref=e249]
+          - generic [ref=e251]:
+            - heading "Pages" [level=4] [ref=e252]
+            - list [ref=e253]:
+              - listitem [ref=e254]:
+                - link "Projects" [ref=e255] [cursor=pointer]:
+                  - /url: /projects
+              - listitem [ref=e256]:
+                - link "AI Tools" [ref=e257] [cursor=pointer]:
+                  - /url: /tools
+              - listitem [ref=e258]:
+                - link "Work With Me" [ref=e259] [cursor=pointer]:
+                  - /url: /hire
+          - generic [ref=e260]:
+            - heading "Tools" [level=4] [ref=e261]
+            - list [ref=e262]:
+              - listitem [ref=e263]:
+                - link "Warren Analysis" [ref=e264] [cursor=pointer]:
+                  - /url: /tools/warren
+              - listitem [ref=e265]:
+                - link "Lead Automation" [ref=e266] [cursor=pointer]:
+                  - /url: /tools/leads
+              - listitem [ref=e267]:
+                - link "Report Bot" [ref=e268] [cursor=pointer]:
+                  - /url: /tools/reports
+              - listitem [ref=e269]:
+                - link "Chatbot Builder" [ref=e270] [cursor=pointer]:
+                  - /url: /tools/chatbot
+        - generic [ref=e271]:
+          - paragraph [ref=e272]: © 2026 AGentX. All rights reserved.
+          - paragraph [ref=e273]: Built with Next.js, Tailwind CSS, and Claude API
+    - button "Open chat" [ref=e274]:
+      - img [ref=e275]
+  - alert [ref=e277]
