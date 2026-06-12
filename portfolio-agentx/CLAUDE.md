@@ -108,7 +108,7 @@ export const AGENT_ICONS: Record<string, LucideIcon> = {
 id, user_id, status (active|expired|cancelled),
 started_at, expires_at, reminder_sent_at,
 razorpay_payment_id, razorpay_order_id,
-amount (100 paise currently = ₹1 test; normally 99900 = ₹999), currency (INR)
+amount (99900 = ₹999), currency (INR)
 ```
 RLS: users read own rows, service role has full access.
 
@@ -117,8 +117,6 @@ RLS: users read own rows, service role has full access.
 2. Each stream request: checks subscription table → if expired, clears `is_premium`
 3. 7 days before expiry: lazy reminder email sent once (tracked via `reminder_sent_at`)
 4. After expiry: user hits paywall again on next agent run
-
-**⚠️ Current test state:** Amount is set to ₹1 (100 paise) in `app/api/razorpay/create-order/route.ts`. Change back to `99900` before going live.
 
 ### Payment — Razorpay
 Embedded checkout modal (no redirect). Flow:

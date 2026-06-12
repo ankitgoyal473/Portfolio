@@ -112,7 +112,7 @@ Before pushing to `main` (triggers Vercel auto-deploy):
 
 - [ ] `npx tsc --noEmit` — zero errors
 - [ ] `npm run lint` — zero warnings
-- [ ] Razorpay amount in `app/api/razorpay/create-order/route.ts` is `99900` (₹999) — currently `100` (₹1 test)
+- [x] Razorpay amount — `product.price` (99900 = ₹999) — live
 - [ ] `WARREN_TEST_MODE` is unset or `"false"` in Vercel env vars
 
 ---
