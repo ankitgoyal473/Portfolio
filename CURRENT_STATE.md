@@ -1,7 +1,28 @@
 # Portfolio — Current State
-_Last updated: 2026-06-03_
+_Last updated: 2026-06-12_
 
-## Status: BLOCKED — Anthropic API credits exhausted on Railway
+## Status: LIVE — Rudy (AI Job Hunter) added to store
+
+### What was done this session
+| Change | Status |
+|--------|--------|
+| `portfolio-agentx/lib/products.ts` — Rudy description + whatYouGet updated to match actual v1.0 ZIP | Deployed ✅ |
+| `products/ai-job-hunter-v1.0.zip` uploaded to Supabase Storage `solutions/rudy.zip` (24KB, 21 files) | Done ✅ |
+| Pushed to `main` via fast-forward merge — Vercel CI/CD triggered | Pushed ✅ |
+
+**Rudy buy flow is live:** Homepage store → Rudy card → Buy Now → Razorpay → `/success?url=signedUrl&product=rudy`
+- Download link: `supabaseAdmin.storage.from("solutions").createSignedUrl("rudy.zip", 86400)`
+- Email delivery: `sendEmail` fires on successful verify — buyer gets download link in inbox
+- Fallback: if Storage URL fails, buyer gets email notification to contact support
+
+### Next priority
+1. **Razorpay amount** — still at ₹1 (100 paise) in `portfolio-agentx/app/api/razorpay/create-order/route.ts`. Change to `99900` before going live for real
+2. **Test the buy flow end-to-end** — use test card `4111 1111 1111 1111` / OTP `1234` or VPA `success@razorpay`
+3. **Verify `solutions` bucket RLS** — currently no RLS (service-role only for signed URLs is fine; just confirm public=false)
+
+---
+
+## Status (before 2026-06-12): BLOCKED — Anthropic API credits exhausted on Railway
 
 ---
 

@@ -1,1 +1,56 @@
+# dependencies
+/node_modules
+node_modules/
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+
+# vercel
 .vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# warren dashboard nested project
+products/warren/dashboard/node_modules/
+products/warren/dashboard/dist/
+
+# warren personal stock analyses (only MCX sample ships with product)
+products/warren/stocks/CDSL/
+products/warren/stocks/BSE/
+products/warren/stocks/AMBER/
+products/warren/stocks/CYIENT/
+products/warren/stocks/RELIANCE/
+products/warren/stocks/KPITTECH/
+
+# warren zip (built artifact — not source)
+products/warren.zip
+
+# artifact folders
+5-20306*/
+*WorkspacePortfolio*/
+
+# Claude Code / Superpowers session artifacts
+.superpowers/
+products/warren/.playwright-mcp/
+.claude/skills/ui-ux-pro-max/scripts/__pycache__/
