@@ -2,7 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project
+> ## ⚠️ BUSINESS MODEL PIVOT (2026-06-17) — READ FIRST
+>
+> The live site is now a **one-time-purchase "Claude Code Solutions" store**, NOT a SaaS
+> subscription platform. Customers buy downloadable ZIP workspaces (₹999 each) — "no
+> subscriptions, no servers, no accounts."
+>
+> - **Products:** Rudy, Warren, Sherlock, Harvey — defined in `lib/products.ts`, sold via the
+>   homepage store (`components/store/`). Delivery = signed Supabase Storage URL from the
+>   `solutions` bucket + email (`/api/razorpay/verify` → `purchases` table).
+> - **Deliverable today:** only `rudy.zip` and `warren.zip` exist in the bucket. Sherlock &
+>   Harvey are marked `comingSoon: true` and their Buy buttons are disabled.
+> - **Lead funnel:** `/hire` form + the "AGentX Discovery" chat widget (`components/chat/`) →
+>   `/api/submit-lead` → `leads` table + email + Slack (`lib/slack.ts`, needs `SLACK_WEBHOOK_URL`).
+> - **ORPHANED / no longer wired to the live site:** the `/agents/*` routes (deleted), the
+>   `subscriptions` table, `lib/paywall.ts`, and the Warren agent-stream proxy. The
+>   `warren-agent` Railway service is still deployed but unused by the store. The "SaaS / agents /
+>   paywall / subscription" sections below describe the OLD model — treat as historical until
+>   they are cleaned up.
+
+## Project (HISTORICAL — old SaaS model, see pivot note above)
 
 AGentX — persona-driven AI SaaS platform + portfolio. Three AI agents (Warren, Sherlock, Harvey) backed by real Claude API (`claude-sonnet-4-6`) with Supabase auth, DB, server-side paywall, Razorpay payments, and 30-day subscription lifecycle.
 

@@ -6,6 +6,7 @@ export type Product = {
   price: number          // paise (99900 = ₹999)
   color: string          // persona accent hex
   whatYouGet: string[]
+  comingSoon?: boolean    // true = not yet deliverable; disables Buy, shows "Coming soon"
 }
 
 export const PRODUCTS: Product[] = [
@@ -46,6 +47,7 @@ export const PRODUCTS: Product[] = [
     description: "Give it a topic, person, or company. It searches the web, synthesises sources, and delivers a structured research report.",
     price: 99900,
     color: "#4a9eff",
+    comingSoon: true,
     whatYouGet: [
       "CLAUDE.md operating manual",
       "config.json template",
@@ -60,6 +62,7 @@ export const PRODUCTS: Product[] = [
     description: "Drafts cold emails, follow-ups, and LinkedIn messages tailored to each prospect. Tracks threads and suggests next actions.",
     price: 99900,
     color: "#00c896",
+    comingSoon: true,
     whatYouGet: [
       "CLAUDE.md operating manual",
       "config.json template",

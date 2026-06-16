@@ -52,16 +52,25 @@ export default function ProductCard({ product }: { product: Product }) {
         {/* Price + CTA */}
         <div className="flex items-center justify-between pt-2 border-t border-[#27272A]">
           <span className="text-lg font-semibold">{formatPrice(product.price)}</span>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="bg-[#F97316] hover:bg-[#EA6C0A] text-white font-semibold px-5 py-2 rounded-lg text-sm transition-colors duration-150 cursor-pointer"
-          >
-            Buy Now →
-          </button>
+          {product.comingSoon ? (
+            <span
+              className="px-5 py-2 rounded-lg text-sm font-semibold border border-[#27272A] text-[#71717A] cursor-not-allowed select-none"
+              aria-disabled="true"
+            >
+              Coming soon
+            </span>
+          ) : (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="bg-[#F97316] hover:bg-[#EA6C0A] text-white font-semibold px-5 py-2 rounded-lg text-sm transition-colors duration-150 cursor-pointer"
+            >
+              Buy Now →
+            </button>
+          )}
         </div>
       </motion.div>
 
-      {modalOpen && (
+      {modalOpen && !product.comingSoon && (
         <BuyModal product={product} onClose={() => setModalOpen(false)} />
       )}
     </>

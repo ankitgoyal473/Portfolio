@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getProduct } from "@/lib/products";
 import { sendEmail, downloadEmail, adminSaleEmail } from "@/lib/email";
+import { notifySlack, saleSlackMessage } from "@/lib/slack";
 
 export async function POST(req: NextRequest) {
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature, product_slug, email } =
@@ -49,6 +50,9 @@ export async function POST(req: NextRequest) {
       to: process.env.GMAIL_USER!,
       ...adminSaleEmail({ productName: product.name, email, paymentId: razorpay_payment_id }),
     });
+    void notifySlack(
+      `⚠️ *Sale needs manual fulfillment* — ${product.name} for ${email} (payment ${razorpay_payment_id}). Download URL could not be generated.`
+    );
     return NextResponse.json({
       downloadUrl: null,
       productSlug: product_slug,
@@ -71,6 +75,9 @@ export async function POST(req: NextRequest) {
     to: process.env.GMAIL_USER!,
     ...adminSaleEmail({ productName: product.name, email, paymentId: razorpay_payment_id }),
   });
+
+  // 7. Slack ping (graceful no-op without webhook)
+  void notifySlack(saleSlackMessage({ productName: product.name, email, paymentId: razorpay_payment_id }));
 
   return NextResponse.json({ downloadUrl: urlData.signedUrl, productSlug: product_slug });
 }

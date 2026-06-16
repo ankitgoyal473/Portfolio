@@ -23,6 +23,7 @@ type FormState = "idle" | "loading" | "success" | "error";
 
 export default function HirePage() {
   const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
+  const [website, setWebsite] = useState(""); // honeypot — real users never fill this
   const [state, setState] = useState<FormState>("idle");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -32,7 +33,7 @@ export default function HirePage() {
       const res = await fetch("/api/submit-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, source: "hire", website }),
       });
       setState(res.ok ? "success" : "error");
     } catch {
@@ -149,6 +150,17 @@ export default function HirePage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                  {/* Honeypot — hidden from users, bots fill it */}
+                  <input
+                    type="text"
+                    name="website"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                    className="hidden"
+                  />
                   <div>
                     <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Name *</label>
                     <input

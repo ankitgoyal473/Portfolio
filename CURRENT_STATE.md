@@ -1,111 +1,57 @@
-# Portfolio — Current State
-_Last updated: 2026-06-12_
+# AgentX Web — Current State
+_Last updated: 2026-06-17_
 
-## Status: LIVE — Rudy (AI Job Hunter) added to store
+## Status: LIVE — one-time ZIP store. QA + lead-funnel hardening done (unpushed).
 
-### What was done this session
-| Change | Status |
-|--------|--------|
-| `portfolio-agentx/lib/products.ts` — Rudy description + whatYouGet updated to match actual v1.0 ZIP | Deployed ✅ |
-| `products/ai-job-hunter-v1.0.zip` uploaded to Supabase Storage `solutions/rudy.zip` (24KB, 21 files) | Done ✅ |
-| Pushed to `main` via fast-forward merge — Vercel CI/CD triggered | Pushed ✅ |
-
-**Rudy buy flow is live:** Homepage store → Rudy card → Buy Now → Razorpay → `/success?url=signedUrl&product=rudy`
-- Download link: `supabaseAdmin.storage.from("solutions").createSignedUrl("rudy.zip", 86400)`
-- Email delivery: `sendEmail` fires on successful verify — buyer gets download link in inbox
-- Fallback: if Storage URL fails, buyer gets email notification to contact support
-
-### Next priority
-1. **Razorpay amount** — still at ₹1 (100 paise) in `portfolio-agentx/app/api/razorpay/create-order/route.ts`. Change to `99900` before going live for real
-2. **Test the buy flow end-to-end** — use test card `4111 1111 1111 1111` / OTP `1234` or VPA `success@razorpay`
-3. **Verify `solutions` bucket RLS** — currently no RLS (service-role only for signed URLs is fine; just confirm public=false)
+The live site (https://portfolio-one-topaz-65.vercel.app) is a **"Claude Code Solutions" store**:
+customers buy downloadable Claude Code workspace ZIPs at ₹999 each. The old SaaS subscription
+model (interactive `/agents/*`, paywall, Warren stream) is gone — those routes are deleted and the
+`subscriptions`/paywall code is orphaned. App lives at `web/portfolio-agentx/`.
 
 ---
 
-## Status (before 2026-06-12): BLOCKED — Anthropic API credits exhausted on Railway
+## This session (2026-06-17) — Phase 1 QA + fixes
+
+### Bug sweep findings (live browser QA + code audit)
+- **CRITICAL:** Sherlock & Harvey were on sale at ₹999 but had **no ZIP** in the `solutions`
+  bucket (only `rudy.zip` + `warren.zip` exist). A buyer would pay and get nothing.
+- **CRITICAL:** "AGentX Discovery" chat widget submitted leads with `email: ""` — never captured
+  contact info, so every lead was unreachable.
+- **CRITICAL:** `/api/submit-lead` only emailed; never wrote to the `leads` table; chat widget
+  swallowed errors and showed "success" even on failure → silent lead loss.
+- No Slack notification on any lead or sale.
+- Service-role Supabase key hardcoded in `products/upload-to-supabase.{mjs,py}`.
+- `/api/submit-lead` unauthenticated + unthrottled (spam vector).
+- Docs (`CLAUDE.md`, this file, `DECISIONS.md`) described the old SaaS model.
+
+### Fixes implemented (tsc + build pass, NOT yet pushed)
+| Fix | Files |
+|-----|-------|
+| Sherlock & Harvey → `comingSoon: true`, Buy button disabled ("Coming soon") | `lib/products.ts`, `components/store/product-card.tsx` |
+| Discovery widget now captures name + email (new "contact" step), sends structured data, never fakes success | `components/chat/chat-widget.tsx` |
+| `/api/submit-lead` rewritten: persists to `leads` table → email → Slack; honeypot; requires email + description | `app/api/submit-lead/route.ts` |
+| Slack notifier (graceful no-op without `SLACK_WEBHOOK_URL`) | `lib/slack.ts` (new) |
+| Sale Slack pings (success + manual-fulfillment fallback) | `app/api/razorpay/verify/route.ts` |
+| Hire form: honeypot + `source: "hire"` | `app/hire/page.tsx` |
+| Hardcoded service key → env (`SUPABASE_SERVICE_ROLE_KEY`) | `products/upload-to-supabase.{mjs,py}` |
+| Pivot banner added to stale CLAUDE.md | `portfolio-agentx/CLAUDE.md` |
+
+### What's working (verified live)
+Homepage, `/hire`, `/tools`, `/projects`, `/mcp` load with 0 console errors; mobile layout solid;
+Razorpay modal opens at ₹999; HMAC verify correct; Warren API healthy; `purchases` + `leads`
+tables exist; `rudy.zip` + `warren.zip` deliver.
 
 ---
 
-## What was fixed this session (all deployed, all verified)
+## Next priority
+1. **Push** these fixes (needs user OK — triggers Vercel deploy).
+2. **Add `SLACK_WEBHOOK_URL` to Vercel env** so lead/sale Slack pings fire (currently no-op).
+3. **Rotate the exposed Supabase service-role key** in the Supabase dashboard (it was hardcoded).
+4. Phase 2 — confirm **live Razorpay keys** are set in Vercel (not test keys).
+5. Phase 3 — Upwork pipeline + Discovery/hire funnel polish.
+6. Decide Warren's fate: repurpose the Railway service as a live demo, or decommission it.
+7. (Optional) build Sherlock & Harvey ZIPs to re-enable their sale.
 
-### warren-agent (Railway)
-| Fix | Commit | Status |
-|-----|--------|--------|
-| Prompt: replace "Output JSON" with explicit `report_pillar()`/`report_verdict()` tool calls | dc4fe47 | Deployed ✅ |
-| `_symbol_is_valid`: check `previousClose`/`ask`/`bid` as fallbacks for TATAMOTORS etc | 43f51ae | Deployed ✅ |
-
-### portfolio-agentx (Vercel)
-| Fix | Status |
-|-----|--------|
-| Premium paywall: `set-premium` uses delete-then-insert (was silently failing on upsert) | Deployed ✅ |
-| Stale JWT: page queries subscriptions table directly; `subscriptionRef` in `runWarren` onDone | Deployed ✅ |
-| Pillar field mapping: `event.data.name` → `event.data.pillar`; `score`/`keyMetrics` added | Deployed ✅ |
-| Double `onDone`: `doneCalled` guard in `use-agent-stream.ts` | Deployed ✅ |
-| Pro sidebar: `isPremium` prop → shows `✦ Pro · Unlimited` in gold, hides free tier bar | Deployed ✅ |
-| Pro chatbar: `isPremium` prop → shows `✦ Pro` badge, never disables input | Deployed ✅ |
-| Railway watchPatterns: prevents redeploy on doc-only commits | Deployed ✅ |
-
----
-
-## Live page verification (done via Playwright + Supabase admin session cookie)
-
-Verified on https://portfolio-one-topaz-65.vercel.app/agents/warren as premium user:
-
-| Check | Result |
-|-------|--------|
-| `✦ Pro · Unlimited` in sidebar | ✅ PASS |
-| `✦ Pro` badge in chatbar | ✅ PASS |
-| Free tier bar hidden | ✅ PASS |
-| Chatbar enabled (not locked) | ✅ PASS |
-| Paywall banner hidden after failed analysis | ✅ PASS |
-| Error message graceful when stream dies | ✅ "The analysis was interrupted before any results arrived" |
-| TypeScript: 0 errors | ✅ PASS |
-| warren-agent tests: 32/32 pass | ✅ PASS |
-
----
-
-## What is blocked
-
-### Anthropic API credits exhausted on Railway
-- Railway `ANTHROPIC_API_KEY` → zero balance account
-- Error: `HTTP 400 — Your credit balance is too low to access the Anthropic API`
-- Every `/analyze` call fails before any tool is called
-- Cannot verify: pillar cards render on live page, verdict card, 6-pillar full flow
-
-### To unblock (user action required)
-**Option A:** console.anthropic.com → Plans & Billing → add credits to the account tied to Railway's `ANTHROPIC_API_KEY`  
-**Option B:** Railway dashboard → warren-agent → Variables → update `ANTHROPIC_API_KEY` to a key with credits
-
----
-
-## What to do immediately when credits are restored
-
-Run this exact verification sequence:
-
-1. Submit `HDFCBANK` on live page → expect 6 pillar cards + verdict card (8-12 min)
-2. Submit `INFY` → same
-3. Submit `TCS` → same
-4. Submit `SBIN` → check works (large-cap banking)
-5. Submit `TATAMOTORS` → check yfinance fallback fix works
-6. Each analysis: confirm no paywall banner shown for premium user after completion
-
-### Playwright auth for automated testing
-```javascript
-// Works: set @supabase/ssr chunked cookies directly (see CURRENT_STATE session)
-// Cookie: sb-dwcdzjhelmjjhsdcyrgc-auth-token.0 + .1 (session JSON > 3180 URI-encoded chars)
-// Auth script in portfolio-agentx/ with @supabase/supabase-js + playwright
-```
-
----
-
-## Architecture (key invariants)
-- `warren-agent/prompts.py` — `build_prompt()` now says "call report_pillar(...)" at each step
-- `warren-agent/tools/reporting.py` — `report_pillar` / `report_verdict` put events on `_reporting_local.q` (thread-local)
-- `warren-agent/agent.py` — `_run_agent()` sets `_reporting_local.q = q` before calling Strands
-- `portfolio-agentx/app/api/agents/warren/stream/route.ts` — `export const runtime = "edge"` (keeps; maxDuration not available on current Vercel plan)
-
-## Deployment status
-| Service | Host | Commit | Railway deploy |
-|---------|------|--------|---------------|
-| portfolio-agentx | Vercel | f554420 | N/A |
-| warren-agent | Railway `75975300` | dc4fe47 | SUCCESS 2026-06-02T19:57 |
+## Blocked / needs user action
+- Pushing to prod, adding the Slack webhook env var, rotating the Supabase key, and confirming
+  live Razorpay keys all require the user.

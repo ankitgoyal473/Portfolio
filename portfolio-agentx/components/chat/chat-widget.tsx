@@ -18,7 +18,7 @@ interface Message {
   content: string;
 }
 
-type ViewMode = "chat" | "edit" | "success";
+type ViewMode = "chat" | "edit" | "contact" | "success";
 
 const HIDDEN_PATHS = ["/hire", "/login", "/auth"];
 
@@ -31,6 +31,9 @@ export function ChatWidget() {
   const [viewMode, setViewMode] = useState<ViewMode>("chat");
   const [chipDisabled, setChipDisabled] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [contact, setContact] = useState({ name: "", email: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
 
@@ -75,22 +78,36 @@ export function ChatWidget() {
   );
 
   const handleSubmit = async () => {
+    if (!contact.name.trim() || !contact.email.trim()) return;
+    setSubmitting(true);
+    setSubmitError(false);
     const estimate = generateEstimate(answers.problem, answers.budget);
     try {
-      await fetch("/api/submit-lead", {
+      const res = await fetch("/api/submit-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: "Chat Widget Lead",
-          email: "",
-          company: "",
-          message: `Problem: ${answers.problem}\nWorkflow: ${answers.workflow}\nTimeline: ${answers.timeline}\nBudget: ${answers.budget}\n\nEstimate: $${estimate.estimateLow.toLocaleString()}–$${estimate.estimateHigh.toLocaleString()} (${estimate.complexity} · ${estimate.delivery})\nStack: ${estimate.stack}`,
+          name: contact.name.trim(),
+          email: contact.email.trim(),
+          source: "discovery",
+          problem: answers.problem,
+          workflow: answers.workflow,
+          timeline: answers.timeline,
+          budget: answers.budget,
+          complexity: estimate.complexity,
+          delivery: estimate.delivery,
+          stack: estimate.stack,
+          estimateLow: estimate.estimateLow,
+          estimateHigh: estimate.estimateHigh,
         }),
       });
+      if (!res.ok) throw new Error("submit failed");
+      setViewMode("success");
     } catch {
-      // continue to success even if email fails
+      setSubmitError(true); // stay on contact step — never fake success
+    } finally {
+      setSubmitting(false);
     }
-    setViewMode("success");
   };
 
   const handleReset = () => {
@@ -101,6 +118,9 @@ export function ChatWidget() {
     setViewMode("chat");
     hasInitialized.current = false;
     setChipDisabled(false);
+    setContact({ name: "", email: "" });
+    setSubmitError(false);
+    setSubmitting(false);
   };
 
   // Hide on hire, login, auth pages
@@ -154,6 +174,51 @@ export function ChatWidget() {
             {/* Content */}
             {viewMode === "success" ? (
               <SuccessState onClose={handleReset} />
+            ) : viewMode === "contact" ? (
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-[#F8FAFC]">Almost there — where do I send this?</h3>
+                  <p className="text-xs text-[#71717A] mt-1">
+                    Leave your name and email and I&apos;ll follow up with a tailored scope.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={contact.name}
+                    onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))}
+                    placeholder="Your name"
+                    className="w-full bg-[#0A0A0A] border border-[#27272A] rounded-lg px-3 py-2 text-sm text-[#F8FAFC] placeholder-[#71717A] focus:outline-none focus:border-[#F97316] transition-colors"
+                  />
+                  <input
+                    type="email"
+                    value={contact.email}
+                    onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))}
+                    placeholder="you@company.com"
+                    className="w-full bg-[#0A0A0A] border border-[#27272A] rounded-lg px-3 py-2 text-sm text-[#F8FAFC] placeholder-[#71717A] focus:outline-none focus:border-[#F97316] transition-colors"
+                  />
+                </div>
+                {submitError && (
+                  <p className="text-xs text-red-400">
+                    Couldn&apos;t send — try again, or email ankitgoyal473@gmail.com directly.
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setViewMode("chat")}
+                    className="px-3 py-2 rounded-lg border border-[#27272A] text-[#71717A] text-sm hover:text-[#F8FAFC] transition-colors cursor-pointer"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={submitting || !contact.name.trim() || !contact.email.trim()}
+                    className="flex-1 px-4 py-2 rounded-lg bg-[#F97316] text-white text-sm font-medium hover:bg-[#EA6C0A] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? "Sending..." : "Send my request →"}
+                  </button>
+                </div>
+              </div>
             ) : viewMode === "edit" ? (
               <div className="flex-1 overflow-y-auto">
                 <EditMode answers={answers} onSave={(u) => { setAnswers(u); setViewMode("chat"); }} onCancel={() => setViewMode("chat")} />
@@ -176,7 +241,7 @@ export function ChatWidget() {
                   )}
 
                   {currentStage === 4 && !isTyping && (
-                    <EstimateCard answers={answers} onSubmit={handleSubmit} onEdit={() => setViewMode("edit")} />
+                    <EstimateCard answers={answers} onSubmit={() => setViewMode("contact")} onEdit={() => setViewMode("edit")} />
                   )}
 
                   {currentStage < 4 && !isTyping && messages.length > 0 && (
