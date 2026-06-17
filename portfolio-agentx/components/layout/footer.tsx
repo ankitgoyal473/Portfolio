@@ -16,8 +16,12 @@ const links = {
   Contact: [
     { label: "Hire Ankit", href: "/hire" },
     { label: "Email", href: "mailto:ankitgoyal473@gmail.com" },
+    { label: "LinkedIn", href: "https://linkedin.com/in/ankit-goyal-b453561a1" },
+    { label: "GitHub", href: "https://github.com/ankitgoyal473" },
   ],
 };
+
+const EXTERNAL_LABELS = new Set(["LinkedIn", "GitHub"]);
 
 export default function Footer() {
   return (
@@ -46,6 +50,9 @@ export default function Footer() {
                   <li key={label}>
                     <Link
                       href={href}
+                      {...(EXTERNAL_LABELS.has(label)
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
                       className="text-sm text-[#71717A] hover:text-[#F8FAFC] transition-colors duration-150"
                     >
                       {label}

@@ -1,7 +1,7 @@
 # AgentX Web — Current State
 _Last updated: 2026-06-17_
 
-## Status: LIVE — one-time ZIP store. QA + lead-funnel hardening done (unpushed).
+## Status: LIVE — one-time ZIP store. Phase 1 QA + lead-funnel hardening DEPLOYED (2026-06-17, commit 2498456).
 
 The live site (https://portfolio-one-topaz-65.vercel.app) is a **"Claude Code Solutions" store**:
 customers buy downloadable Claude Code workspace ZIPs at ₹999 each. The old SaaS subscription
